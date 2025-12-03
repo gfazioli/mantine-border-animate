@@ -5,7 +5,7 @@ import { BorderAnimate, BorderAnimateProps } from './BorderAnimate';
 export default {
   title: 'BorderAnimate Props',
   args: {
-    effect: 'beam',
+    variant: 'beam',
     duration: 5,
     borderWidth: 1,
     radius: 12,
@@ -15,13 +15,16 @@ export default {
     colorTo: '#9c40ff',
     reverse: false,
     delay: 0,
-    showMask: true,
+    withMask: true,
     opacity: 1,
     zIndex: 1,
     anchor: 0,
+    show: true,
+    animate: true,
+    angle: 0,
   },
   argTypes: {
-    effect: {
+    variant: {
       control: 'select',
       options: ['beam', 'glow', 'gradient', 'pulse'],
     },
@@ -34,10 +37,13 @@ export default {
     colorTo: { control: 'color' },
     reverse: { control: 'boolean' },
     delay: { control: { type: 'number', min: 0, max: 10, step: 0.5 } },
-    showMask: { control: 'boolean' },
+    withMask: { control: 'boolean' },
     opacity: { control: { type: 'number', min: 0, max: 1, step: 0.1 } },
     zIndex: { control: { type: 'number', min: -10, max: 100, step: 1 } },
     anchor: { control: { type: 'number', min: -50, max: 100, step: 1 } },
+    show: { control: 'boolean' },
+    animate: { control: 'boolean' },
+    angle: { control: { type: 'number', min: 0, max: 360, step: 1 } },
   },
 };
 
@@ -49,7 +55,7 @@ export function Usage(props: BorderAnimateProps) {
         h="100%"
         style={{
           backgroundColor: 'var(--mantine-color-default)',
-          borderRadius: Math.max(0, (props.radius ?? 12) - (props.borderWidth ?? 2)),
+          borderRadius: Math.max(0, Number(props.radius ?? 12) - Number(props.borderWidth ?? 2)),
         }}
       />
     </BorderAnimate>
@@ -88,27 +94,32 @@ export function Multiple(props: BorderAnimateProps) {
           w={400}
           h={250}
           duration={23}
-          showMask={false}
+          withMask={false}
           size={300}
           opacity={0.2}
           blur={14}
           anchor={50}
           zIndex={-1}
         >
-          <Box
-            w="100%"
-            h="100%"
-            p="md"
-            style={{
-              backgroundColor: 'var(--mantine-color-default)',
-              borderRadius: Math.max(0, (props.radius ?? 12) - (props.borderWidth ?? 2)),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Animated Border Effect
-          </Box>
+          <BorderAnimate w={400} h={250} variant="glow" blur={4}>
+            <Box
+              w="100%"
+              h="100%"
+              p="md"
+              style={{
+                backgroundColor: 'var(--mantine-color-default)',
+                borderRadius: Math.max(
+                  0,
+                  Number(props.radius ?? 12) - Number(props.borderWidth ?? 2)
+                ),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Animated Border Effect
+            </Box>
+          </BorderAnimate>
         </BorderAnimate>
       </BorderAnimate>
     </BorderAnimate>
@@ -124,7 +135,7 @@ export function WithContent(props: BorderAnimateProps) {
         p="md"
         style={{
           backgroundColor: 'var(--mantine-color-default)',
-          borderRadius: Math.max(0, (props.radius ?? 12) - (props.borderWidth ?? 2)),
+          borderRadius: Math.max(0, Number(props.radius ?? 12) - Number(props.borderWidth ?? 2)),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -136,22 +147,22 @@ export function WithContent(props: BorderAnimateProps) {
   );
 }
 
-export function AllEffects() {
-  const effects = ['beam', 'glow', 'gradient', 'pulse'] as const;
+export function AllVariants() {
+  const variants = ['beam', 'glow', 'gradient', 'pulse'] as const;
 
   return (
     <Group>
-      {effects.map((effect) => (
-        <Stack key={effect} align="center" gap="xs">
+      {variants.map((variant) => (
+        <Stack key={variant} align="center" gap="xs">
           <BorderAnimate
-            effect={effect}
+            variant={variant}
             w={200}
             h={150}
             p={10}
             colorFrom="#00ff88"
             colorTo="#00d4ff"
-            duration={effect === 'beam' ? 5 : effect === 'gradient' ? 3 : 2}
-            blur={effect === 'glow' ? 4 : 0}
+            duration={variant === 'beam' ? 5 : variant === 'gradient' ? 3 : 2}
+            blur={variant === 'glow' ? 4 : 0}
           >
             <Box
               w="100%"
@@ -165,7 +176,7 @@ export function AllEffects() {
               }}
             >
               <Text c="white" size="sm" tt="capitalize">
-                {effect}
+                {variant}
               </Text>
             </Box>
           </BorderAnimate>
@@ -175,13 +186,13 @@ export function AllEffects() {
   );
 }
 
-export function BeamEffect(props: BorderAnimateProps) {
+export function BeamVariant(props: BorderAnimateProps) {
   return (
     <Group>
       <BorderAnimate
         {...props}
         p={1}
-        effect="beam"
+        variant="beam"
         w={200}
         h={150}
         colorFrom="#ff6b6b"
@@ -197,7 +208,7 @@ export function BeamEffect(props: BorderAnimateProps) {
       <BorderAnimate
         {...props}
         p={2}
-        effect="beam"
+        variant="beam"
         w={200}
         h={150}
         colorFrom="#00ff88"
@@ -214,7 +225,7 @@ export function BeamEffect(props: BorderAnimateProps) {
       <BorderAnimate
         {...props}
         p={6}
-        effect="beam"
+        variant="beam"
         w={200}
         h={150}
         colorFrom="#a55eea"
@@ -232,18 +243,16 @@ export function BeamEffect(props: BorderAnimateProps) {
   );
 }
 
-export function GlowEffect(props: BorderAnimateProps) {
+export function GlowVariant(props: BorderAnimateProps) {
   return (
     <Group>
       <BorderAnimate
         {...props}
-        p={1}
-        effect="glow"
+        variant="glow"
         w={200}
         h={150}
         colorFrom="#ff6b6b"
         colorTo="#feca57"
-        duration={2}
         blur={4}
       >
         <Box
@@ -255,7 +264,7 @@ export function GlowEffect(props: BorderAnimateProps) {
       <BorderAnimate
         {...props}
         p={2}
-        effect="glow"
+        variant="glow"
         w={200}
         h={150}
         colorFrom="#00ff88"
@@ -272,7 +281,7 @@ export function GlowEffect(props: BorderAnimateProps) {
       <BorderAnimate
         {...props}
         p={3}
-        effect="glow"
+        variant="glow"
         w={200}
         h={150}
         colorFrom="#a55eea"
@@ -290,12 +299,12 @@ export function GlowEffect(props: BorderAnimateProps) {
   );
 }
 
-export function GradientEffect(props: BorderAnimateProps) {
+export function GradientVariant(props: BorderAnimateProps) {
   return (
     <Group>
       <BorderAnimate
         {...props}
-        effect="gradient"
+        variant="gradient"
         p={1}
         w={200}
         h={150}
@@ -311,7 +320,7 @@ export function GradientEffect(props: BorderAnimateProps) {
       </BorderAnimate>
       <BorderAnimate
         {...props}
-        effect="gradient"
+        variant="gradient"
         p={2}
         w={200}
         h={150}
@@ -328,7 +337,7 @@ export function GradientEffect(props: BorderAnimateProps) {
       </BorderAnimate>
       <BorderAnimate
         {...props}
-        effect="gradient"
+        variant="gradient"
         p={3}
         w={200}
         h={150}
@@ -347,12 +356,12 @@ export function GradientEffect(props: BorderAnimateProps) {
   );
 }
 
-export function PulseEffect(props: BorderAnimateProps) {
+export function PulseVariant(props: BorderAnimateProps) {
   return (
     <Group>
       <BorderAnimate
         {...props}
-        effect="pulse"
+        variant="pulse"
         p={1}
         w={200}
         h={150}
@@ -368,7 +377,7 @@ export function PulseEffect(props: BorderAnimateProps) {
       </BorderAnimate>
       <BorderAnimate
         {...props}
-        effect="pulse"
+        variant="pulse"
         p={2}
         w={200}
         h={150}
@@ -384,7 +393,7 @@ export function PulseEffect(props: BorderAnimateProps) {
       </BorderAnimate>
       <BorderAnimate
         {...props}
-        effect="pulse"
+        variant="pulse"
         p={3}
         w={200}
         h={150}

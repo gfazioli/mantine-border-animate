@@ -4,22 +4,28 @@ import {
   createVarsResolver,
   Factory,
   factory,
+  getRadius,
+  getSize,
+  getThemeColor,
   StylesApiProps,
   useProps,
   useStyles,
   type BoxProps,
   type MantineColor,
+  type MantineRadius,
+  type MantineSize,
 } from '@mantine/core';
 import classes from './BorderAnimate.module.css';
 
-/** Available border animation effects */
-export type BorderAnimateEffect = 'beam' | 'glow' | 'gradient' | 'pulse';
+/** Available border animation variants */
+export type BorderAnimateVariant = 'beam' | 'glow' | 'gradient' | 'pulse';
 
 export type BorderAnimateStylesNames = 'root' | 'border';
 
 export type BorderAnimateCssVariables = {
   root: '--border-animate-radius';
   border:
+    | '--border-animate-z-index'
     | '--border-animate-duration'
     | '--border-animate-direction'
     | '--border-animate-width'
@@ -29,56 +35,57 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-delay'
     | '--border-animate-blur'
     | '--border-animate-opacity'
-    | '--border-animate-anchor';
+    | '--border-animate-anchor'
+    | '--border-animate-static-angle';
 };
 
 export interface BorderAnimateBaseProps {
   children?: React.ReactNode;
 
-  /** Animation effect type
+  /** Animation variant type
    * @default 'beam'
    */
-  effect?: BorderAnimateEffect;
+  variant?: BorderAnimateVariant;
 
   /** Animation duration in seconds
    * @default 5
    */
   duration?: number;
 
-  /** Border width in pixels
-   * @default 2
+  /** Border width
+   * @default 'xs'
    */
-  borderWidth?: number;
+  borderWidth?: MantineSize | (string & {}) | number;
 
   /** Starting color of the gradient
-   * @default '#ffaa40'
+   * @default 'yellow.6'
    */
   colorFrom?: MantineColor;
 
   /** Ending color of the gradient
-   * @default '#9c40ff'
+   * @default 'violet.6'
    */
   colorTo?: MantineColor;
 
-  /** Size of the beam/glow in pixels (only for beam effect)
-   * @default 200
+  /** Size of the beam/glow (only for beam effect)
+   * @default 'sm'
    */
-  size?: number;
+  size?: MantineSize | (string & {}) | number;
 
-  /** Border radius in pixels
-   * @default 12
+  /** Border radius
+   * @default 'md'
    */
-  radius?: number;
+  radius?: MantineRadius | (string & {}) | number;
 
   /** Reverse the animation direction
    * @default false
    */
   reverse?: boolean;
 
-  /** Blur amount for the effect in pixels
-   * @default 0
+  /** Blur amount for the effect
+   * @default 'xs'
    */
-  blur?: number;
+  blur?: MantineSize | (string & {}) | number;
 
   /** Animation delay in seconds
    * @default 0
@@ -88,7 +95,7 @@ export interface BorderAnimateBaseProps {
   /** Show/hide the mask that clips the effect to the border
    * @default true
    */
-  showMask?: boolean;
+  withMask?: boolean;
 
   /** z-index of the border element
    * @default 1
@@ -100,39 +107,58 @@ export interface BorderAnimateBaseProps {
    * @default 0
    */
   anchor?: number;
+
+  /** Show/hide the animated border
+   * @default true
+   */
+  show?: boolean;
+
+  /** Enable/disable the animation
+   * @default true
+   */
+  animate?: boolean;
+
+  /** Initial angle/position when animate is false (0-360 degrees).
+   * For beam variant: controls the position along the border path.
+   * For gradient/glow/pulse variants: controls the gradient angle.
+   * @default 0
+   */
+  angle?: number;
 }
 
 export interface BorderAnimateProps
-  extends BoxProps,
-    BorderAnimateBaseProps,
-    StylesApiProps<BorderAnimateFactory> {}
+  extends BoxProps, BorderAnimateBaseProps, Omit<StylesApiProps<BorderAnimateFactory>, 'variant'> {}
 
 export type BorderAnimateFactory = Factory<{
   props: BorderAnimateProps;
   ref: HTMLDivElement;
   stylesNames: BorderAnimateStylesNames;
+  variant: BorderAnimateVariant;
   vars: BorderAnimateCssVariables;
 }>;
 
 export const defaultProps: Partial<BorderAnimateProps> = {
-  effect: 'beam',
+  variant: 'beam',
   duration: 5,
-  borderWidth: 1,
-  radius: 12,
-  size: 200,
-  blur: 0,
-  colorFrom: '#ffaa40',
-  colorTo: '#9c40ff',
+  borderWidth: 'xs',
+  radius: 'md',
+  size: 'sm',
+  blur: 'xs',
+  colorFrom: 'yellow.6',
+  colorTo: 'violet.6',
   reverse: false,
   delay: 0,
-  showMask: true,
+  withMask: true,
   zIndex: 1,
   anchor: 0,
+  show: true,
+  animate: true,
+  angle: 0,
 };
 
 const varsResolver = createVarsResolver<BorderAnimateFactory>(
   (
-    _,
+    theme,
     {
       duration,
       reverse,
@@ -146,24 +172,26 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       zIndex,
       radius,
       anchor,
+      angle,
     }
   ) => {
     return {
       root: {
-        '--border-animate-radius': `${radius}`,
+        '--border-animate-radius': radius === undefined ? undefined : getRadius(radius),
       },
       border: {
         '--border-animate-z-index': `${zIndex}`,
         '--border-animate-duration': `${duration}s`,
         '--border-animate-direction': reverse ? 'reverse' : 'normal',
-        '--border-animate-width': `${borderWidth}`,
-        '--border-animate-size': `${size}`,
-        '--border-animate-color-from': colorFrom ?? '#ffaa40',
-        '--border-animate-color-to': colorTo ?? '#9c40ff',
+        '--border-animate-width': getSize(borderWidth, 'border-animate-width'),
+        '--border-animate-size': getSize(size, 'border-animate-size'),
+        '--border-animate-color-from': getThemeColor(colorFrom, theme),
+        '--border-animate-color-to': getThemeColor(colorTo, theme),
         '--border-animate-delay': `-${delay}s`,
-        '--border-animate-blur': `${blur ?? 0}px`,
+        '--border-animate-blur': getSize(blur, 'border-animate-blur'),
         '--border-animate-opacity': `${opacity ?? 1}`,
         '--border-animate-anchor': `${anchor ?? 0}`,
+        '--border-animate-static-angle': `${angle ?? 0}`,
       },
     };
   }
@@ -174,7 +202,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
 
   const {
     children,
-    effect,
+    variant,
     duration,
     borderWidth,
     colorFrom,
@@ -184,10 +212,13 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
     reverse,
     blur,
     delay,
-    showMask,
+    withMask,
     opacity,
     zIndex,
     anchor,
+    show,
+    animate,
+    angle,
 
     classNames,
     style,
@@ -214,7 +245,14 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
 
   return (
     <Box ref={ref} {...getStyles('root')} {...others}>
-      <Box {...getStyles('border')} data-effect={effect} data-show-mask={showMask} />
+      {show && (
+        <Box
+          {...getStyles('border', { variant })}
+          variant={variant}
+          data-with-mask={withMask}
+          data-animate={animate}
+        />
+      )}
       {children}
     </Box>
   );

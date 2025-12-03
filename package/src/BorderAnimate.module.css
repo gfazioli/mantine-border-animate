@@ -13,32 +13,21 @@
   }
 }
 
-/* Glow effect - pulsating glow */
+/* Glow variant - pulsating glow */
 @keyframes border-animate-glow {
   0%,
   100% {
     opacity: 0;
-    filter: blur(var(--border-animate-blur, 4px));
+    filter: blur(var(--border-animate-blur));
   }
 
   50% {
-    opacity: var(--border-animate-opacity, 1);
-    filter: blur(calc(var(--border-animate-blur, 4px) * 10));
+    opacity: var(--border-animate-opacity);
+    filter: blur(calc(var(--border-animate-blur) * 5));
   }
 }
 
-/* Gradient effect - rotating gradient */
-@keyframes border-animate-gradient {
-  0% {
-    --border-animate-angle: 0deg;
-  }
-
-  100% {
-    --border-animate-angle: 360deg;
-  }
-}
-
-/* Pulse effect - scale and opacity pulse */
+/* Pulse variant - scale and opacity pulse */
 @keyframes border-animate-pulse {
   0%,
   100% {
@@ -52,6 +41,17 @@
   }
 }
 
+/* Gradient variant - rotating gradient */
+@keyframes border-animate-gradient {
+  0% {
+    --border-animate-angle: 0deg;
+  }
+
+  100% {
+    --border-animate-angle: 360deg;
+  }
+}
+
 /* ============================================
    ROOT
    ============================================ */
@@ -59,7 +59,7 @@
 .root {
   position: relative;
   display: flex;
-  border-radius: calc(var(--border-animate-radius, 4) * 1px);
+  border-radius: calc(var(--border-animate-radius));
 }
 
 /* ============================================
@@ -67,6 +67,27 @@
    ============================================ */
 
 .border {
+  --border-animate-size-xs: 64px;
+  --border-animate-size-sm: 128px;
+  --border-animate-size-md: 256px;
+  --border-animate-size-lg: 320px;
+  --border-animate-size-xl: 480px;
+
+  --border-animate-width-xs: 1px;
+  --border-animate-width-sm: 2px;
+  --border-animate-width-md: 4px;
+  --border-animate-width-lg: 6px;
+  --border-animate-width-xl: 8px;
+
+  --border-animate-blur-xs: 2px;
+  --border-animate-blur-sm: 4px;
+  --border-animate-blur-md: 8px;
+  --border-animate-blur-lg: 16px;
+  --border-animate-blur-xl: 32px;
+
+  --border-animate-size: var(--border-animate-size-md);
+  --border-animate-width: var(--border-animate-width-xs);
+
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -75,47 +96,76 @@
   opacity: var(--border-animate-opacity, 1);
 
   /* Transparent border to define the width */
-  border: calc(var(--border-animate-width, 2) * 1px) solid transparent;
+  border: calc(var(--border-animate-width)) solid transparent;
+
+  &[data-variant='glow'] {
+    z-index: -1;
+  }
 }
 
 /* Mask: shows only the border area (enabled by default) */
-.border[data-show-mask='true'] {
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
+.border[data-with-mask='true'] {
+  &:not([data-variant='glow']) {
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+  }
+}
+
+/* Static position for beam variant when animate is false */
+.border[data-animate='false'][data-variant='beam']::after {
+  offset-distance: calc(var(--border-animate-static-angle) / 360 * 100%);
+}
+
+/* Static angle for gradient variant when animate is false */
+.border[data-animate='false'][data-variant='gradient']::after {
+  --border-animate-angle: calc(var(--border-animate-static-angle) * 1deg);
 }
 
 /* ============================================
-   BEAM EFFECT
+   ANIMATION CONTROL
    ============================================ */
 
-.border[data-effect='beam']::after {
+/* Disable all animations when data-animate is false */
+.border[data-animate='false'] {
+  animation: none !important;
+}
+
+.border[data-animate='false']::after {
+  animation: none !important;
+}
+
+/* ============================================
+   BEAM VARIANT
+   ============================================ */
+
+.border[data-variant='beam']::after {
   content: '';
   position: absolute;
   aspect-ratio: 1;
-  width: calc(var(--border-animate-size, 200) * 1px);
+  width: calc(var(--border-animate-size));
 
   /* Radial gradient for uniform glow */
   background: radial-gradient(
     ellipse at center,
-    var(--border-animate-color-from, #ffaa40) 0%,
-    var(--border-animate-color-to, #9c40ff) 40%,
+    var(--border-animate-color-from) 0%,
+    var(--border-animate-color-to) 40%,
     transparent 70%
   );
 
   /* Blur effect */
-  filter: blur(var(--border-animate-blur, 0px));
+  filter: blur(var(--border-animate-blur));
 
   /* Move along the border path - anchor controls inward offset */
   offset-path: rect(
     calc(var(--border-animate-anchor, 0) * 1px) calc(100% - var(--border-animate-anchor, 0) * 1px)
       calc(100% - var(--border-animate-anchor, 0) * 1px) calc(var(--border-animate-anchor, 0) * 1px)
-      round calc(var(--border-animate-radius, 4) * 1px)
+      round calc(var(--border-animate-radius))
   );
   offset-anchor: 50% 50%;
 
@@ -125,26 +175,7 @@
 }
 
 /* ============================================
-   GLOW EFFECT
-   ============================================ */
-
-.border[data-effect='glow'] {
-  /* Full border glow */
-  background: linear-gradient(
-    90deg,
-    var(--border-animate-color-from, #ffaa40),
-    var(--border-animate-color-to, #9c40ff),
-    var(--border-animate-color-from, #ffaa40)
-  );
-  background-size: 200% 100%;
-
-  animation: border-animate-glow var(--border-animate-duration, 2s) ease-in-out infinite
-    var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
-}
-
-/* ============================================
-   GRADIENT EFFECT
+   GRADIENT VARIANT
    ============================================ */
 
 @property --border-animate-angle {
@@ -153,15 +184,18 @@
   inherits: false;
 }
 
-.border[data-effect='gradient'] {
+.border[data-variant='gradient']::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
   background: conic-gradient(
     from var(--border-animate-angle, 0deg),
-    var(--border-animate-color-from, #ffaa40),
-    var(--border-animate-color-to, #9c40ff),
-    var(--border-animate-color-from, #ffaa40)
+    var(--border-animate-color-from),
+    var(--border-animate-color-to),
+    var(--border-animate-color-from)
   );
-
-  filter: blur(var(--border-animate-blur, 0px));
+  filter: blur(var(--border-animate-blur));
 
   animation: border-animate-gradient var(--border-animate-duration, 3s) linear infinite
     var(--border-animate-direction, normal);
@@ -169,20 +203,68 @@
 }
 
 /* ============================================
-   PULSE EFFECT
+   GLOW VARIANT
    ============================================ */
 
-.border[data-effect='pulse'] {
+.border[data-variant='glow']::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  /* Full border glow */
   background: linear-gradient(
     90deg,
-    var(--border-animate-color-from, #ffaa40),
-    var(--border-animate-color-to, #9c40ff)
+    var(--border-animate-color-from),
+    var(--border-animate-color-to),
+    var(--border-animate-color-from)
   );
 
-  filter: blur(var(--border-animate-blur, 0px));
+  filter: blur(var(--border-animate-blur));
+
+  animation: border-animate-glow var(--border-animate-duration, 2s) ease-in-out infinite
+    var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-delay, 0s);
+}
+
+/* ============================================
+   PULSE VARIANT
+   ============================================ */
+
+.border[data-variant='pulse']::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--border-animate-color-from),
+    var(--border-animate-color-to)
+  );
+
+  filter: blur(var(--border-animate-blur));
   transform-origin: center;
 
   animation: border-animate-pulse var(--border-animate-duration, 2s) ease-in-out infinite
     var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
+}
+
+/* Static angle for glow variant when animate is false */
+.border[data-animate='false'][data-variant='glow']::after {
+  background: linear-gradient(
+    calc(var(--border-animate-static-angle) * 1deg),
+    var(--border-animate-color-from),
+    var(--border-animate-color-to),
+    var(--border-animate-color-from)
+  );
+  opacity: var(--border-animate-opacity);
+}
+
+/* Static angle for pulse variant when animate is false */
+.border[data-animate='false'][data-variant='pulse']::after {
+  background: linear-gradient(
+    calc(var(--border-animate-static-angle) * 1deg),
+    var(--border-animate-color-from),
+    var(--border-animate-color-to)
+  );
 }

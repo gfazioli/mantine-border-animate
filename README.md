@@ -56,10 +56,18 @@ import '@gfazioli/mantine-border-animate/styles.css';
 ## Usage
 
 ```tsx
+import { Stack, Title } from '@mantine/core';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 
 function Demo() {
-  return <BorderAnimate data={{ key: "value" }} />;
+  return (
+    <BorderAnimate w={300} p={32}>
+      <Stack>
+        <Title>This is a title</Title>
+        <p>This is a paragraph inside the BorderAnimate component.</p>
+      </Stack>
+    </BorderAnimate>
+  );
 }
 ```
 

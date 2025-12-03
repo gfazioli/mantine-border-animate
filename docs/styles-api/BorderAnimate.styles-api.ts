@@ -12,6 +12,7 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-radius': 'Border radius for the animated border',
     },
     border: {
+      '--border-animate-z-index': 'Z-index of the animated border',
       '--border-animate-duration': 'Animation duration in seconds',
       '--border-animate-direction': 'Animation direction, normal or reverse',
       '--border-animate-width': 'Width of the animated border',
@@ -22,6 +23,7 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-blur': 'Blur amount applied to the animated border',
       '--border-animate-opacity': 'Opacity of the animated border',
       '--border-animate-anchor': 'Anchor point for the animated border effect',
+      '--border-animate-static-angle': 'Static angle for the animated border effect',
     },
   },
 

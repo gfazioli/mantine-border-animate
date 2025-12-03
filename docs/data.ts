@@ -27,7 +27,7 @@ export interface PackageData {
 export const PACKAGE_DATA: PackageData = {
   packageName: '@gfazioli/mantine-border-animate',
   packageDescription:
-    'A Mantine extension component that renders interactive JSON trees with syntax highlighting, collapsible nodes, copy-to-clipboard, and configurable expansion depth.',
+    'Mantine component offering four border animation variants (beam, glow, gradient, pulse) with customizable colors and full animation control, perfect for creating dynamic, visually engaging UI elements.',
   mdxFileUrl: 'https://github.com/gfazioli/mantine-border-animate/blob/master/docs/docs.mdx',
   repositoryUrl: 'https://github.com/gfazioli/mantine-border-animate',
   licenseUrl: 'https://github.com/gfazioli/mantine-border-animate/blob/master/LICENSE',

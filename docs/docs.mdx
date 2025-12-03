@@ -19,56 +19,134 @@ import '@gfazioli/mantine-border-animate/styles.layer.css';
 
 ## Usage
 
-The `BorderAnimate` is interactive JSON tree viewer component built with [Mantine's Tree component](https://mantine.dev/core/tree/). Features collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations. Perfect for debugging API responses, exploring complex data structures, and developer tools.
+The `BorderAnimate` component wraps any element to add stunning animated border effects. It's perfect for creating eye-catching UI elements like cards, buttons, input fields, alerts, and more.
+
+### Key Features
+
+- **Multiple animation variants** - Choose from beam, gradient, glow, or pulse effects
+- **Fully customizable** - Control colors, duration, size, blur, and more
+- **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
+- **Performance optimized** - Uses CSS animations for smooth 60fps effects
+- **Controllable** - Toggle animation on/off, show/hide the border, set static angles
+
+Simply wrap your content with `BorderAnimate` and customize it using props:
 
 <Demo data={demos.configurator} />
 
-## Syntax Highlighting values
+## Controlled
 
-Below is an example of syntax highlighting for different JSON value types: strings, numbers, booleans, nulls, objects, and arrays. Each type is displayed in a distinct color for better readability.
+You can control the border animation using the `show` prop.
 
-<Demo data={demos.values} />
+<Demo data={demos.controlled} />
 
-## Indent Guides
+### Animated
 
-Display vertical lines to visualize nesting levels, similar to Visual Studio Code. The guides use 5 distinct colors that cycle for deeper nesting levels.
+You can also control the border animation using the `animate` prop. If `animate` is set to `true`, the border will animate continuously. If `animate` is set to `false`, the border will be static. Anyway, you can control the angle of the border animation using the `angle` prop.
 
-<Demo data={demos.indentGuides} />
+<Demo data={demos.animated} />
 
-## Sticky Header
+## Variant
 
-You may enable sticky headers for better context when scrolling through large JSON structures. When enabled, the header of each expanded node remains visible at the top of the scrollable area as you navigate through its child elements. You can also set an offset to accommodate fixed headers in your layout.
+The `BorderAnimate` component supports four different animation variants, each creating a unique visual effect. Use the `variant` prop to switch between them.
 
-<Demo data={demos.sticky} />
+<Demo data={demos.variant} />
 
-## Icons
+### Beam
 
-You can customize the expand/collapse icons used in the `BorderAnimate` component by providing your own icons via the `expandControlIcon` and `collapseControlIcon` props. The default icons are simple chevrons, but you can replace them with any React component or icon of your choice.
+The **beam** variant (default) creates a glowing light that travels along the border path. The beam moves continuously around the element's perimeter, following the border radius. This is ideal for highlighting interactive elements or creating a futuristic UI feel.
 
-> Note: If only the `expandControlIcon` is provided, the component will automatically use it for both expand and collapse states, by rotating (90deg) it accordingly. If only the `collapseControlIcon` is provided, the default expand icon will be used. Of course, you can provide both icons for complete customization.
+Key props for beam variant:
 
-<Demo data={demos.customIcons} />
+- `size` - Controls the size of the beam (the glowing spot)
+- `anchor` - Adjusts how far inward the beam follows the border path
+- `duration` - Controls how fast the beam travels around the border
 
-## Function Display
+### Gradient
 
-By default, functions in JSON data are displayed as strings (e.g., `[Function: name]`). You can control how functions are handled using the `displayFunctions` prop:
+The **gradient** variant creates a rotating conic gradient effect around the border. The gradient smoothly transitions between `colorFrom` and `colorTo` while continuously rotating. This creates an elegant, hypnotic effect suitable for loading states or premium UI elements.
 
-- `as-string` (default): Display functions as formatted strings showing their name
-- `hide`: Completely omit functions from the tree
-- `as-object`: Treat functions as objects and display their properties
+Key props for gradient variant:
 
-<Demo data={demos.functions} />
+- `duration` - Controls the rotation speed
+- `blur` - Adds a soft glow effect to the gradient
 
-## Style the component with classNames
+### Glow
 
-You can style the `BorderAnimate` component using the `classNames` prop to target specific inner elements. This allows for granular customization of the component's appearance.
+The **glow** variant produces a pulsating glow effect that fades in and out. The entire border area illuminates with a soft, diffused light that pulses rhythmically. This is perfect for attention-grabbing elements or notification indicators.
 
-<Demo data={demos.styled} />
+Key props for glow variant:
 
-## Styles API
+- `duration` - Controls the pulse speed
+- `blur` - Adjusts the softness of the glow
+- `opacity` - Controls the maximum opacity of the glow
 
-`BorderAnimate` supports [Styles API](https://mantine.dev/styles/styles-api/), you can add styles to any inner element of the component with `classNames` prop. Follow [Styles API](https://mantine.dev/styles/styles-api/) documentation to learn more.
+### Pulse
 
-You can customize the appearance of the `BorderAnimate` component using the Styles API. This allows you to modify styles for various parts of the component, such as keys, values, brackets, and more.
+The **pulse** variant creates a subtle scaling animation combined with opacity changes. The border gently expands and fades, creating a breathing effect. This variant is excellent for subtle emphasis without being too distracting.
 
-<Demo data={demos.stylesApi} />
+Key props for pulse variant:
+
+- `duration` - Controls the pulse rhythm
+- `blur` - Softens the border effect
+
+## Mask and Background Effects
+
+The `withMask` and `zIndex` props allow you to create advanced visual effects, including background glows and layered animations.
+
+### withMask Prop
+
+By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the glow extend beyond the border, creating a softer, more diffused effect.
+
+<Demo data={demos.withMask} />
+
+### zIndex Prop
+
+The `zIndex` prop controls the stacking order of the border effect. By default, the border appears in front of the content (`zIndex={1}`). Set `zIndex={-1}` combined with `withMask={false}` to create beautiful background glow effects that appear behind your content.
+
+<Demo data={demos.withZIndex} />
+
+## Use Cases
+
+BorderAnimate can be used with virtually any Mantine component. Here are some common use cases to inspire your implementations.
+
+### Buttons
+
+Add animated borders to buttons to make them stand out. Perfect for call-to-action buttons, submit buttons, or any interactive element that needs extra attention.
+
+<Demo data={demos.withButton} />
+
+### Input Fields
+
+Highlight input fields with animated borders to guide users through forms or indicate active/focused states.
+
+<Demo data={demos.withInput} />
+
+### Alerts and Notifications
+
+Make alerts more noticeable with animated borders. Use different variants and colors to convey urgency levels.
+
+<Demo data={demos.withAlert} />
+
+### Cards
+
+Create premium-looking cards with animated borders. Great for featured content, pricing cards, or special offers.
+
+<Demo data={demos.withCard} />
+
+### Chips and Badges
+
+Even small elements like chips can benefit from animated borders to indicate selection or special status.
+
+<Demo data={demos.withChip} />
+
+### Accordion
+
+Wrap accordion components with animated borders to create visually engaging expandable sections. The border effect adds a modern touch to FAQ sections or collapsible content areas.
+
+<Demo data={demos.withAccordion} />
+
+### Multiple Borders
+
+Nest multiple `BorderAnimate` components to create complex, layered effects. Combine different variants, speeds, directions, and colors to achieve unique visual compositions. This technique is perfect for hero sections or premium UI elements that need extra visual impact.
+
+<Demo data={demos.withMultiple} />

@@ -1,1 +1,13 @@
+export { animated } from './BorderAnimate.demo.animated';
 export { configurator } from './BorderAnimate.demo.configurator';
+export { controlled } from './BorderAnimate.demo.controlled';
+export { variant } from './BorderAnimate.demo.variant';
+export { withAccordion } from './BorderAnimate.demo.withAccordion';
+export { withAlert } from './BorderAnimate.demo.withAlert';
+export { withButton } from './BorderAnimate.demo.withButton';
+export { withCard } from './BorderAnimate.demo.withCard';
+export { withChip } from './BorderAnimate.demo.withChip';
+export { withInput } from './BorderAnimate.demo.withInput';
+export { withMask } from './BorderAnimate.demo.withMask';
+export { withMultiple } from './BorderAnimate.demo.withMultiple';
+export { withZIndex } from './BorderAnimate.demo.withZIndex';

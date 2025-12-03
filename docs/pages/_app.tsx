@@ -1,12 +1,15 @@
-import '@gfazioli/mantine-border-animate/styles.css';
-import '@mantine/code-highlight/styles.css';
 import '@mantine/core/styles.css';
+// Importing styles
+import '@mantine/code-highlight/styles.css';
 import '@mantinex/demo/styles.css';
 import '@mantinex/mantine-header/styles.css';
 import '@mantinex/mantine-logo/styles.css';
+// Component styles
+import '@gfazioli/mantine-border-animate/styles.css';
 
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+// rest
 import { CodeHighlightAdapterProvider, createShikiAdapter } from '@mantine/code-highlight';
 import { MantineProvider } from '@mantine/core';
 import favicon from '../assets/favicon.svg';
