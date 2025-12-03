@@ -1,5 +1,5 @@
-import { JsonTreeStylesApi } from './JsonTree.styles-api';
+import { BorderAnimateStylesApi } from './BorderAnimate.styles-api';
 
 export const STYLES_API_DATA = {
-  JsonTree: JsonTreeStylesApi,
+  BorderAnimate: BorderAnimateStylesApi,
 };

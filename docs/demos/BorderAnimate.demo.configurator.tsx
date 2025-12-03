@@ -1,17 +1,22 @@
-import { JsonTree, JsonTreeProps } from '@gfazioli/mantine-json-tree';
+import { BorderAnimate, BorderAnimateProps } from '@gfazioli/mantine-border-animate';
+import { Box } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
-import { data, dataCode } from './data';
+import { dataCode } from './data';
 
-function Demo(props: JsonTreeProps) {
-  return <JsonTree {...props} data={data} maxDepth={1} defaultExpanded />;
+function Demo(props: BorderAnimateProps) {
+  return (
+    <BorderAnimate {...props}>
+      <Box>Animate Border</Box>
+    </BorderAnimate>
+  );
 }
 
 const code = `
-import { JsonTree } from "@gfazioli/mantine-json-tree";
+import { BorderAnimate } from "@gfazioli/mantine-border-animate";
 import { data } from './data';
 
 function Demo() {
-  return <JsonTree{{props}} data={data} maxDepth={1} defaultExpanded/>;
+  return <BorderAnimate{{props}} data={data} maxDepth={1} defaultExpanded/>;
 }
 `;
 

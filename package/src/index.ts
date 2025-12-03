@@ -1,9 +1,8 @@
-export { JsonTree } from './JsonTree';
+export { BorderAnimate } from './BorderAnimate';
 export type {
-  JsonTreeBaseProps,
-  JsonTreeCssVariables,
-  JsonTreeFactory,
-  JsonTreeFunctionDisplay,
-  JsonTreeProps,
-  JsonTreeStylesNames,
-} from './JsonTree';
+  BorderAnimateBaseProps,
+  BorderAnimateCssVariables,
+  BorderAnimateFactory,
+  BorderAnimateProps,
+  BorderAnimateStylesNames,
+} from './BorderAnimate';

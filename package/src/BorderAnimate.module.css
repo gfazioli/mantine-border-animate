@@ -1,0 +1,188 @@
+/* ============================================
+   KEYFRAMES
+   ============================================ */
+
+/* Beam effect - moves along the border */
+@keyframes border-animate-beam {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+/* Glow effect - pulsating glow */
+@keyframes border-animate-glow {
+  0%,
+  100% {
+    opacity: 0;
+    filter: blur(var(--border-animate-blur, 4px));
+  }
+
+  50% {
+    opacity: var(--border-animate-opacity, 1);
+    filter: blur(calc(var(--border-animate-blur, 4px) * 10));
+  }
+}
+
+/* Gradient effect - rotating gradient */
+@keyframes border-animate-gradient {
+  0% {
+    --border-animate-angle: 0deg;
+  }
+
+  100% {
+    --border-animate-angle: 360deg;
+  }
+}
+
+/* Pulse effect - scale and opacity pulse */
+@keyframes border-animate-pulse {
+  0%,
+  100% {
+    opacity: var(--border-animate-opacity, 1);
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+}
+
+/* ============================================
+   ROOT
+   ============================================ */
+
+.root {
+  position: relative;
+  display: flex;
+  border-radius: calc(var(--border-animate-radius, 4) * 1px);
+}
+
+/* ============================================
+   BORDER BASE
+   ============================================ */
+
+.border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: var(--border-animate-z-index, 1);
+  opacity: var(--border-animate-opacity, 1);
+
+  /* Transparent border to define the width */
+  border: calc(var(--border-animate-width, 2) * 1px) solid transparent;
+}
+
+/* Mask: shows only the border area (enabled by default) */
+.border[data-show-mask='true'] {
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
+
+/* ============================================
+   BEAM EFFECT
+   ============================================ */
+
+.border[data-effect='beam']::after {
+  content: '';
+  position: absolute;
+  aspect-ratio: 1;
+  width: calc(var(--border-animate-size, 200) * 1px);
+
+  /* Radial gradient for uniform glow */
+  background: radial-gradient(
+    ellipse at center,
+    var(--border-animate-color-from, #ffaa40) 0%,
+    var(--border-animate-color-to, #9c40ff) 40%,
+    transparent 70%
+  );
+
+  /* Blur effect */
+  filter: blur(var(--border-animate-blur, 0px));
+
+  /* Move along the border path - anchor controls inward offset */
+  offset-path: rect(
+    calc(var(--border-animate-anchor, 0) * 1px) calc(100% - var(--border-animate-anchor, 0) * 1px)
+      calc(100% - var(--border-animate-anchor, 0) * 1px) calc(var(--border-animate-anchor, 0) * 1px)
+      round calc(var(--border-animate-radius, 4) * 1px)
+  );
+  offset-anchor: 50% 50%;
+
+  animation: border-animate-beam var(--border-animate-duration, 5s) linear infinite
+    var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-delay, 0s);
+}
+
+/* ============================================
+   GLOW EFFECT
+   ============================================ */
+
+.border[data-effect='glow'] {
+  /* Full border glow */
+  background: linear-gradient(
+    90deg,
+    var(--border-animate-color-from, #ffaa40),
+    var(--border-animate-color-to, #9c40ff),
+    var(--border-animate-color-from, #ffaa40)
+  );
+  background-size: 200% 100%;
+
+  animation: border-animate-glow var(--border-animate-duration, 2s) ease-in-out infinite
+    var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-delay, 0s);
+}
+
+/* ============================================
+   GRADIENT EFFECT
+   ============================================ */
+
+@property --border-animate-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border[data-effect='gradient'] {
+  background: conic-gradient(
+    from var(--border-animate-angle, 0deg),
+    var(--border-animate-color-from, #ffaa40),
+    var(--border-animate-color-to, #9c40ff),
+    var(--border-animate-color-from, #ffaa40)
+  );
+
+  filter: blur(var(--border-animate-blur, 0px));
+
+  animation: border-animate-gradient var(--border-animate-duration, 3s) linear infinite
+    var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-delay, 0s);
+}
+
+/* ============================================
+   PULSE EFFECT
+   ============================================ */
+
+.border[data-effect='pulse'] {
+  background: linear-gradient(
+    90deg,
+    var(--border-animate-color-from, #ffaa40),
+    var(--border-animate-color-to, #9c40ff)
+  );
+
+  filter: blur(var(--border-animate-blur, 0px));
+  transform-origin: center;
+
+  animation: border-animate-pulse var(--border-animate-duration, 2s) ease-in-out infinite
+    var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-delay, 0s);
+}

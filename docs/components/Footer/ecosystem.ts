@@ -12,9 +12,9 @@ export const ecosystem = [
     newWindow: true,
   },
   {
-    key: 'mantine-json-tree',
+    key: 'mantine-border-animate',
     title: 'Mantine Json Tree',
-    href: 'https://gfazioli.github.io/mantine-json-tree',
+    href: 'https://gfazioli.github.io/mantine-border-animate',
     newWindow: true,
   },
   {
