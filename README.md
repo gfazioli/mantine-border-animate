@@ -24,7 +24,11 @@ This component is created on top of the [Mantine](https://mantine.dev/) library.
 [![Mantine UI Library](https://img.shields.io/badge/-MANTINE_UI_LIBRARY-blue?style=for-the-badge&labelColor=black&logo=mantine
 )](https://mantine.dev/)
 
-An interactive JSON tree viewer component built with Mantine's Tree component. Features collapsible nodes, syntax highlighting with type-specific colors, copy-to-clipboard functionality, item count badges, configurable expansion depth, and smooth animations. Perfect for debugging API responses, exploring complex data structures, and developer tools.
+BorderAnimate is a React component for Mantine that wraps any element with stunning animated border effects. Choose from four distinct animation variants: a traveling beam of light, a rotating gradient, a pulsating glow, or a subtle breathing pulse effect.
+
+Fully customizable with props for colors, duration, blur, size, and border radius. Control animations programmatically—toggle them on/off, show/hide borders, or set a static angle when paused. Built with CSS animations for optimal 60fps performance.
+
+Ideal for highlighting interactive elements, creating loading states, premium UI accents, or attention-grabbing notifications in modern React applications.
 
 [![Mantine Extensions](https://img.shields.io/badge/-Watch_the_Video-blue?style=for-the-badge&labelColor=black&logo=youtube
 )](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4)
