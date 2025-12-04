@@ -1,5 +1,12 @@
 export const ecosystem = [
   {
+    key: 'mantine-border-animate',
+    title: 'Mantine Json Tree',
+    href: 'https://gfazioli.github.io/mantine-border-animate',
+    newWindow: true,
+    new: true,
+  },
+  {
     key: 'mantine-clock',
     title: 'Mantine Clock',
     href: 'https://gfazioli.github.io/mantine-clock',
@@ -12,9 +19,9 @@ export const ecosystem = [
     newWindow: true,
   },
   {
-    key: 'mantine-border-animate',
+    key: 'mantine-json-tree',
     title: 'Mantine Json Tree',
-    href: 'https://gfazioli.github.io/mantine-border-animate',
+    href: 'https://gfazioli.github.io/mantine-json-tree',
     newWindow: true,
   },
   {
@@ -82,7 +89,6 @@ export const ecosystem = [
     title: 'Mantine Window',
     href: 'https://gfazioli.github.io/mantine-window',
     newWindow: true,
-    new: true,
   },
   {
     key: 'more',
