@@ -9,6 +9,7 @@ export { withAnchorBackground } from './BorderAnimate.demo.withAnchorBackground'
 export { withButton } from './BorderAnimate.demo.withButton';
 export { withCard } from './BorderAnimate.demo.withCard';
 export { withChip } from './BorderAnimate.demo.withChip';
+export { withCircle } from './BorderAnimate.demo.withCircle';
 export { withInput } from './BorderAnimate.demo.withInput';
 export { withMask } from './BorderAnimate.demo.withMask';
 export { withMultiple } from './BorderAnimate.demo.withMultiple';
