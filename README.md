@@ -1,6 +1,6 @@
 # Mantine Border Animate Component
 
-<img width="2752" height="1536" alt="Gemini_Generated_Image_9law0i9law0i9law" src="https://github.com/user-attachments/assets/b174d04c-c9cf-462a-b074-a23f4a521c9a" />
+<img width="2752" height="1536" alt="mantine Border Animate" src="https://github.com/user-attachments/assets/b174d04c-c9cf-462a-b074-a23f4a521c9a" />
 
 <div align="center">
   
