@@ -111,6 +111,10 @@ The `anchor` prop controls how far inward the beam follows the border path. By d
 
 <Demo data={demos.withAnchor} />
 
+Combine `anchor` with `zIndex={-1}` and `withMask={false}` to create beautiful background glow effects. Higher anchor values move the glow closer to the center, creating different illumination patterns behind your content.
+
+<Demo data={demos.withAnchorBackground} />
+
 ## Use Cases
 
 BorderAnimate can be used with virtually any Mantine component. Here are some common use cases to inspire your implementations.
