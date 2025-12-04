@@ -45,6 +45,7 @@ export const configurator: MantineDemo = {
   type: 'configurator',
   component: Demo,
   dimmed: true,
+  centered: true,
   code: [{ fileName: 'Demo.tsx', code, language: 'tsx' }],
   controls: [
     {
@@ -75,15 +76,6 @@ export const configurator: MantineDemo = {
       step: 0.1,
       min: 0.5,
       max: 60,
-    },
-    {
-      prop: 'angle',
-      type: 'number',
-      initialValue: 0,
-      libraryValue: 0,
-      step: 1,
-      min: 0,
-      max: 360,
     },
     { type: 'color', prop: 'colorFrom', initialValue: 'yellow.6', libraryValue: 'yellow.6' },
     { type: 'color', prop: 'colorTo', initialValue: 'violet.6', libraryValue: 'violet.6' },

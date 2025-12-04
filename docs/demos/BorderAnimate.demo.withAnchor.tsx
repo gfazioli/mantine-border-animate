@@ -27,24 +27,34 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      {/* Default: withMask={true} - border is clipped to the edge */}
+      {/* anchor=0 (default) - beam follows outer edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask size={200} blur={4}>
+        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={0}>
           <Content>
-            <Text size="sm">withMask=true</Text>
+            <Text size="sm">anchor=0</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Clipped to border</Text>
+        <Text size="xs" c="dimmed">Outer edge</Text>
       </Stack>
 
-      {/* withMask={false} - glow extends beyond the border */}
+      {/* anchor=50 - beam moves inward */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={50}>
           <Content>
-            <Text size="sm">withMask=false</Text>
+            <Text size="sm">anchor=50</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Glow extends outward</Text>
+        <Text size="xs" c="dimmed">Moved inward</Text>
+      </Stack>
+
+      {/* anchor with withMask=false - creates inner glow effect */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4} anchor={40}>
+          <Content>
+            <Text size="sm">anchor=40</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">Inner glow effect</Text>
       </Stack>
     </Flex>
   );
@@ -72,35 +82,47 @@ function Content({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center" justify="center" py={64}>
-      {/* Default: withMask={true} - border is clipped to the edge */}
+    <Flex gap="xl" align="center" justify="center">
+      {/* anchor=0 (default) - beam follows outer edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask size={200} blur={4}>
+        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={0}>
           <Content>
-            <Text size="sm">withMask=true</Text>
+            <Text size="sm">anchor=0</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Clipped to border
+          Outer edge
         </Text>
       </Stack>
 
-      {/* withMask={false} - glow extends beyond the border */}
+      {/* anchor=50 - beam moves inward */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={50}>
           <Content>
-            <Text size="sm">withMask=false</Text>
+            <Text size="sm">anchor=50</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Glow extends outward
+          Moved inward
+        </Text>
+      </Stack>
+
+      {/* anchor with withMask=false - creates inner glow effect */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4} anchor={40}>
+          <Content>
+            <Text size="sm">anchor=40</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Inner glow effect
         </Text>
       </Stack>
     </Flex>
   );
 }
 
-export const withMask: MantineDemo = {
+export const withAnchor: MantineDemo = {
   type: 'code',
   component: Demo,
   code,

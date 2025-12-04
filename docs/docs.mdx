@@ -93,17 +93,23 @@ Key props for pulse variant:
 
 The `withMask` and `zIndex` props allow you to create advanced visual effects, including background glows and layered animations.
 
-### withMask Prop
+### withMask
 
 By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the glow extend beyond the border, creating a softer, more diffused effect.
 
 <Demo data={demos.withMask} />
 
-### zIndex Prop
+### zIndex
 
 The `zIndex` prop controls the stacking order of the border effect. By default, the border appears in front of the content (`zIndex={1}`). Set `zIndex={-1}` combined with `withMask={false}` to create beautiful background glow effects that appear behind your content.
 
 <Demo data={demos.withZIndex} />
+
+### anchor
+
+The `anchor` prop controls how far inward the beam follows the border path. By default, `anchor={0}` makes the beam follow the outer edge. Positive values move the beam path inward, which is especially useful when combined with `withMask={false}` to create inner glow effects that illuminate the content area.
+
+<Demo data={demos.withAnchor} />
 
 ## Use Cases
 

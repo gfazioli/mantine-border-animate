@@ -4,6 +4,7 @@ export { controlled } from './BorderAnimate.demo.controlled';
 export { variant } from './BorderAnimate.demo.variant';
 export { withAccordion } from './BorderAnimate.demo.withAccordion';
 export { withAlert } from './BorderAnimate.demo.withAlert';
+export { withAnchor } from './BorderAnimate.demo.withAnchor';
 export { withButton } from './BorderAnimate.demo.withButton';
 export { withCard } from './BorderAnimate.demo.withCard';
 export { withChip } from './BorderAnimate.demo.withChip';
