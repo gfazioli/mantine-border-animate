@@ -13,7 +13,7 @@ function Demo() {
         <BorderAnimate
           w={200}
           h={150}
-          withMask={true}
+          withMask
           size={200}
           blur={4}
         >
@@ -71,7 +71,7 @@ function Demo() {
     <Flex gap="xl" align="center" justify="center" py={64}>
       {/* Default: withMask={true} - border is clipped to the edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={true} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} withMask size={200} blur={4}>
           <Box
             w="100%"
             h="100%"
