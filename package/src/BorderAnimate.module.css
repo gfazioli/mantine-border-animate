@@ -104,36 +104,12 @@
 }
 
 /* Mask: shows only the border area (enabled by default) */
-/* WebKit/Blink browsers (Chrome, Safari, Edge) */
-.border[data-with-mask='true'][data-browser='webkit'] {
+.border[data-with-mask='true'] {
   &:not([data-variant='glow']) {
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-  }
-}
-
-/* Firefox browser - uses standard mask properties separately for proper composite behavior */
-.border[data-with-mask='true'][data-browser='firefox'] {
-  &:not([data-variant='glow']) {
+    /* Standard mask properties - works on Firefox 53+ and modern browsers */
     mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
     mask-clip: content-box, border-box;
     mask-composite: exclude;
-  }
-}
-
-/* Fallback for other browsers or SSR */
-.border[data-with-mask='true'][data-browser='other'] {
-  &:not([data-variant='glow']) {
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
   }
 }
 

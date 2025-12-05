@@ -17,15 +17,6 @@ import {
 } from '@mantine/core';
 import classes from './BorderAnimate.module.css';
 
-/** Detect browser type for CSS compatibility */
-const detectBrowser = (): 'firefox' | 'webkit' | 'other' => {
-  if (typeof navigator === 'undefined') return 'other';
-  const ua = navigator.userAgent.toLowerCase();
-  if (ua.includes('firefox')) return 'firefox';
-  if (ua.includes('chrome') || ua.includes('safari') || ua.includes('edg')) return 'webkit';
-  return 'other';
-};
-
 /** Available border animation variants */
 export type BorderAnimateVariant = 'beam' | 'glow' | 'gradient' | 'pulse';
 
@@ -252,8 +243,6 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
     varsResolver,
   });
 
-  const browser = detectBrowser();
-
   return (
     <Box ref={ref} {...getStyles('root')} {...others}>
       {show && (
@@ -262,7 +251,6 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
           variant={variant}
           data-with-mask={withMask}
           data-animate={animate}
-          data-browser={browser}
         />
       )}
       {children}
