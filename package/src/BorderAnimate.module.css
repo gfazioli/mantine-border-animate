@@ -113,6 +113,17 @@
   }
 }
 
+/* WebKit fallback for older Safari (< 15.4) that doesn't support standard mask-composite */
+@supports not (mask-composite: exclude) {
+  .border[data-with-mask='true'] {
+    &:not([data-variant='glow']) {
+      -webkit-mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+      -webkit-mask-clip: content-box, border-box;
+      -webkit-mask-composite: xor;
+    }
+  }
+}
+
 /* Static position for beam variant when animate is false */
 .border[data-animate='false'][data-variant='beam']::after {
   offset-distance: calc(var(--border-animate-static-angle) / 360 * 100%);
