@@ -1,6 +1,6 @@
 {
   "name": "@gfazioli/mantine-border-animate",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Mantine component offering four border animation variants (beam, glow, gradient, pulse) with customizable colors and full animation control, perfect for creating dynamic, visually engaging UI elements.",
   "homepage": "https://gfazioli.github.io/mantine-border-animate/",
   "packageManager": "yarn@4.0.1",
