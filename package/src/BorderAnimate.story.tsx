@@ -3,6 +3,7 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import {
   Accordion,
   Alert,
+  Button,
   Checkbox,
   Chip,
   Flex,
@@ -51,6 +52,16 @@ export function Usage() {
         </Stack>
       </BorderAnimate>
     </Stack>
+  );
+}
+
+export function FullWidth() {
+  return (
+    <BorderAnimate size={80} anchor={-15}>
+      <Button variant="default" fullWidth h={30}>
+        Configure
+      </Button>
+    </BorderAnimate>
   );
 }
 
