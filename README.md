@@ -15,24 +15,15 @@
 
 This component is created on top of the [Mantine](https://mantine.dev/) library.
 
-[![Mantine UI Library](https://img.shields.io/badge/-MANTINE_UI_LIBRARY-blue?style=for-the-badge&labelColor=black&logo=mantine
-)](https://mantine.dev/)
+[BorderAnimate](https://gfazioli.github.io/mantine-border-animate) provides a flexible wrapper that turns any Mantine or plain React element into a visually striking component with animated borders. Designed for both aesthetics and performance, it uses CSS animations to deliver smooth 60fps effects and exposes controls to tailor the look and behavior: you can show/hide the border, keep it static or continuously animated, and adjust parameters like size, radius, border width, blur, duration, and color transitions. 
 
-BorderAnimate is a React component for Mantine that wraps any element with stunning animated border effects. Choose from four distinct animation variants: a traveling beam of light, a rotating gradient, a pulsating glow, or a subtle breathing pulse effect.
+The component includes four distinct variants—beam (a traveling glow along the perimeter with adjustable anchor and duration), gradient (a rotating conic gradient between two colors with optional blur), glow (a rhythmic pulsation with tunable blur and opacity), and pulse (a subtle expand‑and‑fade “breathing” effect). 
 
-Fully customizable with props for colors, duration, blur, size, and border radius. Control animations programmatically—toggle them on/off, show/hide borders, or set a static angle when paused. Built with CSS animations for optimal 60fps performance.
+Advanced visual setups are supported through masking and layering: withMask clips the effect to the border, while disabling it and using zIndex allows soft background glows behind content; anchor positioning further refines inner vs outer illumination. Integration is straightforward via provided stylesheet imports, and examples demonstrate wrapping common Mantine components like Paper, Stack, Title, and Flex to achieve eye‑catching, controllable borders across a wide range of UI elements.
 
-Ideal for highlighting interactive elements, creating loading states, premium UI accents, or attention-grabbing notifications in modern React applications.
-
-[![Mantine Extensions](https://img.shields.io/badge/-Watch_the_Video-blue?style=for-the-badge&labelColor=black&logo=youtube
-)](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4)
-[![Demo and Documentation](https://img.shields.io/badge/-Demo_%26_Documentation-blue?style=for-the-badge&labelColor=black&logo=typescript
-)](https://gfazioli.github.io/mantine-border-animate/)
-[![Mantine Extensions HUB](https://img.shields.io/badge/-Mantine_Extensions_Hub-blue?style=for-the-badge&labelColor=blue
-)](https://mantine-extensions.vercel.app/)
-
-
-👉 You can find more components on the [Mantine Extensions Hub](https://mantine-extensions.vercel.app/) library.
+> [!note]
+>
+> → [Demo and Documentation](https://gfazioli.github.io/mantine-border-animate/) → [Youtube Video](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4) → [More Mantine Components](https://mantine-extensions.vercel.app/)
 
 ## Installation
 
@@ -69,8 +60,6 @@ function Demo() {
 }
 ```
 
-<div align="center">
+---
   
 [![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-border-animate&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-border-animate&Timeline)
-
-</div>
