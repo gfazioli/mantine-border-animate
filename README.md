@@ -1,6 +1,6 @@
 # Mantine Border Animate Component
 
-<img alt="Mantine Border Animate" src="https://github.com/gfazioli/mantine-border-animate/blob/master/logo.png" />
+<img alt="Mantine Border Animate" src="https://github.com/gfazioli/mantine-border-animate/blob/master/logo.jpeg" />
 
 <div align="center">
   
