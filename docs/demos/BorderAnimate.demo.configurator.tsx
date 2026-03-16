@@ -63,6 +63,7 @@ export const configurator: MantineDemo = {
     { type: 'boolean', prop: 'show', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'animate', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'reverse', initialValue: false, libraryValue: false },
+    { type: 'boolean', prop: 'withMask', initialValue: true, libraryValue: true },
 
     { type: 'size', prop: 'size', initialValue: 'sm', libraryValue: 'sm' },
     { type: 'size', prop: 'radius', initialValue: 'md', libraryValue: 'md' },
@@ -76,6 +77,15 @@ export const configurator: MantineDemo = {
       step: 0.1,
       min: 0.5,
       max: 60,
+    },
+    {
+      prop: 'borderOpacity',
+      type: 'number',
+      initialValue: 1,
+      libraryValue: 1,
+      step: 0.1,
+      min: 0,
+      max: 1,
     },
     { type: 'color', prop: 'colorFrom', initialValue: 'yellow.6', libraryValue: 'yellow.6' },
     { type: 'color', prop: 'colorTo', initialValue: 'violet.6', libraryValue: 'violet.6' },
