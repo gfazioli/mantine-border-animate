@@ -16,7 +16,7 @@ export default {
     reverse: false,
     delay: 0,
     withMask: true,
-    opacity: 1,
+    borderOpacity: 1,
     zIndex: 1,
     anchor: 0,
     show: true,
@@ -38,7 +38,7 @@ export default {
     reverse: { control: 'boolean' },
     delay: { control: { type: 'number', min: 0, max: 10, step: 0.5 } },
     withMask: { control: 'boolean' },
-    opacity: { control: { type: 'number', min: 0, max: 1, step: 0.1 } },
+    borderOpacity: { control: { type: 'number', min: 0, max: 1, step: 0.1 } },
     zIndex: { control: { type: 'number', min: -10, max: 100, step: 1 } },
     anchor: { control: { type: 'number', min: -50, max: 100, step: 1 } },
     show: { control: 'boolean' },
@@ -96,7 +96,7 @@ export function Multiple(props: BorderAnimateProps) {
           duration={23}
           withMask={false}
           size={300}
-          opacity={0.2}
+          borderOpacity={0.2}
           blur={14}
           anchor={50}
           zIndex={-1}

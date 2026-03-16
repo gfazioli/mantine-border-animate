@@ -5,11 +5,11 @@ import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { IconInfoCircle, IconAlertTriangle } from '@tabler/icons-react';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { Alert, Stack } from '@mantine/core';
+import { Alert, Flex } from '@mantine/core';
 
 function Demo() {
   return (
-    <Stack gap="md" w={400}>
+    <Flex direction="column" align="center" gap="xl" py={64}>
       <BorderAnimate size={200} radius="sm" duration={10}>
         <Alert
           variant="light"
@@ -24,10 +24,10 @@ function Demo() {
       <BorderAnimate
         size={200}
         radius="sm"
-        duration={8}
+        duration={2}
         colorFrom="red"
         colorTo="orange"
-        variant="pulse"
+        variant="glow"
       >
         <Alert
           variant="light"
@@ -35,10 +35,10 @@ function Demo() {
           title="Warning"
           icon={<IconAlertTriangle />}
         >
-          This is a warning alert with a pulsing border effect.
+          This is a warning alert with a glowing border effect.
         </Alert>
       </BorderAnimate>
-    </Stack>
+    </Flex>
   );
 }
 `;
@@ -61,7 +61,7 @@ function Demo() {
         variant="glow"
       >
         <Alert variant="light" color="red" title="Warning" icon={<IconAlertTriangle />}>
-          This is a warning alert with a pulsing border effect.
+          This is a warning alert with a glowing border effect.
         </Alert>
       </BorderAnimate>
     </Flex>

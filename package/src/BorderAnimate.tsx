@@ -87,7 +87,9 @@ export interface BorderAnimateBaseProps {
    */
   blur?: MantineSize | (string & {}) | number;
 
-  /** Animation delay in seconds
+  /** Animation delay in seconds.
+   * A positive value makes the animation start as if it had already been
+   * running for that many seconds (useful for staggering multiple borders).
    * @default 0
    */
   delay?: number;
@@ -124,6 +126,12 @@ export interface BorderAnimateBaseProps {
    * @default 0
    */
   angle?: number;
+
+  /** Opacity of the animated border effect (0 to 1).
+   * This controls the border effect opacity, not the component opacity.
+   * @default 1
+   */
+  borderOpacity?: number;
 }
 
 export interface BorderAnimateProps
@@ -154,6 +162,7 @@ export const defaultProps: Partial<BorderAnimateProps> = {
   show: true,
   animate: true,
   angle: 0,
+  borderOpacity: 1,
 };
 
 const varsResolver = createVarsResolver<BorderAnimateFactory>(
@@ -168,7 +177,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       size,
       delay,
       blur,
-      opacity,
+      borderOpacity,
       zIndex,
       radius,
       anchor,
@@ -189,7 +198,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-color-to': getThemeColor(colorTo, theme),
         '--border-animate-delay': `-${delay}s`,
         '--border-animate-blur': getSize(blur, 'border-animate-blur'),
-        '--border-animate-opacity': `${opacity ?? 1}`,
+        '--border-animate-opacity': `${borderOpacity ?? 1}`,
         '--border-animate-anchor': `${anchor ?? 0}`,
         '--border-animate-static-angle': `${angle ?? 0}`,
       },
@@ -213,7 +222,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
     blur,
     delay,
     withMask,
-    opacity,
+    borderOpacity,
     zIndex,
     anchor,
     show,

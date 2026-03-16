@@ -29,7 +29,7 @@ function Demo() {
     <Flex gap="xl" align="center">
       {/* Background glow with anchor=0 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={0} zIndex={-1} withMask={false} opacity={0.6}>
+        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={0} zIndex={-1} withMask={false} borderOpacity={0.6}>
           <Content>
             <Text size="sm">anchor=0</Text>
           </Content>
@@ -39,7 +39,7 @@ function Demo() {
 
       {/* Background glow with anchor=30 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={30} zIndex={-1} withMask={false} opacity={0.6}>
+        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={30} zIndex={-1} withMask={false} borderOpacity={0.6}>
           <Content>
             <Text size="sm">anchor=30</Text>
           </Content>
@@ -49,7 +49,7 @@ function Demo() {
 
       {/* Background glow with anchor=60 - centered behind content */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={16} anchor={60} zIndex={-1} withMask={false} opacity={0.5}>
+        <BorderAnimate w={200} h={150} size={250} blur={16} anchor={60} zIndex={-1} withMask={false} borderOpacity={0.5}>
           <Content>
             <Text size="sm">anchor=60</Text>
           </Content>
@@ -93,7 +93,7 @@ function Demo() {
           anchor={0}
           zIndex={-1}
           withMask={false}
-          opacity={0.6}
+          borderOpacity={0.6}
         >
           <Content>
             <Text size="sm">anchor=0</Text>
@@ -114,7 +114,7 @@ function Demo() {
           anchor={30}
           zIndex={-1}
           withMask={false}
-          opacity={0.6}
+          borderOpacity={0.6}
         >
           <Content>
             <Text size="sm">anchor=30</Text>
@@ -135,7 +135,7 @@ function Demo() {
           anchor={60}
           zIndex={-1}
           withMask={false}
-          opacity={0.5}
+          borderOpacity={0.5}
         >
           <Content>
             <Text size="sm">anchor=60</Text>
