@@ -5,4 +5,5 @@ export type {
   BorderAnimateFactory,
   BorderAnimateProps,
   BorderAnimateStylesNames,
+  BorderAnimateVariant,
 } from './BorderAnimate';

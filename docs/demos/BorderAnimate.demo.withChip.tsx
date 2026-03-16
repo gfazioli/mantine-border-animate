@@ -12,7 +12,7 @@ function Demo() {
         <Chip defaultChecked>Selected</Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" colorFrom="green" colorTo="teal">
+      <BorderAnimate size="xs" radius="xl" variant="pulse" colorTo="white" p={3}>
         <Chip defaultChecked color="green">Active</Chip>
       </BorderAnimate>
 

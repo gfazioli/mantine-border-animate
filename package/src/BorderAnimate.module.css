@@ -1,4 +1,17 @@
 /* ============================================
+   CUSTOM PROPERTY REGISTRATION
+   ============================================ */
+
+/* Required for animating the conic-gradient angle in the gradient variant.
+   Browser support: Chrome 85+, Edge 85+, Safari 15.4+, Firefox 128+.
+   Older browsers will display a static gradient instead. */
+@property --border-animate-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ============================================
    KEYFRAMES
    ============================================ */
 
@@ -59,7 +72,7 @@
 .root {
   position: relative;
   display: flex;
-  border-radius: calc(var(--border-animate-radius));
+  border-radius: var(--border-animate-radius);
 }
 
 /* ============================================
@@ -96,11 +109,7 @@
   opacity: var(--border-animate-opacity, 1);
 
   /* Transparent border to define the width */
-  border: calc(var(--border-animate-width)) solid transparent;
-
-  &[data-variant='glow'] {
-    z-index: -1;
-  }
+  border: var(--border-animate-width) solid transparent;
 }
 
 /* Mask: shows only the border area (enabled by default) */
@@ -155,7 +164,7 @@
   content: '';
   position: absolute;
   aspect-ratio: 1;
-  width: calc(var(--border-animate-size));
+  width: var(--border-animate-size);
 
   /* Radial gradient for uniform glow */
   background: radial-gradient(
@@ -176,6 +185,9 @@
   );
   offset-anchor: 50% 50%;
 
+  /* GPU layer promotion for smooth offset-distance animation */
+  will-change: offset-distance;
+
   animation: border-animate-beam var(--border-animate-duration, 5s) linear infinite
     var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
@@ -184,12 +196,6 @@
 /* ============================================
    GRADIENT VARIANT
    ============================================ */
-
-@property --border-animate-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
 
 .border[data-variant='gradient']::after {
   content: '';
@@ -228,6 +234,9 @@
 
   filter: blur(var(--border-animate-blur));
 
+  /* GPU layer promotion — glow animates both filter and opacity */
+  will-change: filter, opacity;
+
   animation: border-animate-glow var(--border-animate-duration, 2s) ease-in-out infinite
     var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
@@ -250,6 +259,9 @@
 
   filter: blur(var(--border-animate-blur));
   transform-origin: center;
+
+  /* GPU layer promotion — pulse animates transform and opacity */
+  will-change: transform, opacity;
 
   animation: border-animate-pulse var(--border-animate-duration, 2s) ease-in-out infinite
     var(--border-animate-direction, normal);
