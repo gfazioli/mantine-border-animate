@@ -20,6 +20,9 @@ import classes from './BorderAnimate.module.css';
 /** Available border animation variants */
 export type BorderAnimateVariant = 'beam' | 'glow' | 'pulse';
 
+/** Beam rendering mode */
+export type BorderAnimateBeamMode = 'conic' | 'path';
+
 /** A single color stop for multi-color beam gradients */
 export interface BorderAnimateColorStop {
   /** Color value (any MantineColor, e.g. 'red.5', '#ff0000', 'rgba(...)') */
@@ -48,10 +51,11 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-beam-from'
     | '--border-animate-beam-to'
     | '--border-animate-beam-end'
+    | '--border-animate-size'
     | '--border-animate-timing';
 };
 
-/** Map MantineSize to angular spread percentage for beam wedge */
+/** Map MantineSize to angular spread percentage for conic beam wedge */
 function getBeamSpread(size: MantineSize | (string & {}) | number | undefined): number {
   if (typeof size === 'number') {
     return size;
@@ -68,6 +72,14 @@ export interface BorderAnimateBaseProps {
    * @default 'beam'
    */
   variant?: BorderAnimateVariant;
+
+  /** Beam rendering mode (beam variant only).
+   * - `conic`: rotating conic-gradient — smooth rotation, beam width varies on rectangles
+   * - `path`: radial-gradient traveling along the border via offset-path — constant speed
+   *   along the perimeter, uniform beam size
+   * @default 'path'
+   */
+  beamMode?: BorderAnimateBeamMode;
 
   /** Animation duration in seconds
    * @default 5
@@ -95,16 +107,13 @@ export interface BorderAnimateBaseProps {
    * colorFrom/colorTo and gives full control over the rotating gradient.
    * Each stop has a color (any MantineColor) and a position (0-100).
    * Stops should be provided in ascending position order.
-   * Use transparent stops to create beam/wedge effects, or fill the
-   * entire circle for a rotating gradient border.
+   * Only applies to beamMode="conic".
    */
   colorStops?: BorderAnimateColorStop[];
 
-  /** Angular spread of the beam wedge as a percentage of the full circle
-   * (beam variant only). Controls how much of the border is illuminated.
-   * Accepts MantineSize tokens (xs=18°, sm=36°, md=72°, lg=126°, xl=180°)
-   * or a number (0-50, where 50 = 180° = half circle).
-   * Ignored when colorStops is provided.
+  /** Beam size.
+   * - For beamMode="conic": angular spread of the wedge (xs=18°..xl=180° or number 0-50)
+   * - For beamMode="path": pixel size of the traveling circle (xs..xl or number)
    * @default 'sm'
    */
   size?: MantineSize | (string & {}) | number;
@@ -152,7 +161,7 @@ export interface BorderAnimateBaseProps {
   animate?: boolean;
 
   /** Initial angle when animate is false (0-360 degrees).
-   * Controls the rotation angle of the conic gradient or static position.
+   * Controls the rotation angle or position along the border path.
    * @default 0
    */
   angle?: number;
@@ -187,6 +196,7 @@ export type BorderAnimateFactory = Factory<{
 
 export const defaultProps: Partial<BorderAnimateProps> = {
   variant: 'beam',
+  beamMode: 'path',
   duration: 5,
   borderWidth: 'xs',
   radius: 'md',
@@ -224,24 +234,36 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       angle,
       variant,
       timingFunction,
+      beamMode,
     }
   ) => {
-    // For beam with colorStops: generate the full conic-gradient in JS.
-    // For beam without colorStops: let CSS build the gradient using
-    // individual stop position variables (so var(--border-animate-angle) stays live).
     let gradientBackground: string | undefined;
     let beamStart: string | undefined;
     let beamFrom: string | undefined;
     let beamTo: string | undefined;
     let beamEnd: string | undefined;
+    let beamSize: string | undefined;
 
     if (variant === 'beam') {
-      if (colorStops && colorStops.length > 0) {
+      if (beamMode === 'path') {
+        // Path mode: size is pixel-based for the traveling circle
+        beamSize = getSize(size, 'border-animate-size');
+
+        if (colorStops && colorStops.length > 0) {
+          // Path mode with colorStops: radial-gradient with custom stops
+          const stops = colorStops
+            .map((s) => `${getThemeColor(s.color, theme)} ${s.position}%`)
+            .join(', ');
+          gradientBackground = `radial-gradient(ellipse at center, ${stops})`;
+        }
+      } else if (colorStops && colorStops.length > 0) {
+        // Conic mode with colorStops: full gradient generated in JS
         const stops = colorStops
           .map((s) => `${getThemeColor(s.color, theme)} ${s.position}%`)
           .join(', ');
         gradientBackground = `conic-gradient(from 0deg, ${stops})`;
       } else {
+        // Conic mode default: wedge positions for CSS-built gradient
         const spread = getBeamSpread(size);
         const half = spread / 2;
         beamStart = `${50 - half}%`;
@@ -271,6 +293,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-beam-from': beamFrom,
         '--border-animate-beam-to': beamTo,
         '--border-animate-beam-end': beamEnd,
+        '--border-animate-size': beamSize,
         '--border-animate-timing': timingFunction,
       },
     };
@@ -283,6 +306,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
   const {
     children,
     variant,
+    beamMode,
     duration,
     borderWidth,
     colorFrom,
@@ -338,8 +362,11 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
           variant={variant}
           data-with-mask={withMask}
           data-animate={animate}
+          data-beam-mode={variant === 'beam' ? (beamMode ?? 'conic') : undefined}
           data-color-stops={
-            variant === 'beam' && colorStops && colorStops.length > 0 ? true : undefined
+            variant === 'beam' && beamMode !== 'path' && colorStops && colorStops.length > 0
+              ? true
+              : undefined
           }
         />
       )}
