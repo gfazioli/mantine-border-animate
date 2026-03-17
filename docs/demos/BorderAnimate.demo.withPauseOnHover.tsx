@@ -27,34 +27,22 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      {/* anchor=0 (default) - beam follows outer edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={0}>
+        <BorderAnimate w={200} h={150} pauseOnHover>
           <Content>
-            <Text size="sm">anchor=0</Text>
+            <Text size="sm">Hover me!</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Outer edge</Text>
+        <Text size="xs" c="dimmed">Beam pauses on hover</Text>
       </Stack>
 
-      {/* anchor=50 - beam moves inward */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={50}>
+        <BorderAnimate w={200} h={150} variant="glow" blur="sm" pauseOnHover duration={3}>
           <Content>
-            <Text size="sm">anchor=50</Text>
+            <Text size="sm">Hover me!</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Moved inward</Text>
-      </Stack>
-
-      {/* anchor with withMask=false - creates inner glow effect */}
-      <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4} anchor={40}>
-          <Content>
-            <Text size="sm">anchor=40</Text>
-          </Content>
-        </BorderAnimate>
-        <Text size="xs" c="dimmed">Inner glow effect</Text>
+        <Text size="xs" c="dimmed">Gradient pauses on hover</Text>
       </Stack>
     </Flex>
   );
@@ -83,46 +71,32 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center" justify="center" py={64}>
-      {/* anchor=0 (default) - beam follows outer edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={0}>
+        <BorderAnimate w={200} h={150} pauseOnHover>
           <Content>
-            <Text size="sm">anchor=0</Text>
+            <Text size="sm">Hover me!</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Outer edge
+          Beam pauses on hover
         </Text>
       </Stack>
 
-      {/* anchor=50 - beam moves inward */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={200} blur={4} anchor={50}>
+        <BorderAnimate w={200} h={150} variant="glow" blur="sm" pauseOnHover duration={3}>
           <Content>
-            <Text size="sm">anchor=50</Text>
+            <Text size="sm">Hover me!</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Moved inward
-        </Text>
-      </Stack>
-
-      {/* anchor with withMask=false - creates inner glow effect */}
-      <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4} anchor={40}>
-          <Content>
-            <Text size="sm">anchor=40</Text>
-          </Content>
-        </BorderAnimate>
-        <Text size="xs" c="dimmed">
-          Inner glow effect
+          Gradient pauses on hover
         </Text>
       </Stack>
     </Flex>
   );
 }
 
-export const withAnchor: MantineDemo = {
+export const withPauseOnHover: MantineDemo = {
   type: 'code',
   component: Demo,
   code,

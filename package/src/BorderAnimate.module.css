@@ -2,7 +2,7 @@
    CUSTOM PROPERTY REGISTRATION
    ============================================ */
 
-/* Required for animating the conic-gradient angle in the gradient variant.
+/* Required for animating the conic-gradient angle in the beam variant.
    Browser support: Chrome 85+, Edge 85+, Safari 15.4+, Firefox 128+.
    Older browsers will display a static gradient instead. */
 @property --border-animate-angle {
@@ -15,14 +15,25 @@
    KEYFRAMES
    ============================================ */
 
-/* Beam effect - moves along the border */
+/* Beam variant (default) — rotates the conic-gradient angle via @property */
 @keyframes border-animate-beam {
   0% {
-    offset-distance: 0%;
+    --border-animate-angle: 0deg;
   }
 
   100% {
-    offset-distance: 100%;
+    --border-animate-angle: 360deg;
+  }
+}
+
+/* Beam variant (colorStops) — rotates the ::after element via transform */
+@keyframes border-animate-beam-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -54,17 +65,6 @@
   }
 }
 
-/* Gradient variant - rotating gradient */
-@keyframes border-animate-gradient {
-  0% {
-    --border-animate-angle: 0deg;
-  }
-
-  100% {
-    --border-animate-angle: 360deg;
-  }
-}
-
 /* ============================================
    ROOT
    ============================================ */
@@ -80,12 +80,6 @@
    ============================================ */
 
 .border {
-  --border-animate-size-xs: 64px;
-  --border-animate-size-sm: 128px;
-  --border-animate-size-md: 256px;
-  --border-animate-size-lg: 320px;
-  --border-animate-size-xl: 480px;
-
   --border-animate-width-xs: 1px;
   --border-animate-width-sm: 2px;
   --border-animate-width-md: 4px;
@@ -98,7 +92,6 @@
   --border-animate-blur-lg: 16px;
   --border-animate-blur-xl: 32px;
 
-  --border-animate-size: var(--border-animate-size-md);
   --border-animate-width: var(--border-animate-width-xs);
 
   position: absolute;
@@ -108,7 +101,7 @@
   z-index: var(--border-animate-z-index, 1);
   opacity: var(--border-animate-opacity, 1);
 
-  /* Transparent border to define the width */
+  /* Transparent border to define the mask width */
   border: var(--border-animate-width) solid transparent;
 
   /* Glow variant must render behind the content because its ::after covers
@@ -122,7 +115,6 @@
 /* Mask: shows only the border area (enabled by default) */
 .border[data-with-mask='true'] {
   &:not([data-variant='glow']) {
-    /* Standard mask properties - works on Firefox 53+ and modern browsers */
     mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
     mask-clip: content-box, border-box;
     mask-composite: exclude;
@@ -140,13 +132,8 @@
   }
 }
 
-/* Static position for beam variant when animate is false */
+/* Static angle for beam variant when animate is false */
 .border[data-animate='false'][data-variant='beam']::after {
-  offset-distance: calc(var(--border-animate-static-angle) / 360 * 100%);
-}
-
-/* Static angle for gradient variant when animate is false */
-.border[data-animate='false'][data-variant='gradient']::after {
   --border-animate-angle: calc(var(--border-animate-static-angle) * 1deg);
 }
 
@@ -163,6 +150,24 @@
   animation: none !important;
 }
 
+/* Pause on hover — applied when data-pause-on-hover is set on root */
+.root[data-pause-on-hover]:hover .border,
+.root[data-pause-on-hover]:hover .border::after {
+  animation-play-state: paused;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .border,
+  .border::after {
+    animation: none !important;
+  }
+}
+
 /* ============================================
    BEAM VARIANT
    ============================================ */
@@ -170,61 +175,42 @@
 .border[data-variant='beam']::after {
   content: '';
   position: absolute;
-  aspect-ratio: 1;
-  width: var(--border-animate-size);
+  inset: -1px;
+  border-radius: inherit;
 
-  /* Default: radial gradient — symmetric, smooth on all corners and aspect ratios.
-     The mask on .border clips everything outside the border area, so a large
-     circle simply illuminates a longer stretch of the border without bleeding.
-     When colorStops is set, --border-animate-beam-gradient overrides with a custom gradient. */
+  /* Conic gradient rotated via @property --border-animate-angle.
+     The wedge positions are set by varsResolver from the size prop.
+     When colorStops is set, --border-animate-gradient-background overrides. */
   background: var(
-    --border-animate-beam-gradient,
-    radial-gradient(
-      ellipse at center,
-      var(--border-animate-color-from) 0%,
-      var(--border-animate-color-to) 40%,
-      transparent 70%
+    --border-animate-gradient-background,
+    conic-gradient(
+      from var(--border-animate-angle, 0deg),
+      transparent 0%,
+      transparent var(--border-animate-beam-start, 45%),
+      var(--border-animate-color-from) var(--border-animate-beam-from, 47.5%),
+      var(--border-animate-color-to) var(--border-animate-beam-to, 52.5%),
+      transparent var(--border-animate-beam-end, 55%),
+      transparent 100%
     )
   );
 
-  filter: blur(var(--border-animate-blur));
-
-  /* Move along the border path - anchor controls inward offset */
-  offset-path: rect(
-    calc(var(--border-animate-anchor, 0) * 1px) calc(100% - var(--border-animate-anchor, 0) * 1px)
-      calc(100% - var(--border-animate-anchor, 0) * 1px) calc(var(--border-animate-anchor, 0) * 1px)
-      round calc(var(--border-animate-radius))
-  );
-  offset-anchor: 50% 50%;
-
-  /* GPU layer promotion for smooth offset-distance animation */
-  will-change: offset-distance;
-
-  animation: border-animate-beam var(--border-animate-duration, 5s) linear infinite
-    var(--border-animate-direction, normal);
+  animation: border-animate-beam var(--border-animate-duration, 5s)
+    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
 }
 
-/* ============================================
-   GRADIENT VARIANT
-   ============================================ */
+/* When colorStops is set, the gradient is generated by JS with a fixed 0deg angle.
+   The @property animation can't rotate it, so we use transform: rotate() instead.
+   The ::after is oversized so it covers the full parent at any rotation angle.
+   The mask on .border clips the result to the border area — no overflow:hidden needed. */
+.border[data-variant='beam'][data-color-stops]::after {
+  inset: -50%;
+  animation-name: border-animate-beam-rotate;
+}
 
-.border[data-variant='gradient']::after {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: conic-gradient(
-    from var(--border-animate-angle, 0deg),
-    var(--border-animate-color-from),
-    var(--border-animate-color-to),
-    var(--border-animate-color-from)
-  );
-  filter: blur(var(--border-animate-blur));
-
-  animation: border-animate-gradient var(--border-animate-duration, 3s) linear infinite
-    var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
+/* Static angle for colorStops beam when animate is false */
+.border[data-animate='false'][data-variant='beam'][data-color-stops]::after {
+  transform: rotate(calc(var(--border-animate-static-angle) * 1deg));
 }
 
 /* ============================================
@@ -236,7 +222,6 @@
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  /* Full border glow */
   background: linear-gradient(
     90deg,
     var(--border-animate-color-from),
@@ -249,8 +234,8 @@
   /* GPU layer promotion — glow animates both filter and opacity */
   will-change: filter, opacity;
 
-  animation: border-animate-glow var(--border-animate-duration, 2s) ease-in-out infinite
-    var(--border-animate-direction, normal);
+  animation: border-animate-glow var(--border-animate-duration, 2s)
+    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
 }
 
@@ -275,8 +260,8 @@
   /* GPU layer promotion — pulse animates transform and opacity */
   will-change: transform, opacity;
 
-  animation: border-animate-pulse var(--border-animate-duration, 2s) ease-in-out infinite
-    var(--border-animate-direction, normal);
+  animation: border-animate-pulse var(--border-animate-duration, 2s)
+    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-delay, 0s);
 }
 

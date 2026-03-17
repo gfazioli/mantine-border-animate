@@ -16,7 +16,7 @@ function Demo() {
         <Chip defaultChecked color="green">Active</Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="gradient" duration={2}>
+      <BorderAnimate size="xs" radius="xl" variant="pulse" duration={2}>
         <Chip defaultChecked color="violet">Premium</Chip>
       </BorderAnimate>
     </Flex>
@@ -37,7 +37,7 @@ function Demo() {
         </Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="gradient" duration={2}>
+      <BorderAnimate size="xs" radius="xl" variant="pulse" duration={2}>
         <Chip defaultChecked color="violet">
           Premium
         </Chip>

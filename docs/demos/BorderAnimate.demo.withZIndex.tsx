@@ -29,7 +29,7 @@ function Demo() {
     <Flex gap="xl" align="center">
       {/* Default: zIndex={1} - border is in front */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} zIndex={1} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} zIndex={1} size="lg" blur={4}>
           <Content>
             <Text size="sm">zIndex=1</Text>
           </Content>
@@ -39,7 +39,7 @@ function Demo() {
 
       {/* zIndex={-1} with withMask={false} - creates background glow effect */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} zIndex={-1} withMask={false} size={300} blur={14} borderOpacity={0.5}>
+        <BorderAnimate w={200} h={150} zIndex={-1} withMask={false} size="xl" blur={14} borderOpacity={0.5}>
           <Content>
             <Text size="sm">zIndex=-1</Text>
           </Content>
@@ -49,8 +49,8 @@ function Demo() {
 
       {/* Combined: layered effect with multiple borders */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={150}>
-          <BorderAnimate w={200} h={150} zIndex={-1} withMask={false} size={300} blur={20} borderOpacity={0.3} colorFrom="#ff6b6b" colorTo="#2b00ff" duration={8}>
+        <BorderAnimate w={200} h={150} size="md">
+          <BorderAnimate w={200} h={150} zIndex={-1} withMask={false} size="xl" blur={20} borderOpacity={0.3} colorFrom="#ff6b6b" colorTo="#2b00ff" duration={8}>
             <Content>
               <Text size="sm">Layered</Text>
             </Content>
@@ -87,7 +87,7 @@ function Demo() {
     <Flex gap="xl" align="center" justify="center" py={64}>
       {/* Default: zIndex={1} - border is in front */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} zIndex={1} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} zIndex={1} size="lg" blur={4}>
           <Content>
             <Text size="sm">zIndex=1</Text>
           </Content>
@@ -104,7 +104,7 @@ function Demo() {
           h={150}
           zIndex={-1}
           withMask={false}
-          size={300}
+          size="xl"
           blur={14}
           borderOpacity={0.5}
         >
@@ -119,13 +119,13 @@ function Demo() {
 
       {/* Combined: layered effect with multiple borders */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={150}>
+        <BorderAnimate w={200} h={150} size="md">
           <BorderAnimate
             w={200}
             h={150}
             zIndex={-1}
             withMask={false}
-            size={300}
+            size="xl"
             blur={20}
             borderOpacity={0.3}
             colorFrom="#ff6b6b"

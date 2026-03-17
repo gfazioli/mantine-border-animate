@@ -27,34 +27,31 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      {/* Background glow with anchor=0 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={0} zIndex={-1} withMask={false} borderOpacity={0.6}>
+        <BorderAnimate w={180} h={120} timingFunction="linear">
           <Content>
-            <Text size="sm">anchor=0</Text>
+            <Text size="xs">linear</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Outer background</Text>
+        <Text size="xs" c="dimmed">Constant speed</Text>
       </Stack>
 
-      {/* Background glow with anchor=30 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={12} anchor={30} zIndex={-1} withMask={false} borderOpacity={0.6}>
+        <BorderAnimate w={180} h={120} timingFunction="ease-in-out">
           <Content>
-            <Text size="sm">anchor=30</Text>
+            <Text size="xs">ease-in-out</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Closer background</Text>
+        <Text size="xs" c="dimmed">Smooth acceleration</Text>
       </Stack>
 
-      {/* Background glow with anchor=60 - centered behind content */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} size={250} blur={16} anchor={60} zIndex={-1} withMask={false} borderOpacity={0.5}>
+        <BorderAnimate w={180} h={120} timingFunction="steps(8)">
           <Content>
-            <Text size="sm">anchor=60</Text>
+            <Text size="xs">steps(8)</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Centered glow</Text>
+        <Text size="xs" c="dimmed">Stepped / retro</Text>
       </Stack>
     </Flex>
   );
@@ -83,73 +80,43 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center" justify="center" py={64}>
-      {/* Background glow with anchor=0 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate
-          w={200}
-          h={150}
-          size={250}
-          blur={12}
-          anchor={0}
-          zIndex={-1}
-          withMask={false}
-          borderOpacity={0.6}
-        >
+        <BorderAnimate w={180} h={120} timingFunction="linear">
           <Content>
-            <Text size="sm">anchor=0</Text>
+            <Text size="xs">linear</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Outer background
+          Constant speed
         </Text>
       </Stack>
 
-      {/* Background glow with anchor=30 */}
       <Stack align="center" gap="xs">
-        <BorderAnimate
-          w={200}
-          h={150}
-          size={250}
-          blur={12}
-          anchor={30}
-          zIndex={-1}
-          withMask={false}
-          borderOpacity={0.6}
-        >
+        <BorderAnimate w={180} h={120} timingFunction="ease-in-out">
           <Content>
-            <Text size="sm">anchor=30</Text>
+            <Text size="xs">ease-in-out</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Closer background
+          Smooth acceleration
         </Text>
       </Stack>
 
-      {/* Background glow with anchor=60 - centered behind content */}
       <Stack align="center" gap="xs">
-        <BorderAnimate
-          w={200}
-          h={150}
-          size={250}
-          blur={16}
-          anchor={60}
-          zIndex={-1}
-          withMask={false}
-          borderOpacity={0.5}
-        >
+        <BorderAnimate w={180} h={120} timingFunction="steps(8)">
           <Content>
-            <Text size="sm">anchor=60</Text>
+            <Text size="xs">steps(8)</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Centered glow
+          Stepped / retro
         </Text>
       </Stack>
     </Flex>
   );
 }
 
-export const withAnchorBackground: MantineDemo = {
+export const withTimingFunction: MantineDemo = {
   type: 'code',
   component: Demo,
   code,

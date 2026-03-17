@@ -23,11 +23,14 @@ The `BorderAnimate` component wraps any element to add stunning animated border 
 
 ### Key Features
 
-- **Multiple animation variants** - Choose from beam, gradient, glow, or pulse effects
+- **Multiple animation variants** - Choose from beam, glow, or pulse effects
 - **Fully customizable** - Control colors, duration, size, blur, and more
 - **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
 - **Performance optimized** - Uses CSS animations for smooth 60fps effects
 - **Controllable** - Toggle animation on/off, show/hide the border, set static angles
+- **Custom color stops** - Multi-color gradients with `colorStops` for beam effects, rotating gradients, and more
+- **Pause on hover** - Pause animations when hovering with `pauseOnHover`
+- **Accessible** - Respects `prefers-reduced-motion` automatically
 
 Simply wrap your content with `BorderAnimate` and customize it using props:
 
@@ -41,34 +44,28 @@ You can control the border animation using the `show` prop.
 
 ### Animated
 
-You can also control the border animation using the `animate` prop. If `animate` is set to `true`, the border will animate continuously. If `animate` is set to `false`, the border will be static. Anyway, you can control the angle of the border animation using the `angle` prop.
+You can also control the border animation using the `animate` prop. If `animate` is set to `true`, the border will animate continuously. If `animate` is set to `false`, the border will be static. You can control the angle of the border animation using the `angle` prop.
 
 <Demo data={demos.animated} />
 
 ## Variant
 
-The `BorderAnimate` component supports four different animation variants, each creating a unique visual effect. Use the `variant` prop to switch between them.
+The `BorderAnimate` component supports three animation variants, each creating a unique visual effect. Use the `variant` prop to switch between them.
 
 <Demo data={demos.variant} />
 
 ### Beam
 
-The **beam** variant (default) creates a glowing light that travels along the border path. The beam moves continuously around the element's perimeter, following the border radius. This is ideal for highlighting interactive elements or creating a futuristic UI feel.
+The **beam** variant (default) creates a rotating conic-gradient light that sweeps around the border. The `size` prop controls how wide the beam wedge is — from a narrow spotlight to a full rotating gradient.
 
 Key props for beam variant:
 
-- `size` - Controls the size of the beam (the glowing spot)
-- `anchor` - Adjusts how far inward the beam follows the border path
-- `duration` - Controls how fast the beam travels around the border
+- `size` - Angular spread of the beam wedge (xs=5%, sm=10%, md=15%, lg=25%, xl=40%, or a number 0-50)
+- `duration` - Controls how fast the beam rotates
+- `colorFrom` / `colorTo` - Colors of the beam wedge
+- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo)
 
-### Gradient
-
-The **gradient** variant creates a rotating conic gradient effect around the border. The gradient smoothly transitions between `colorFrom` and `colorTo` while continuously rotating. This creates an elegant, hypnotic effect suitable for loading states or premium UI elements.
-
-Key props for gradient variant:
-
-- `duration` - Controls the rotation speed
-- `blur` - Adds a soft glow effect to the gradient
+With `colorStops`, you can create any effect: a narrow comet trail, a rainbow rotating border, a half-and-half split, or anything in between.
 
 ### Glow
 
@@ -89,6 +86,28 @@ Key props for pulse variant:
 - `duration` - Controls the pulse rhythm
 - `blur` - Softens the border effect
 
+## Color Stops
+
+The `colorStops` prop gives you full control over the beam's conic-gradient. Each stop has a `color` (any Mantine color) and a `position` (0-100%). When provided, it overrides `colorFrom`/`colorTo` and the `size` prop.
+
+Use transparent stops to create beam/wedge effects, or fill the entire circle for a rotating gradient border (replacing the old `gradient` variant).
+
+<Demo data={demos.withColorStops} />
+
+## Animation Control
+
+### Pause on Hover
+
+Set `pauseOnHover` to pause the animation when the user hovers over the component. This is useful for interactive elements where the animation might be distracting during interaction.
+
+<Demo data={demos.withPauseOnHover} />
+
+### Timing Function
+
+The `timingFunction` prop controls the CSS animation timing function. By default, beam uses `linear` (constant speed), while glow and pulse use `ease-in-out` (smooth acceleration). You can override this with any valid CSS timing function.
+
+<Demo data={demos.withTimingFunction} />
+
 ## Mask and Background Effects
 
 The `withMask` and `zIndex` props allow you to create advanced visual effects, including background glows and layered animations.
@@ -104,16 +123,6 @@ By default, `withMask` is `true`, which clips the animated effect to the border 
 The `zIndex` prop controls the stacking order of the border effect. By default, the border appears in front of the content (`zIndex={1}`). Set `zIndex={-1}` combined with `withMask={false}` to create beautiful background glow effects that appear behind your content.
 
 <Demo data={demos.withZIndex} />
-
-### anchor
-
-The `anchor` prop controls how far inward the beam follows the border path. By default, `anchor={0}` makes the beam follow the outer edge. Positive values move the beam path inward, which is especially useful when combined with `withMask={false}` to create inner glow effects that illuminate the content area.
-
-<Demo data={demos.withAnchor} />
-
-Combine `anchor` with `zIndex={-1}` and `withMask={false}` to create beautiful background glow effects. Higher anchor values move the glow closer to the center, creating different illumination patterns behind your content.
-
-<Demo data={demos.withAnchorBackground} />
 
 ## Use Cases
 
@@ -166,3 +175,7 @@ Nest multiple `BorderAnimate` components to create complex, layered effects. Com
 BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to create animated borders around avatars, profile pictures, or any circular UI element. The beam smoothly follows the circular path.
 
 <Demo data={demos.withCircle} />
+
+## Accessibility
+
+BorderAnimate automatically respects the `prefers-reduced-motion` media query. When a user has enabled "Reduce motion" in their operating system settings, all animations are disabled. No additional configuration is needed.

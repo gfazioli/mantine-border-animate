@@ -50,7 +50,6 @@ export const variant: MantineDemo = {
       data: [
         { value: 'beam', label: 'Beam' },
         { value: 'glow', label: 'Glow' },
-        { value: 'gradient', label: 'Gradient' },
         { value: 'pulse', label: 'Pulse' },
       ],
     },

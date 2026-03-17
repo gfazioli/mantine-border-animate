@@ -26,12 +26,12 @@ function Demo(props: BorderAnimateProps) {
 }
 
 const code = `
-import { BorderAnimate, BorderAnimateProps } from '@gfazioli/mantine-border-animate';
+import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { Flex, Text, Title } from '@mantine/core';
 
 function Demo() {
   return (
-    <BorderAnimate {{props}} w={500} h={400}>
+    <BorderAnimate {{props}} w={480} h={200}>
       <Flex flex={1} direction="column" align="center" justify="center" h="100%" style={{ borderRadius: 'inherit', backgroundColor: 'var(--mantine-color-default)',}}>
         <Title>Animate Border</Title>
         <Text>This is an example of BorderAnimate component</Text>
@@ -56,7 +56,6 @@ export const configurator: MantineDemo = {
       data: [
         { value: 'beam', label: 'Beam' },
         { value: 'glow', label: 'Glow' },
-        { value: 'gradient', label: 'Gradient' },
         { value: 'pulse', label: 'Pulse' },
       ],
     },
@@ -64,6 +63,7 @@ export const configurator: MantineDemo = {
     { type: 'boolean', prop: 'animate', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'reverse', initialValue: false, libraryValue: false },
     { type: 'boolean', prop: 'withMask', initialValue: true, libraryValue: true },
+    { type: 'boolean', prop: 'pauseOnHover', initialValue: false, libraryValue: false },
 
     { type: 'size', prop: 'size', initialValue: 'sm', libraryValue: 'sm' },
     { type: 'size', prop: 'radius', initialValue: 'md', libraryValue: 'md' },
