@@ -26,25 +26,45 @@ function Content({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center">
-      {/* Default: withMask={true} - border is clipped to the edge */}
+    <Flex gap="xl" align="center" wrap="wrap">
+      {/* Path mode: withMask={true} */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
-            <Text size="sm">withMask=true</Text>
+            <Text size="xs">Path + mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">Clipped to border</Text>
       </Stack>
 
-      {/* withMask={false} - glow extends beyond the border */}
+      {/* Path mode: withMask={false} */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
-            <Text size="sm">withMask=false</Text>
+            <Text size="xs">Path no mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">Glow extends outward</Text>
+      </Stack>
+
+      {/* Conic mode: withMask={true} */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} beamMode="conic" withMask size="md" blur="xs">
+          <Content>
+            <Text size="xs">Conic + mask</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">Conic clipped</Text>
+      </Stack>
+
+      {/* Conic mode: withMask={false} */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} beamMode="conic" withMask={false} size="md" blur="xs">
+          <Content>
+            <Text size="xs">Conic no mask</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">Conic full gradient</Text>
       </Stack>
     </Flex>
   );
@@ -72,12 +92,11 @@ function Content({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center" justify="center" py={64}>
-      {/* Default: withMask={true} - border is clipped to the edge */}
+    <Flex gap="xl" align="center" justify="center" wrap="wrap" py={64}>
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
-            <Text size="sm">withMask=true</Text>
+            <Text size="xs">Path + mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
@@ -85,15 +104,36 @@ function Demo() {
         </Text>
       </Stack>
 
-      {/* withMask={false} - glow extends beyond the border */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
-            <Text size="sm">withMask=false</Text>
+            <Text size="xs">Path no mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
           Glow extends outward
+        </Text>
+      </Stack>
+
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} beamMode="conic" withMask size="md" blur="xs">
+          <Content>
+            <Text size="xs">Conic + mask</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Conic clipped
+        </Text>
+      </Stack>
+
+      <Stack align="center" gap="xs">
+        <BorderAnimate w={200} h={150} beamMode="conic" withMask={false} size="md" blur="xs">
+          <Content>
+            <Text size="xs">Conic no mask</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Conic full gradient
         </Text>
       </Stack>
     </Flex>
@@ -106,4 +146,5 @@ export const withMask: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };

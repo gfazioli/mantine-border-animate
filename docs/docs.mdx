@@ -24,11 +24,12 @@ The `BorderAnimate` component wraps any element to add stunning animated border 
 ### Key Features
 
 - **Multiple animation variants** - Choose from beam, glow, or pulse effects
+- **Two beam modes** - `path` (uniform size along the border) or `conic` (rotating gradient wedge)
 - **Fully customizable** - Control colors, duration, size, blur, and more
 - **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
 - **Performance optimized** - Uses CSS animations for smooth 60fps effects
 - **Controllable** - Toggle animation on/off, show/hide the border, set static angles
-- **Custom color stops** - Multi-color gradients with `colorStops` for beam effects, rotating gradients, and more
+- **Custom color stops** - Multi-color gradients with `colorStops` for both beam modes
 - **Pause on hover** - Pause animations when hovering with `pauseOnHover`
 - **Accessible** - Respects `prefers-reduced-motion` automatically
 
@@ -56,16 +57,18 @@ The `BorderAnimate` component supports three animation variants, each creating a
 
 ### Beam
 
-The **beam** variant (default) creates a rotating conic-gradient light that sweeps around the border. The `size` prop controls how wide the beam wedge is — from a narrow spotlight to a full rotating gradient.
+The **beam** variant (default) creates an animated glow that moves around the border. It supports two rendering modes via the `beamMode` prop:
+
+- **`path`** (default) — a radial-gradient circle that travels along the border perimeter via CSS `offset-path`. The beam has uniform size at all positions and constant speed along the perimeter.
+- **`conic`** — a rotating conic-gradient wedge. The rotation is smooth and continuous, but the beam width varies slightly on rectangular containers (wider at corners, narrower at edges) due to the conic geometry.
 
 Key props for beam variant:
 
-- `size` - Angular spread of the beam wedge (xs=5%, sm=10%, md=15%, lg=25%, xl=40%, or a number 0-50)
-- `duration` - Controls how fast the beam rotates
-- `colorFrom` / `colorTo` - Colors of the beam wedge
-- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo)
-
-With `colorStops`, you can create any effect: a narrow comet trail, a rainbow rotating border, a half-and-half split, or anything in between.
+- `beamMode` - Rendering mode: `'path'` (default) or `'conic'`
+- `size` - For path: pixel size of the traveling circle (xs..xl). For conic: angular spread of the wedge (xs=18°..xl=180° or number 0-50)
+- `duration` - Controls how fast the beam moves/rotates
+- `colorFrom` / `colorTo` - Colors of the beam
+- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo). For path mode creates a radial-gradient with concentric color rings, for conic mode creates a custom conic-gradient
 
 ### Glow
 
@@ -88,9 +91,9 @@ Key props for pulse variant:
 
 ## Color Stops
 
-The `colorStops` prop gives you full control over the beam's conic-gradient. Each stop has a `color` (any Mantine color) and a `position` (0-100%). When provided, it overrides `colorFrom`/`colorTo` and the `size` prop.
+The `colorStops` prop gives you full control over the beam gradient. Each stop has a `color` (any Mantine color) and a `position` (0-100%). When provided, it overrides `colorFrom`/`colorTo`.
 
-Use transparent stops to create beam/wedge effects, or fill the entire circle for a rotating gradient border (replacing the old `gradient` variant).
+For **path mode**, colorStops creates a `radial-gradient` with concentric color rings in the traveling circle. For **conic mode**, it creates a custom `conic-gradient` — use transparent stops for beam/wedge effects, or fill the entire circle for a rotating gradient border.
 
 <Demo data={demos.withColorStops} />
 
@@ -114,7 +117,7 @@ The `withMask` and `zIndex` props allow you to create advanced visual effects, i
 
 ### withMask
 
-By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the glow extend beyond the border, creating a softer, more diffused effect.
+By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the glow extend beyond the border, creating a softer, more diffused effect. Both beam modes (path and conic) support masking.
 
 <Demo data={demos.withMask} />
 

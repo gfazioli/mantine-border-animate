@@ -151,4 +151,5 @@ export const withZIndex: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };
