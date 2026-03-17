@@ -117,4 +117,19 @@ describe('BorderAnimate', () => {
     const { container } = render(<BorderAnimate variant="beam" size={20} />);
     expect(container.querySelector('[data-variant="beam"]')).toBeInTheDocument();
   });
+
+  it('sets data-beam-mode to path by default', () => {
+    const { container } = render(<BorderAnimate variant="beam" />);
+    expect(container.querySelector('[data-beam-mode="path"]')).toBeInTheDocument();
+  });
+
+  it('sets data-beam-mode to conic when specified', () => {
+    const { container } = render(<BorderAnimate variant="beam" beamMode="conic" />);
+    expect(container.querySelector('[data-beam-mode="conic"]')).toBeInTheDocument();
+  });
+
+  it('does not set data-beam-mode for non-beam variants', () => {
+    const { container } = render(<BorderAnimate variant="glow" />);
+    expect(container.querySelector('[data-beam-mode]')).toBeNull();
+  });
 });

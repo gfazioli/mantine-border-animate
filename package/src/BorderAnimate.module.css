@@ -178,7 +178,7 @@
 }
 
 /* ============================================
-   BEAM VARIANT — CONIC MODE (default)
+   BEAM VARIANT — CONIC MODE
    ============================================ */
 
 .border[data-variant='beam'][data-beam-mode='conic']::after {

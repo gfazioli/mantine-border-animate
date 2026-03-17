@@ -107,7 +107,6 @@ export interface BorderAnimateBaseProps {
    * colorFrom/colorTo and gives full control over the rotating gradient.
    * Each stop has a color (any MantineColor) and a position (0-100).
    * Stops should be provided in ascending position order.
-   * Only applies to beamMode="conic".
    */
   colorStops?: BorderAnimateColorStop[];
 
@@ -362,7 +361,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
           variant={variant}
           data-with-mask={withMask}
           data-animate={animate}
-          data-beam-mode={variant === 'beam' ? (beamMode ?? 'conic') : undefined}
+          data-beam-mode={variant === 'beam' ? (beamMode ?? 'path') : undefined}
           data-color-stops={
             variant === 'beam' && beamMode !== 'path' && colorStops && colorStops.length > 0
               ? true
