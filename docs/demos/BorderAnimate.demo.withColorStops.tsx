@@ -26,8 +26,8 @@ function Content({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center">
-      {/* Beam with multi-color stops */}
+    <Flex gap="xl" align="center" wrap="wrap">
+      {/* Conic beam with custom wedge */}
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
@@ -45,13 +45,13 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Beam colorStops</Text>
+            <Text size="sm">Conic beam</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Multi-color beam</Text>
+        <Text size="xs" c="dimmed">Conic with colorStops</Text>
       </Stack>
 
-      {/* Gradient with rainbow color stops */}
+      {/* Conic beam as full rotating gradient */}
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
@@ -69,10 +69,33 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Rainbow gradient</Text>
+            <Text size="sm">Rainbow</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Multi-color gradient</Text>
+        <Text size="xs" c="dimmed">Conic full gradient</Text>
+      </Stack>
+
+      {/* Path beam with colorStops */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={200}
+          h={200}
+          variant="beam"
+          beamMode="path"
+          size="md"
+          duration={5}
+          colorStops={[
+            { color: 'red', position: 0 },
+            { color: 'yellow', position: 25 },
+            { color: 'cyan', position: 50 },
+            { color: 'transparent', position: 70 },
+          ]}
+        >
+          <Content>
+            <Text size="sm">Path beam</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">Path with colorStops</Text>
       </Stack>
     </Flex>
   );
@@ -100,12 +123,13 @@ function Content({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center" justify="center" py={64}>
+    <Flex gap="xl" align="center" justify="center" wrap="wrap" py={64}>
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
           h={200}
           variant="beam"
+          size="sm"
           duration={5}
           colorStops={[
             { color: 'transparent', position: 0 },
@@ -117,11 +141,11 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Beam colorStops</Text>
+            <Text size="sm">Conic beam</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Multi-color beam
+          Conic with colorStops
         </Text>
       </Stack>
 
@@ -142,11 +166,35 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Rainbow gradient</Text>
+            <Text size="sm">Rainbow</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Multi-color gradient
+          Conic full gradient
+        </Text>
+      </Stack>
+
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={200}
+          h={200}
+          variant="beam"
+          beamMode="path"
+          size="md"
+          duration={5}
+          colorStops={[
+            { color: 'red', position: 0 },
+            { color: 'yellow', position: 25 },
+            { color: 'cyan', position: 50 },
+            { color: 'transparent', position: 70 },
+          ]}
+        >
+          <Content>
+            <Text size="sm">Path beam</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Path with colorStops
         </Text>
       </Stack>
     </Flex>

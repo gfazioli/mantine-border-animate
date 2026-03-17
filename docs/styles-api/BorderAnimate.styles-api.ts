@@ -22,6 +22,7 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-blur': 'Blur amount applied to the animated border',
       '--border-animate-opacity': 'Opacity of the animated border',
       '--border-animate-static-angle': 'Static angle for the animated border effect',
+      '--border-animate-size': 'Pixel size of the beam circle (path mode only)',
       '--border-animate-gradient-background':
         'Full conic-gradient string for beam background (set via colorStops prop)',
       '--border-animate-beam-start': 'Start position of the beam wedge transparent zone (%)',
