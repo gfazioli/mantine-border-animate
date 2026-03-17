@@ -102,4 +102,5 @@ export const withPauseOnHover: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };

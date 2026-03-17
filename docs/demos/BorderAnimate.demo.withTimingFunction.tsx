@@ -122,4 +122,5 @@ export const withTimingFunction: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };

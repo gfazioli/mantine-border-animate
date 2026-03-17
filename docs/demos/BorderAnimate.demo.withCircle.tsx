@@ -140,4 +140,5 @@ export const withCircle: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };

@@ -33,6 +33,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
+          beamMode="conic"
           size="sm"
           duration={5}
           colorStops={[
@@ -57,6 +58,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
+          beamMode="conic"
           duration={4}
           colorStops={[
             { color: 'red', position: 0 },
@@ -129,6 +131,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
+          beamMode="conic"
           size="sm"
           duration={5}
           colorStops={[
@@ -154,6 +157,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
+          beamMode="conic"
           duration={4}
           colorStops={[
             { color: 'red', position: 0 },
@@ -207,4 +211,5 @@ export const withColorStops: MantineDemo = {
   code,
   centered: true,
   defaultExpanded: false,
+  dimmed: true,
 };

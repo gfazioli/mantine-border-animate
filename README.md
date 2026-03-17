@@ -3,7 +3,7 @@
 <img alt="Mantine Border Animate" src="https://github.com/gfazioli/mantine-border-animate/blob/master/logo.jpeg" />
 
 <div align="center">
-  
+
   [![NPM version](https://img.shields.io/npm/v/%40gfazioli%2Fmantine-border-animate?style=for-the-badge)](https://www.npmjs.com/package/@gfazioli/mantine-border-animate)
   [![NPM Downloads](https://img.shields.io/npm/dm/%40gfazioli%2Fmantine-border-animate?style=for-the-badge)](https://www.npmjs.com/package/@gfazioli/mantine-border-animate)
   [![NPM Downloads](https://img.shields.io/npm/dy/%40gfazioli%2Fmantine-border-animate?style=for-the-badge&label=%20&color=f90)](https://www.npmjs.com/package/@gfazioli/mantine-border-animate)
@@ -11,7 +11,7 @@
 
 ---
 
-[<kbd> <br/> ❤️ If this component has been useful to you or your team, please consider becoming a sponsor <br/> </kbd>](https://github.com/sponsors/gfazioli?o=esc)
+[<kbd> <br/> ❤️ If this component has been useful to you or your team, please consider becoming a sponsor <br/> </kbd>](https://github.com/sponsors/gfazioli?o=esc)
 
 </div>
 
@@ -19,11 +19,19 @@
 
 This component is created on top of the [Mantine](https://mantine.dev/) library.
 
-[Mantine BorderAnimate](https://gfazioli.github.io/mantine-border-animate) provides a flexible wrapper that turns any Mantine or plain React element into a visually striking component with animated borders. Designed for both aesthetics and performance, it uses CSS animations to deliver smooth 60fps effects and exposes controls to tailor the look and behavior: you can show/hide the border, keep it static or continuously animated, and adjust parameters like size, radius, border width, blur, duration, and color transitions. 
+[Mantine BorderAnimate](https://gfazioli.github.io/mantine-border-animate) provides a flexible wrapper that turns any Mantine or plain React element into a visually striking component with animated borders. Designed for both aesthetics and performance, it uses CSS animations to deliver smooth 60fps effects and exposes controls to tailor the look and behavior: you can show/hide the border, keep it static or continuously animated, and adjust parameters like size, radius, border width, blur, duration, and color transitions.
 
-The component includes four distinct variants—beam (a traveling glow along the perimeter with adjustable anchor and duration), gradient (a rotating conic gradient between two colors with optional blur), glow (a rhythmic pulsation with tunable blur and opacity), and pulse (a subtle expand‑and‑fade “breathing” effect). 
+The component includes three distinct variants — **beam** (a traveling glow along the perimeter with two rendering modes: path and conic), **glow** (a rhythmic pulsation with tunable blur and opacity), and **pulse** (a subtle expand-and-fade "breathing" effect).
 
-Advanced visual setups are supported through masking and layering: withMask clips the effect to the border, while disabling it and using zIndex allows soft background glows behind content; anchor positioning further refines inner vs outer illumination. Integration is straightforward via provided stylesheet imports, and examples demonstrate wrapping common Mantine components like Paper, Stack, Title, and Flex to achieve eye‑catching, controllable borders across a wide range of UI elements.
+Key features include:
+
+- **Two beam rendering modes** — `path` (radial-gradient traveling along the border via CSS offset-path, uniform beam size) and `conic` (rotating conic-gradient, smooth rotation with customizable wedge spread)
+- **Custom color stops** — multi-color gradients via `colorStops` for both beam modes
+- **Pause on hover** — `pauseOnHover` prop to pause animations during user interaction
+- **Custom timing functions** — `timingFunction` prop for full control over animation easing
+- **Accessible** — automatically respects `prefers-reduced-motion` to disable animations for users who prefer reduced motion
+
+Advanced visual setups are supported through masking and layering: `withMask` clips the effect to the border area, while disabling it and using `zIndex` allows soft background glows behind content. Integration is straightforward via provided stylesheet imports, and examples demonstrate wrapping common Mantine components like Paper, Cards, Buttons, Inputs, and Alerts.
 
 > [!note]
 >
@@ -34,7 +42,7 @@ Advanced visual setups are supported through masking and layering: withMask clip
 ```sh
 npm install @gfazioli/mantine-border-animate
 ```
-or 
+or
 
 ```sh
 yarn add @gfazioli/mantine-border-animate
@@ -68,16 +76,16 @@ function Demo() {
 
 <div align="center">
 
-[<kbd> <br/> ❤️ If this component has been useful to you or your team, please consider becoming a sponsor <br/> </kbd>](https://github.com/sponsors/gfazioli?o=esc)
+[<kbd> <br/> ❤️ If this component has been useful to you or your team, please consider becoming a sponsor <br/> </kbd>](https://github.com/sponsors/gfazioli?o=esc)
 
 </div>
 
 Your support helps me:
 
-- Keep the project actively maintained with timely bug fixes and security updates	
-- Add new features, improve performance, and refine the developer experience	
-- Expand test coverage and documentation for smoother adoption	
-- Ensure long‑term sustainability without relying on ad hoc free time	
+- Keep the project actively maintained with timely bug fixes and security updates
+- Add new features, improve performance, and refine the developer experience
+- Expand test coverage and documentation for smoother adoption
+- Ensure long‑term sustainability without relying on ad hoc free time
 - Prioritize community requests and roadmap items that matter most
 
 Open source thrives when those who benefit can give back—even a small monthly contribution makes a real difference. Sponsorships help cover maintenance time, infrastructure, and the countless invisible tasks that keep a project healthy.
@@ -87,5 +95,5 @@ Your help truly matters.
 💚 [Become a sponsor](https://github.com/sponsors/gfazioli?o=esc) today and help me keep this project reliable, up‑to‑date, and growing for everyone.
 
 ---
-  
+
 [![Star History Chart](https://api.star-history.com/svg?repos=gfazioli/mantine-border-animate&type=Timeline)](https://www.star-history.com/#gfazioli/mantine-border-animate&Timeline)
