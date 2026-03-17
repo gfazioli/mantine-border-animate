@@ -110,6 +110,13 @@
 
   /* Transparent border to define the width */
   border: var(--border-animate-width) solid transparent;
+
+  /* Glow variant must render behind the content because its ::after covers
+     the entire area (no mask clipping). Without this the glow overlays
+     the content making it unreadable. */
+  &[data-variant='glow'] {
+    z-index: -1;
+  }
 }
 
 /* Mask: shows only the border area (enabled by default) */
@@ -166,15 +173,20 @@
   aspect-ratio: 1;
   width: var(--border-animate-size);
 
-  /* Radial gradient for uniform glow */
-  background: radial-gradient(
-    ellipse at center,
-    var(--border-animate-color-from) 0%,
-    var(--border-animate-color-to) 40%,
-    transparent 70%
+  /* Default: radial gradient — symmetric, smooth on all corners and aspect ratios.
+     The mask on .border clips everything outside the border area, so a large
+     circle simply illuminates a longer stretch of the border without bleeding.
+     When colorStops is set, --border-animate-beam-gradient overrides with a custom gradient. */
+  background: var(
+    --border-animate-beam-gradient,
+    radial-gradient(
+      ellipse at center,
+      var(--border-animate-color-from) 0%,
+      var(--border-animate-color-to) 40%,
+      transparent 70%
+    )
   );
 
-  /* Blur effect */
   filter: blur(var(--border-animate-blur));
 
   /* Move along the border path - anchor controls inward offset */

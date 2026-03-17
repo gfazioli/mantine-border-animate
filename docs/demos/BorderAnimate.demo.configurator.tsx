@@ -5,7 +5,7 @@ import { MantineDemo } from '@mantinex/demo';
 function Demo(props: BorderAnimateProps) {
   return (
     <Flex p={32} pos="relative" style={{ zIndex: 1 }}>
-      <BorderAnimate {...props} w={480} h={400}>
+      <BorderAnimate {...props} w={480} h={200}>
         <Flex
           flex={1}
           direction="column"

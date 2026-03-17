@@ -20,6 +20,14 @@ import classes from './BorderAnimate.module.css';
 /** Available border animation variants */
 export type BorderAnimateVariant = 'beam' | 'glow' | 'gradient' | 'pulse';
 
+/** A single color stop for multi-color beam gradients */
+export interface BorderAnimateColorStop {
+  /** Color value (any MantineColor, e.g. 'red.5', '#ff0000', 'rgba(...)') */
+  color: MantineColor;
+  /** Position along the gradient in percentage (0-100) */
+  position: number;
+}
+
 export type BorderAnimateStylesNames = 'root' | 'border';
 
 export type BorderAnimateCssVariables = {
@@ -36,7 +44,8 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-blur'
     | '--border-animate-opacity'
     | '--border-animate-anchor'
-    | '--border-animate-static-angle';
+    | '--border-animate-static-angle'
+    | '--border-animate-beam-gradient';
 };
 
 export interface BorderAnimateBaseProps {
@@ -67,7 +76,15 @@ export interface BorderAnimateBaseProps {
    */
   colorTo?: MantineColor;
 
-  /** Size of the beam/glow (only for beam effect)
+  /** Color stops for multi-color beam gradient. When provided, overrides
+   * colorFrom/colorTo for the beam variant only. Each stop has a color
+   * (any MantineColor) and a position (0-100). Stops should be provided
+   * in ascending position order.
+   */
+  colorStops?: BorderAnimateColorStop[];
+
+  /** Size of the beam effect. Controls how much of the border is illuminated.
+   * Larger values create a longer glow trail along the border.
    * @default 'sm'
    */
   size?: MantineSize | (string & {}) | number;
@@ -174,6 +191,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       borderWidth,
       colorFrom,
       colorTo,
+      colorStops,
       size,
       delay,
       blur,
@@ -182,8 +200,17 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       radius,
       anchor,
       angle,
+      variant,
     }
   ) => {
+    let beamGradient: string | undefined;
+    if (variant === 'beam' && colorStops && colorStops.length > 0) {
+      const stops = colorStops
+        .map((s) => `${getThemeColor(s.color, theme)} ${s.position}%`)
+        .join(', ');
+      beamGradient = `linear-gradient(to right, ${stops})`;
+    }
+
     return {
       root: {
         '--border-animate-radius': radius === undefined ? undefined : getRadius(radius),
@@ -201,6 +228,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-opacity': `${borderOpacity ?? 1}`,
         '--border-animate-anchor': `${anchor ?? 0}`,
         '--border-animate-static-angle': `${angle ?? 0}`,
+        '--border-animate-beam-gradient': beamGradient,
       },
     };
   }
@@ -216,6 +244,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
     borderWidth,
     colorFrom,
     colorTo,
+    colorStops,
     size,
     radius,
     reverse,
