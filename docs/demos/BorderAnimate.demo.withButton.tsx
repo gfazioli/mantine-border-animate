@@ -8,17 +8,17 @@ import { Button, Flex } from '@mantine/core';
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      <BorderAnimate radius={4} size={80}>
+      <BorderAnimate radius={4} size="sm">
         <Button>Click me</Button>
       </BorderAnimate>
 
-      <BorderAnimate radius={256} size={80}>
+      <BorderAnimate radius={256} size="sm">
         <Button radius={256} variant="default">
           Rounded
         </Button>
       </BorderAnimate>
 
-      <BorderAnimate radius="md" size={100} variant="gradient">
+      <BorderAnimate radius="md" size="md" variant="glow" blur="xs">
         <Button variant="light" color="violet">
           Gradient
         </Button>
@@ -31,17 +31,17 @@ function Demo() {
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      <BorderAnimate radius={4} size={80}>
+      <BorderAnimate radius={4} size="sm">
         <Button>Click me</Button>
       </BorderAnimate>
 
-      <BorderAnimate radius={256} size={80}>
+      <BorderAnimate radius={256} size="sm">
         <Button radius={256} variant="default">
           Rounded
         </Button>
       </BorderAnimate>
 
-      <BorderAnimate radius="md" size={100} variant="gradient">
+      <BorderAnimate radius="md" size="md" variant="glow" blur="xs">
         <Button variant="light" color="violet">
           Gradient
         </Button>

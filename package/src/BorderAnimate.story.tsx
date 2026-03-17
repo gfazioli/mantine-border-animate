@@ -57,7 +57,7 @@ export function Usage() {
 
 export function FullWidth() {
   return (
-    <BorderAnimate size={80} anchor={-15}>
+    <BorderAnimate size="xl">
       <Button variant="default" fullWidth h={30}>
         Configure
       </Button>
@@ -123,7 +123,7 @@ export function WithChip() {
 export function WithCheckbox() {
   return (
     <Flex>
-      <BorderAnimate size={32} radius="xs">
+      <BorderAnimate size="sm" radius="xs">
         <Checkbox.Indicator />
       </BorderAnimate>
     </Flex>
@@ -144,7 +144,7 @@ export function WithAlert() {
   const icon = <IconInfoCircle />;
   return (
     <Flex>
-      <BorderAnimate size={200} radius="sm" duration={10}>
+      <BorderAnimate size="md" radius="sm" duration={10}>
         <Alert variant="light" color="blue" title="Alert title" icon={icon}>
           Lorem ipsum dolor sit, amet consectetur adipisicing elit. At officiis, quae tempore
           necessitatibus placeat saepe.

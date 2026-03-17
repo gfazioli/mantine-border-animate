@@ -10,7 +10,7 @@ import { Alert, Flex } from '@mantine/core';
 function Demo() {
   return (
     <Flex direction="column" align="center" gap="xl" py={64}>
-      <BorderAnimate size={200} radius="sm" duration={10}>
+      <BorderAnimate size="lg" radius="sm" duration={10}>
         <Alert
           variant="light"
           color="blue"
@@ -22,7 +22,7 @@ function Demo() {
       </BorderAnimate>
 
       <BorderAnimate
-        size={200}
+        size="lg"
         radius="sm"
         duration={2}
         colorFrom="red"
@@ -46,14 +46,14 @@ function Demo() {
 function Demo() {
   return (
     <Flex direction="column" align="center" gap="xl" py={64}>
-      <BorderAnimate size={200} radius="sm" duration={10}>
+      <BorderAnimate size="lg" radius="sm" duration={10}>
         <Alert variant="light" color="blue" title="Information" icon={<IconInfoCircle />}>
           This is an informational alert with an animated border effect.
         </Alert>
       </BorderAnimate>
 
       <BorderAnimate
-        size={200}
+        size="lg"
         radius="sm"
         duration={2}
         colorFrom="red"

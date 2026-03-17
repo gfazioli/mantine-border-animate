@@ -29,7 +29,7 @@ function Demo() {
     <Flex gap="xl" align="center">
       {/* Default: withMask={true} - border is clipped to the edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask size={200} blur={4}>
+        <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
             <Text size="sm">withMask=true</Text>
           </Content>
@@ -39,7 +39,7 @@ function Demo() {
 
       {/* withMask={false} - glow extends beyond the border */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
             <Text size="sm">withMask=false</Text>
           </Content>
@@ -75,7 +75,7 @@ function Demo() {
     <Flex gap="xl" align="center" justify="center" py={64}>
       {/* Default: withMask={true} - border is clipped to the edge */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask size={200} blur={4}>
+        <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
             <Text size="sm">withMask=true</Text>
           </Content>
@@ -87,7 +87,7 @@ function Demo() {
 
       {/* withMask={false} - glow extends beyond the border */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} withMask={false} size={200} blur={4}>
+        <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
             <Text size="sm">withMask=false</Text>
           </Content>

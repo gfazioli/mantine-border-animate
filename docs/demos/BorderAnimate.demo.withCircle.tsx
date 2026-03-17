@@ -38,7 +38,7 @@ function Demo() {
 
       {/* Avatar with glow */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={80} h={80} variant="glow" radius="100%" size={60} colorFrom="green" colorTo="cyan">
+        <BorderAnimate w={80} h={80} variant="glow" radius="100%" size="sm" colorFrom="green" colorTo="cyan">
           <Avatar
             src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
             alt="Avatar"
@@ -51,7 +51,7 @@ function Demo() {
 
       {/* Larger circle with gradient variant */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={120} h={120} radius="100%" variant="gradient" duration={3}>
+        <BorderAnimate w={120} h={120} radius="100%" variant="pulse" duration={3}>
           <CircleContent>
             <Text size="xs">Gradient</Text>
           </CircleContent>
@@ -103,7 +103,7 @@ function Demo() {
           h={80}
           variant="glow"
           radius="100%"
-          size={60}
+          size="sm"
           colorFrom="green"
           colorTo="cyan"
         >
@@ -121,7 +121,7 @@ function Demo() {
 
       {/* Larger circle with gradient variant */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={120} h={120} radius="100%" variant="gradient" duration={3}>
+        <BorderAnimate w={120} h={120} radius="100%" variant="pulse" duration={3}>
           <CircleContent>
             <Text size="xs">Gradient</Text>
           </CircleContent>

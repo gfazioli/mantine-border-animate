@@ -52,7 +52,7 @@ describe('BorderAnimate', () => {
   });
 
   it('renders each variant', () => {
-    const variants = ['beam', 'glow', 'gradient', 'pulse'] as const;
+    const variants = ['beam', 'glow', 'pulse'] as const;
     for (const variant of variants) {
       const { container } = render(<BorderAnimate variant={variant} />);
       expect(container.querySelector(`[data-variant="${variant}"]`)).toBeInTheDocument();
@@ -88,11 +88,33 @@ describe('BorderAnimate', () => {
     expect(container.querySelector('[data-variant="beam"]')).toBeInTheDocument();
   });
 
-  it('does not leak colorStops to the DOM', () => {
+  it('does not leak custom props to the DOM', () => {
     const { container } = render(
-      <BorderAnimate variant="beam" colorStops={[{ color: 'red', position: 50 }]} />
+      <BorderAnimate
+        variant="beam"
+        colorStops={[{ color: 'red', position: 50 }]}
+        timingFunction="ease-in"
+        pauseOnHover
+      />
     );
     const root = container.firstChild as HTMLElement;
     expect(root.getAttribute('colorStops')).toBeNull();
+    expect(root.getAttribute('timingFunction')).toBeNull();
+  });
+
+  it('sets data-pause-on-hover on root when pauseOnHover is true', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    render(<BorderAnimate ref={ref} pauseOnHover />);
+    expect(ref.current).toHaveAttribute('data-pause-on-hover');
+  });
+
+  it('does not set data-pause-on-hover when pauseOnHover is false', () => {
+    const { container } = render(<BorderAnimate pauseOnHover={false} />);
+    expect(container.firstChild).not.toHaveAttribute('data-pause-on-hover');
+  });
+
+  it('renders beam with numeric size without crashing', () => {
+    const { container } = render(<BorderAnimate variant="beam" size={20} />);
+    expect(container.querySelector('[data-variant="beam"]')).toBeInTheDocument();
   });
 });
