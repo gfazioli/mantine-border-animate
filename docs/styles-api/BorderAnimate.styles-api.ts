@@ -24,6 +24,8 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-opacity': 'Opacity of the animated border',
       '--border-animate-anchor': 'Anchor point for the animated border effect',
       '--border-animate-static-angle': 'Static angle for the animated border effect',
+      '--border-animate-beam-gradient':
+        'Full gradient string for the beam background (beam variant only, set via colorStops prop)',
     },
   },
 

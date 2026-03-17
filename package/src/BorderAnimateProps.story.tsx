@@ -356,6 +356,66 @@ export function GradientVariant(props: BorderAnimateProps) {
   );
 }
 
+export function BeamColorStops() {
+  return (
+    <Group>
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          variant="beam"
+          w={400}
+          h={100}
+          p={1}
+          size={200}
+          duration={4}
+          colorStops={[
+            { color: 'transparent', position: 0 },
+            { color: 'green', position: 15 },
+            { color: 'cyan', position: 35 },
+            { color: 'yellow', position: 60 },
+            { color: 'red', position: 85 },
+            { color: 'transparent', position: 100 },
+          ]}
+        >
+          <Box
+            w="100%"
+            h="100%"
+            style={{ backgroundColor: 'var(--mantine-color-default)', borderRadius: 10 }}
+          />
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Comet effect (wide rectangle)
+        </Text>
+      </Stack>
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          variant="beam"
+          w={200}
+          h={200}
+          p={1}
+          size={150}
+          duration={3}
+          colorStops={[
+            { color: 'transparent', position: 0 },
+            { color: 'violet.3', position: 20 },
+            { color: 'pink.5', position: 50 },
+            { color: 'orange.5', position: 80 },
+            { color: 'transparent', position: 100 },
+          ]}
+        >
+          <Box
+            w="100%"
+            h="100%"
+            style={{ backgroundColor: 'var(--mantine-color-default)', borderRadius: 10 }}
+          />
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Sunset (square)
+        </Text>
+      </Stack>
+    </Group>
+  );
+}
+
 export function PulseVariant(props: BorderAnimateProps) {
   return (
     <Group>

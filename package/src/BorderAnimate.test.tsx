@@ -73,4 +73,26 @@ describe('BorderAnimate', () => {
   it('has correct displayName', () => {
     expect(BorderAnimate.displayName).toBe('BorderAnimate');
   });
+
+  it('renders beam variant with colorStops without crashing', () => {
+    const { container } = render(
+      <BorderAnimate
+        variant="beam"
+        colorStops={[
+          { color: 'red', position: 0 },
+          { color: 'yellow', position: 50 },
+          { color: 'blue', position: 100 },
+        ]}
+      />
+    );
+    expect(container.querySelector('[data-variant="beam"]')).toBeInTheDocument();
+  });
+
+  it('does not leak colorStops to the DOM', () => {
+    const { container } = render(
+      <BorderAnimate variant="beam" colorStops={[{ color: 'red', position: 50 }]} />
+    );
+    const root = container.firstChild as HTMLElement;
+    expect(root.getAttribute('colorStops')).toBeNull();
+  });
 });
