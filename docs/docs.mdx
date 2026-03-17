@@ -1,5 +1,145 @@
+import { Code, Table } from '@mantine/core';
 import { InstallScript } from './components/InstallScript/InstallScript';
 import * as demos from './demos';
+
+## Upgrading from 0.x to 1.0
+
+Version 1.0 is a major rewrite of the beam variant. The beam now supports two rendering modes (`path` and `conic`) and several props have been removed, renamed, or changed semantics.
+
+### Breaking Changes
+
+#### Removed props
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Prop</Table.Th>
+      <Table.Th>Replacement</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td><Code>opacity</Code></Table.Td>
+      <Table.Td>Renamed to <Code>borderOpacity</Code> to avoid ambiguity with the CSS opacity prop from BoxProps</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>anchor</Code></Table.Td>
+      <Table.Td>Removed — no longer needed with the new beam implementation</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>count</Code></Table.Td>
+      <Table.Td>Removed — use <Code>colorStops</Code> with multiple wedges for similar effects</Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+#### Removed variant
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Variant</Table.Th>
+      <Table.Th>Replacement</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td><Code>gradient</Code></Table.Td>
+      <Table.Td>Use <Code>variant="beam"</Code> with <Code>beamMode="conic"</Code> and full <Code>colorStops</Code> (no transparent gaps) to achieve the same rotating gradient effect</Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+#### Changed props
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Prop</Table.Th>
+      <Table.Th>v0.x</Table.Th>
+      <Table.Th>v1.0</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td><Code>size</Code> (beam)</Table.Td>
+      <Table.Td>Pixel size of the traveling circle (64px–480px)</Table.Td>
+      <Table.Td>Depends on <Code>beamMode</Code>: for <Code>path</Code> mode it's still pixel-based, for <Code>conic</Code> mode it's angular spread (xs=18°..xl=180°)</Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+#### New props
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Prop</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td><Code>beamMode</Code></Table.Td>
+      <Table.Td><Code>'path'</Code> (default) or <Code>'conic'</Code> — choose the beam rendering technique</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>colorStops</Code></Table.Td>
+      <Table.Td>Array of <Code>{`{ color, position }`}</Code> for multi-color gradients (beam variant)</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>borderOpacity</Code></Table.Td>
+      <Table.Td>Opacity of the border effect (0–1), replaces <Code>opacity</Code></Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>timingFunction</Code></Table.Td>
+      <Table.Td>CSS animation timing function override</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td><Code>pauseOnHover</Code></Table.Td>
+      <Table.Td>Pause animation on hover</Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+#### Migration examples
+
+**Rename `opacity` to `borderOpacity`:**
+
+```tsx
+// Before
+<BorderAnimate opacity={0.5} />
+
+// After
+<BorderAnimate borderOpacity={0.5} />
+```
+
+**Replace `variant="gradient"` with conic beam + colorStops:**
+
+```tsx
+// Before
+<BorderAnimate variant="gradient" colorFrom="red" colorTo="blue" />
+
+// After
+<BorderAnimate
+  beamMode="conic"
+  colorStops={[
+    { color: 'red', position: 0 },
+    { color: 'blue', position: 50 },
+    { color: 'red', position: 100 },
+  ]}
+/>
+```
+
+**Remove `anchor` and `count` props:**
+
+```tsx
+// Before
+<BorderAnimate anchor={50} count={3} />
+
+// After
+<BorderAnimate />
+```
 
 ## Installation
 
