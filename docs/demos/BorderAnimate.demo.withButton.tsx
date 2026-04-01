@@ -8,7 +8,7 @@ import { Button, Flex } from '@mantine/core';
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      <BorderAnimate radius={4} size="sm">
+      <BorderAnimate radius="md" size="sm">
         <Button>Click me</Button>
       </BorderAnimate>
 
@@ -31,7 +31,7 @@ function Demo() {
 function Demo() {
   return (
     <Flex gap="xl" align="center">
-      <BorderAnimate radius={4} size="sm">
+      <BorderAnimate radius="md" size="sm">
         <Button>Click me</Button>
       </BorderAnimate>
 
