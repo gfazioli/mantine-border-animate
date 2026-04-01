@@ -7,7 +7,7 @@ import { Input } from '@mantine/core';
 
 function Demo() {
   return (
-    <BorderAnimate size="xs" radius="sm">
+    <BorderAnimate size="xs" radius="md">
       <Input placeholder="Your email" />
     </BorderAnimate>
   );
@@ -16,7 +16,7 @@ function Demo() {
 
 function Demo() {
   return (
-    <BorderAnimate size="xs" radius="sm">
+    <BorderAnimate size="xs" radius="md">
       <Input placeholder="Your email" />
     </BorderAnimate>
   );
