@@ -299,7 +299,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
   }
 );
 
-export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
+export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   const props = useProps('BorderAnimate', defaultProps, _props);
 
   const {
@@ -349,12 +349,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props, ref) => {
   });
 
   return (
-    <Box
-      ref={ref}
-      {...getStyles('root')}
-      data-pause-on-hover={pauseOnHover || undefined}
-      {...others}
-    >
+    <Box {...getStyles('root')} data-pause-on-hover={pauseOnHover || undefined} {...others}>
       {show && (
         <Box
           {...getStyles('border', { variant })}
