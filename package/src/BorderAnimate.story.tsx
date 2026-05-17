@@ -1,5 +1,3 @@
-import React from 'react';
-import { IconInfoCircle } from '@tabler/icons-react';
 import {
   Accordion,
   Alert,
@@ -13,6 +11,8 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
+import React from 'react';
 import { BorderAnimate } from './BorderAnimate';
 
 export default {

@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { AngleSlider, Button, Flex, Paper, Stack, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
+import { useState } from 'react';
 
 const code = `import { useState } from 'react';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
