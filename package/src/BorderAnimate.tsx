@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   createVarsResolver,
@@ -15,6 +14,7 @@ import {
   type MantineRadius,
   type MantineSize,
 } from '@mantine/core';
+import React from 'react';
 import classes from './BorderAnimate.module.css';
 
 /** Available border animation variants */

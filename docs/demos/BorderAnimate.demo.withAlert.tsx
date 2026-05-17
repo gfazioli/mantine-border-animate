@@ -1,7 +1,7 @@
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Flex } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
+import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
 
 const code = `import { IconInfoCircle, IconAlertTriangle } from '@tabler/icons-react';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';

@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, Button, Flex, Group, Stack, Text } from '@mantine/core';
+import React from 'react';
 import { BorderAnimate, BorderAnimateProps } from './BorderAnimate';
 
 export default {
