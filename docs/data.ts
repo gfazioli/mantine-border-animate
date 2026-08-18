@@ -27,7 +27,7 @@ export interface PackageData {
 export const PACKAGE_DATA: PackageData = {
   packageName: '@gfazioli/mantine-border-animate',
   packageDescription:
-    'Mantine component offering four border animation variants (beam, glow, gradient, pulse) with customizable colors and full animation control, perfect for creating dynamic, visually engaging UI elements.',
+    'Mantine component offering five border animation variants (beam, glow, pulse, draw, dash) with a progress-driven border, dashed patterns, hover/focus/in-view triggers and full animation control, perfect for creating dynamic, visually engaging UI elements.',
   mdxFileUrl: 'https://github.com/gfazioli/mantine-border-animate/blob/master/docs/docs.mdx',
   repositoryUrl: 'https://github.com/gfazioli/mantine-border-animate',
   licenseUrl: 'https://github.com/gfazioli/mantine-border-animate/blob/master/LICENSE',
