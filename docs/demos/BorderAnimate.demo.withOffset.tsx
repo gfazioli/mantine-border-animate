@@ -7,7 +7,7 @@ import { Flex, Paper, Text } from '@mantine/core';
 
 function Demo() {
   return (
-    <Flex gap={48} wrap="wrap" justify="center">
+    <Flex gap={48} p={48} wrap="wrap" justify="center">
       {/* On the element bounds, as usual */}
       <BorderAnimate borderWidth="sm" beamMode="comet">
         <Paper radius="md" p="md" w={150}>
@@ -34,7 +34,7 @@ function Demo() {
 
 function Demo() {
   return (
-    <Flex gap={48} wrap="wrap" justify="center">
+    <Flex gap={48} p={48} wrap="wrap" justify="center">
       {/* On the element bounds, as usual */}
       <BorderAnimate borderWidth="sm" beamMode="comet">
         <Paper radius="md" p="md" w={150}>
