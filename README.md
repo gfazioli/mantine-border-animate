@@ -42,6 +42,12 @@ Advanced visual setups are supported through masking and layering: `withMask` cl
 >
 > → [Demo and Documentation](https://gfazioli.github.io/mantine-border-animate/) → [Youtube Video](https://www.youtube.com/playlist?list=PL85tTROKkZrWyqCcmNCdWajpx05-cTal4) → [More Mantine Components](https://mantine-extensions.vercel.app/)
 
+> [!important]
+>
+> **Coming from v2?** Version 3 renames four props — `angle` → `progress` (0-100 instead of 0-360), `delay` → `phase`, `size` → `spread` for the rotating wedge, and the beam modes `path` / `conic` → `dot` / `wedge` — and fixes how the glow and pulse variants render, which changes some pixels. Passing a v2 prop logs a one-time warning in development.
+>
+> → [Upgrade guide](https://gfazioli.github.io/mantine-border-animate/?t=migrations)
+
 ## Installation
 
 ```sh
@@ -75,6 +81,25 @@ function Demo() {
     </BorderAnimate>
   );
 }
+```
+
+A border that measures a value, with the rest of the perimeter as a track:
+
+```tsx
+<BorderAnimate variant="draw" progress={65} withTrack colorFrom="blue.5" colorTo="cyan.4">
+  <Paper radius="md" p="md">
+    Uploading assets…
+  </Paper>
+</BorderAnimate>
+```
+
+A border that waits for the interaction instead of looping. On a form field `focus-within`
+follows the focus of the control inside it, so there is no state to wire up:
+
+```tsx
+<BorderAnimate variant="draw" trigger="focus-within" radius="sm">
+  <TextInput label="Email" placeholder="you@example.com" />
+</BorderAnimate>
 ```
 
 ## Sponsor
