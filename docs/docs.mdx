@@ -25,15 +25,16 @@ The `BorderAnimate` component wraps any element to add stunning animated border 
 
 ### Key Features
 
-- **Multiple animation variants** - Choose from beam, glow, or pulse effects
-- **Two beam modes** - `path` (uniform size along the border) or `conic` (rotating gradient wedge)
-- **Fully customizable** - Control colors, duration, size, blur, and more
+- **Five animation variants** - beam, glow, pulse, draw and dash
+- **Three beam modes** - `dot` (a traveling dot), `wedge` (a rotating gradient) or `comet` (a head with a tail)
+- **A border that measures** - `variant="draw"` with `progress` turns the border into a progress indicator
+- **Trigger on interaction** - animate on hover, on focus, or only while the component is on screen
+- **Fully customizable** - Control colors, duration, size, blur, offset and more
 - **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
-- **Performance optimized** - Uses CSS animations for smooth 60fps effects
-- **Controllable** - Toggle animation on/off, show/hide the border, set static angles
-- **Custom color stops** - Multi-color gradients with `colorStops` for both beam modes
+- **Performance optimized** - Pure CSS and SVG animations, no JavaScript per frame
+- **Custom color stops** - Multi-color gradients with `colorStops`
 - **Pause on hover** - Pause animations when hovering with `pauseOnHover`
-- **Accessible** - Respects `prefers-reduced-motion` automatically
+- **Accessible** - Honors `prefers-reduced-motion` through the Mantine theme
 
 Simply wrap your content with `BorderAnimate` and customize it using props:
 
@@ -47,30 +48,35 @@ You can control the border animation using the `show` prop.
 
 ### Animated
 
-You can also control the border animation using the `animate` prop. If `animate` is set to `true`, the border will animate continuously. If `animate` is set to `false`, the border will be static. You can control the angle of the border animation using the `angle` prop.
+You can also control the border animation using the `animate` prop. If `animate` is set to `true`, the border will animate continuously. If `animate` is set to `false`, the border will be static. The `progress` prop then decides **where along the perimeter** the effect sits, as a percentage from 0 to 100.
 
 <Demo data={demos.animated} />
 
 ## Variant
 
-The `BorderAnimate` component supports three animation variants, each creating a unique visual effect. Use the `variant` prop to switch between them.
+The `BorderAnimate` component supports five animation variants, each creating a unique visual effect. Use the `variant` prop to switch between them.
 
 <Demo data={demos.variant} />
 
 ### Beam
 
-The **beam** variant (default) creates an animated glow that moves around the border. It supports two rendering modes via the `beamMode` prop:
+The **beam** variant (default) creates an animated glow that moves around the border. It supports three rendering modes via the `beamMode` prop:
 
-- **`path`** (default) — a radial-gradient circle that travels along the border perimeter via CSS `offset-path`. The beam has uniform size at all positions and constant speed along the perimeter.
-- **`conic`** — a rotating conic-gradient wedge. The rotation is smooth and continuous, but the beam width varies slightly on rectangular containers (wider at corners, narrower at edges) due to the conic geometry.
+- **`dot`** (default) — a radial-gradient dot that travels along the border perimeter via CSS `offset-path`. Uniform size at every position and constant speed along the perimeter.
+- **`wedge`** — a rotating conic-gradient wedge. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear.
+- **`comet`** — a stroked head with a fading tail, drawn along the real perimeter. It is the only mode with a trail, and unlike `wedge` its speed is constant on any shape.
 
-Key props for beam variant:
+Key props for the beam variant:
 
-- `beamMode` - Rendering mode: `'path'` (default) or `'conic'`
-- `size` - For path: pixel size of the traveling circle (xs..xl). For conic: angular spread of the wedge (xs=18°..xl=180° or number 0-50)
-- `duration` - Controls how fast the beam moves/rotates
+- `beamMode` - Rendering mode: `'dot'` (default), `'wedge'` or `'comet'`
+- `size` - Pixel size of the traveling dot (`dot` mode)
+- `spread` - Visible width of the wedge in degrees (`wedge` mode, default 36)
+- `tail` - Length of the comet tail as a percentage of the perimeter (`comet` mode, default 25)
+- `duration` - Controls how fast the beam travels
 - `colorFrom` / `colorTo` - Colors of the beam
-- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo). For path mode creates a radial-gradient with concentric color rings, for conic mode creates a custom conic-gradient
+- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo)
+
+<Demo data={demos.withComet} />
 
 ### Glow
 
@@ -90,6 +96,47 @@ Key props for pulse variant:
 
 - `duration` - Controls the pulse rhythm
 - `blur` - Softens the border effect
+
+### Draw
+
+The **draw** variant turns the border into a value. `progress` says how much of the perimeter is drawn, from 0 to 100, and the stroke follows the real border — corners included — so 50% is exactly half of the way around whatever the aspect ratio of the element is.
+
+Because the drawn length is a transition, changing `progress` animates smoothly on its own. Set `withTrack` to render the rest of the perimeter underneath, the way a progress bar shows its remaining part.
+
+Key props for the draw variant:
+
+- `progress` - How much of the border is drawn (0-100, default 100)
+- `withTrack` / `trackColor` - Render and color the untouched part of the perimeter
+- `duration` - Duration of the transition when progress changes (default 1s for this variant)
+
+<Demo data={demos.withDraw} />
+
+### Dash
+
+The **dash** variant paints a dashed border and marches it around the perimeter. Lengths are percentages of the perimeter, not pixels, so the pattern stays even on any size or aspect ratio.
+
+Key props for the dash variant:
+
+- `dashSize` / `dashGap` - Length of each dash and of each gap (default 4 and 4)
+- `count` - Number of segments spread evenly along the perimeter; it overrides the absolute lengths and keeps only their ratio
+- `dashCap` - `'butt'` (default) or `'round'`. A tiny `dashSize` with a round cap gives you dots
+- `withTrack` / `trackColor` - Render the full perimeter underneath the dashes
+
+<Demo data={demos.withDash} />
+
+## Triggers
+
+By default the animation runs forever. The `trigger` prop lets an interaction start it instead, which is usually what you want on something a person can actually touch:
+
+- `always` (default) - animates continuously
+- `hover` - fades in and animates while the pointer is over the wrapper
+- `focus-within` - the same, but driven by focus, so it works with real form controls
+- `inView` - animates only while the component is inside the viewport
+- `never` - renders the resting state and never animates
+
+The transition lasts `duration`, and for `variant="draw"` the border literally draws itself as the trigger becomes active.
+
+<Demo data={demos.withTrigger} />
 
 ## Color Stops
 
@@ -113,13 +160,21 @@ The `timingFunction` prop controls the CSS animation timing function. By default
 
 <Demo data={demos.withTimingFunction} />
 
+## Offset
+
+The `offset` prop pushes the ring outwards, leaving a gap between the content and the animated border. The radius grows by the same amount, so the ring stays concentric with the element instead of looking pinched at the corners.
+
+<Demo data={demos.withOffset} />
+
 ## Mask and Background Effects
 
 The `withMask` and `zIndex` props allow you to create advanced visual effects, including background glows and layered animations.
 
 ### withMask
 
-By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the glow extend beyond the border, creating a softer, more diffused effect. Both beam modes (path and conic) support masking.
+By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the effect extend beyond the border, creating a softer, more diffused look.
+
+The **glow** variant is the exception: it defaults to `withMask={false}`, because its whole point is a halo that spreads outwards. Pass `withMask` explicitly to clip it into a blurred ring instead.
 
 <Demo data={demos.withMask} />
 
@@ -183,4 +238,8 @@ BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to creat
 
 ## Accessibility
 
-BorderAnimate automatically respects the `prefers-reduced-motion` media query. When a user has enabled "Reduce motion" in their operating system settings, all animations are disabled. No additional configuration is needed.
+BorderAnimate honors the `prefers-reduced-motion` media query through the Mantine theme. When a user has enabled "Reduce motion" in their operating system settings, every animation and transition is disabled — including the ones on pseudo-elements, which the rule shipped by Mantine core cannot reach on its own.
+
+Because the guard is scoped to `theme.respectReducedMotion`, an application that deliberately turns that setting off keeps its animations, exactly like every other Mantine component.
+
+The animated ring is decorative and carries `aria-hidden`, so it is never announced by assistive technology.

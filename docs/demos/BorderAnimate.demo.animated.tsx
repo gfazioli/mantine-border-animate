@@ -1,12 +1,12 @@
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { AngleSlider, Button, Flex, Paper, Stack, Title } from '@mantine/core';
+import { Button, Flex, Paper, Slider, Stack, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineDemo } from '@mantinex/demo';
 import { useState } from 'react';
 
 const code = `import { useState } from 'react';
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { AngleSlider, Button, Flex, Paper, Stack, Title } from '@mantine/core';
+import { Button, Flex, Paper, Slider, Stack, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
 function Demo() {
@@ -15,7 +15,7 @@ function Demo() {
 
   return (
     <Flex>
-      <BorderAnimate animate={animate} angle={value} size="lg">
+      <BorderAnimate animate={animate} progress={value} size="lg">
         <Paper withBorder shadow="md" radius="md" p="md">
           <Stack>
             <Title>This is a title</Title>
@@ -24,11 +24,12 @@ function Demo() {
           </Stack>
         </Paper>
       </BorderAnimate>
-      <AngleSlider
-        aria-label="Angle slider"
+      <Slider
+        w={260}
+        aria-label="Progress along the border"
         value={value}
         onChange={setValue}
-        formatLabel={(value) => \`\${value}°\`}
+        label={(value) => \`\${value}%\`}
       />
     </Flex>
   );
@@ -41,7 +42,7 @@ function Demo() {
 
   return (
     <Flex direction="column" align="center" gap="md">
-      <BorderAnimate animate={animate} angle={value} size="lg">
+      <BorderAnimate animate={animate} progress={value} size="lg">
         <Paper withBorder shadow="md" radius="md" p="md">
           <Stack>
             <Title>This is a title</Title>
@@ -50,11 +51,12 @@ function Demo() {
           </Stack>
         </Paper>
       </BorderAnimate>
-      <AngleSlider
-        aria-label="Angle slider"
+      <Slider
+        w={260}
+        aria-label="Progress along the border"
         value={value}
         onChange={setValue}
-        formatLabel={(value) => `${value}°`}
+        label={(value) => `${value}%`}
       />
     </Flex>
   );

@@ -51,6 +51,8 @@ export const variant: MantineDemo = {
         { value: 'beam', label: 'Beam' },
         { value: 'glow', label: 'Glow' },
         { value: 'pulse', label: 'Pulse' },
+        { value: 'draw', label: 'Draw' },
+        { value: 'dash', label: 'Dash' },
       ],
     },
   ],

@@ -33,7 +33,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="conic"
+          beamMode="wedge"
           size="sm"
           duration={5}
           colorStops={[
@@ -58,7 +58,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="conic"
+          beamMode="wedge"
           duration={4}
           colorStops={[
             { color: 'red', position: 0 },
@@ -83,7 +83,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="path"
+          beamMode="dot"
           size="md"
           duration={5}
           colorStops={[
@@ -131,7 +131,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="conic"
+          beamMode="wedge"
           size="sm"
           duration={5}
           colorStops={[
@@ -157,7 +157,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="conic"
+          beamMode="wedge"
           duration={4}
           colorStops={[
             { color: 'red', position: 0 },
@@ -183,7 +183,7 @@ function Demo() {
           w={200}
           h={200}
           variant="beam"
-          beamMode="path"
+          beamMode="dot"
           size="md"
           duration={5}
           colorStops={[
