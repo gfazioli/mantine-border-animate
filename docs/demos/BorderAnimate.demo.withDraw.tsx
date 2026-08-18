@@ -31,7 +31,13 @@ function Demo() {
       </BorderAnimate>
 
       <Group justify="space-between">
-        <Slider w={220} value={progress} onChange={setProgress} label={(v) => \`\${v}%\`} />
+        <Slider
+          aria-label="Upload progress"
+          w={220}
+          value={progress}
+          onChange={setProgress}
+          label={(v) => \`\${v}%\`}
+        />
         <Switch
           label="Track"
           checked={withTrack}
@@ -67,7 +73,13 @@ function Demo() {
       </BorderAnimate>
 
       <Group justify="space-between">
-        <Slider w={220} value={progress} onChange={setProgress} label={(v) => `${v}%`} />
+        <Slider
+          aria-label="Upload progress"
+          w={220}
+          value={progress}
+          onChange={setProgress}
+          label={(v) => `${v}%`}
+        />
         <Switch
           label="Track"
           checked={withTrack}

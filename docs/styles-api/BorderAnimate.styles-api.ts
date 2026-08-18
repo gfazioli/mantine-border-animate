@@ -23,7 +23,8 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-phase': 'Negated animation phase in seconds',
       '--border-animate-blur': 'Blur amount applied to the animated border',
       '--border-animate-opacity': 'Opacity of the animated border',
-      '--border-animate-progress': 'Position along the perimeter, as a number from 0 to 100',
+      '--border-animate-progress':
+        'Position along the perimeter, as a number from 0 to 100. For the draw variant it is how much of the perimeter is drawn instead',
       '--border-animate-size': 'Pixel size of the traveling dot (dot beam mode only)',
       '--border-animate-gradient-background':
         'Full gradient string for the beam background (set via the colorStops prop)',

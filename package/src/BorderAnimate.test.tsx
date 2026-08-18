@@ -1,8 +1,16 @@
 import { render } from '@mantine-tests/core';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import React from 'react';
-import { BorderAnimate } from './BorderAnimate';
+import { BorderAnimate, type BorderAnimateProps } from './BorderAnimate';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+expect.extend(toHaveNoViolations);
+
+/** v2 props are gone from the public type: this types the spread without reaching for any */
+function legacy(props: Record<string, unknown>) {
+  return props as unknown as BorderAnimateProps;
+}
 
 /** MantineProvider injects <style> tags first, so the root element is not firstChild */
 function root(container: HTMLElement) {
@@ -174,6 +182,22 @@ describe('BorderAnimate', () => {
       const { container } = render(<BorderAnimate variant="draw" />);
       expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     });
+
+    it('adds no violations around the content it wraps, with either ring', async () => {
+      const masked = render(
+        <BorderAnimate>
+          <button type="button">Subscribe</button>
+        </BorderAnimate>
+      );
+      expect(await axe(masked.container)).toHaveNoViolations();
+
+      const stroke = render(
+        <BorderAnimate variant="draw" progress={40}>
+          <button type="button">Subscribe</button>
+        </BorderAnimate>
+      );
+      expect(await axe(stroke.container)).toHaveNoViolations();
+    });
   });
 
   describe('zIndex', () => {
@@ -237,6 +261,16 @@ describe('BorderAnimate', () => {
     it('is exposed to every variant as a perimeter position', () => {
       const { container } = render(<BorderAnimate animate={false} progress={25} />);
       expect(vars(container).getPropertyValue('--border-animate-progress')).toBe('25');
+    });
+
+    // Regression: only the draw branch clamped, so a negative value reached
+    // offset-distance and the browser dropped the declaration
+    it('clamps for every variant, not just for draw', () => {
+      const low = render(<BorderAnimate animate={false} progress={-20} />);
+      expect(vars(low.container).getPropertyValue('--border-animate-progress')).toBe('0');
+
+      const high = render(<BorderAnimate animate={false} progress={140} />);
+      expect(vars(high.container).getPropertyValue('--border-animate-progress')).toBe('100');
     });
   });
 
@@ -417,19 +451,23 @@ describe('BorderAnimate', () => {
       warn.mockRestore();
     });
 
-    it('warns once when a renamed prop is still used', () => {
-      render(<BorderAnimate {...({ angle: 90 } as any)} />);
+    // The one-time dedupe lives in module state, so every assertion shares a single test:
+    // split across two, whichever ran first would silence the other.
+    it('warns once for each renamed prop, and never twice', () => {
+      render(<BorderAnimate {...legacy({ angle: 90 })} />);
       expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0][0]).toContain('progress');
+      expect(String(warn.mock.calls[0][0])).toContain('progress');
 
-      render(<BorderAnimate {...({ angle: 90 } as any)} />);
+      render(<BorderAnimate {...legacy({ angle: 90 })} />);
       expect(warn).toHaveBeenCalledTimes(1);
-    });
 
-    it('warns about a renamed beam mode', () => {
-      render(<BorderAnimate {...({ beamMode: 'path' } as any)} />);
-      expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0][0]).toContain('dot');
+      render(<BorderAnimate {...legacy({ delay: 2 })} />);
+      expect(warn).toHaveBeenCalledTimes(2);
+      expect(String(warn.mock.calls[1][0])).toContain('phase');
+
+      render(<BorderAnimate {...legacy({ beamMode: 'path' })} />);
+      expect(warn).toHaveBeenCalledTimes(3);
+      expect(String(warn.mock.calls[2][0])).toContain('dot');
     });
   });
 });
@@ -461,5 +499,12 @@ describe('BorderAnimate.module.css', () => {
 
   it('honours theme.respectReducedMotion instead of overriding it', () => {
     expect(css).toMatch(/\[data-respect-reduced-motion\]/);
+  });
+
+  // trigger="never" documents a resting, static border. Without this exclusion it inherits
+  // the hidden state of the other triggers and becomes a slower show={false}.
+  it('keeps the never trigger visible', () => {
+    const exclusions = css.match(/\[data-trigger\]:not\(\[data-trigger='never'\]\)/g) ?? [];
+    expect(exclusions.length).toBeGreaterThanOrEqual(2);
   });
 });

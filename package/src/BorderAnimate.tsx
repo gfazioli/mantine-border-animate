@@ -196,6 +196,8 @@ export interface BorderAnimateBaseProps {
   /** Color stops for the border gradient. When provided, overrides colorFrom/colorTo.
    * Each stop has a color (any MantineColor) and a position (0-100).
    * Stops should be provided in ascending position order.
+   * Ignored by `beamMode="comet"`, which grades its own segments between colorFrom and
+   * colorTo instead of painting a gradient.
    */
   colorStops?: BorderAnimateColorStop[];
 
@@ -422,7 +424,10 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
     }
   ) => {
     const stroke = usesStroke(variant, beamMode);
-    const value = progress ?? 100;
+    // Clamped here and nowhere else: the stylesheet feeds this number to offset-distance,
+    // to an angle and to a dash offset, and a negative percentage silently drops the
+    // declaration it lands in.
+    const value = Math.min(Math.max(progress ?? 100, 0), 100);
 
     let gradientBackground: string | undefined;
     let beamStart: string | undefined;
@@ -465,7 +470,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
     }
 
     if (variant === 'draw') {
-      drawOffset = `${100 - Math.min(Math.max(value, 0), 100)}`;
+      drawOffset = `${100 - value}`;
     }
 
     if (variant === 'beam' && beamMode === 'comet') {
@@ -648,7 +653,12 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
               </defs>
             )}
 
-            {withTrack && !isComet && <rect {...getStyles('track')} pathLength="100" />}
+            {/* width/height are attributes as well as CSS: an engine without the SVG 2
+                geometry properties would otherwise draw a zero-sized rect and show nothing,
+                instead of a ring with slightly blunter corners. */}
+            {withTrack && !isComet && (
+              <rect {...getStyles('track')} width="100%" height="100%" pathLength="100" />
+            )}
 
             {isComet ? (
               segments.map((i) => (
@@ -661,6 +671,8 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
                       '--border-animate-segment-mix': `${(i / Math.max(COMET_SEGMENTS - 1, 1)) * 100}%`,
                     } as React.CSSProperties,
                   })}
+                  width="100%"
+                  height="100%"
                   pathLength="100"
                 />
               ))
@@ -671,6 +683,8 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
                     ? ({ stroke: `url(#${gradientId})` } as React.CSSProperties)
                     : undefined,
                 })}
+                width="100%"
+                height="100%"
                 pathLength="100"
               />
             )}

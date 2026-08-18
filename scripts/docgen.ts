@@ -21,9 +21,11 @@ function injectVariant() {
   const docgenPath = path.join(outputPath, 'docgen.json');
   const docgen = JSON.parse(fs.readFileSync(docgenPath, 'utf-8'));
 
-  if (!docgen.BorderAnimate?.props) {
+  const props = docgen.BorderAnimate?.props;
+
+  if (typeof props !== 'object' || props === null || Array.isArray(props)) {
     throw new Error(
-      'docgen.json is missing "BorderAnimate.props" — did generateDeclarations change its output shape?'
+      'docgen.json has no "BorderAnimate.props" object — did generateDeclarations change its output shape?'
     );
   }
 
@@ -54,7 +56,7 @@ function injectVariant() {
   // Keep the Props table alphabetically sorted (the injected key would
   // otherwise land last).
   docgen.BorderAnimate.props = Object.fromEntries(
-    Object.entries(docgen.BorderAnimate.props).sort(([a], [b]) => a.localeCompare(b))
+    Object.entries(props).sort(([a], [b]) => a.localeCompare(b))
   );
 
   fs.writeFileSync(docgenPath, JSON.stringify(docgen, null, 2));
