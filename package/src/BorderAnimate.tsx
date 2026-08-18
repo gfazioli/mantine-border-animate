@@ -69,8 +69,23 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-track-color';
 };
 
-/** Number of graded segments used to build the comet tail */
-const COMET_SEGMENTS = 6;
+/**
+ * Number of graded segments used to build the comet tail. SVG cannot fade a stroke along
+ * its own path, so the tail is a stack of short strokes with decreasing opacity: the count
+ * is what decides whether the reader sees a gradient or a row of blocks.
+ */
+const COMET_SEGMENTS = 14;
+
+/** How much longer each segment is than the step between two segments */
+const COMET_OVERLAP = 2;
+
+/**
+ * Distance between two consecutive segment heads. Dividing by `segments + overlap - 1`
+ * keeps the whole tail exactly `tail` percent long even though the segments overlap.
+ */
+function getCometStep(tail: number | undefined) {
+  return Math.max(tail ?? 25, 0) / (COMET_SEGMENTS + COMET_OVERLAP - 1);
+}
 
 /**
  * Angular positions of the wedge color stops, as conic-gradient percentages.
@@ -103,7 +118,20 @@ function getDashPattern(dashSize: number, dashGap: number, count: number | undef
     return { dasharray: `${on} ${slot - on}`, period: slot };
   }
 
-  return { dasharray: `${size} ${gap}`, period: size + gap };
+  // The pattern is anchored to the start of the path, so a period that does not divide the
+  // perimeter leaves a broken dash exactly where the perimeter closes — a visible snag at
+  // the first corner. Snapping to a whole number of repetitions keeps the requested look
+  // (the adjustment is at most half a period) and makes the loop seamless.
+  const requested = size + gap;
+
+  if (requested <= 0) {
+    return { dasharray: '0 100', period: 100 };
+  }
+
+  const period = 100 / Math.max(1, Math.round(100 / requested));
+  const scale = period / requested;
+
+  return { dasharray: `${size * scale} ${gap * scale}`, period };
 }
 
 /** Comma-separated gradient stops, from colorStops when provided */
@@ -441,7 +469,14 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
     }
 
     if (variant === 'beam' && beamMode === 'comet') {
-      dasharray = `${Math.max(tail ?? 25, 0) / COMET_SEGMENTS} 100`;
+      // Each segment is twice as long as the gap between two of them, so consecutive
+      // segments overlap: measured on rendered pixels, that halves the visible ripple along
+      // the tail (RMS 3.6 -> 2.1) because a joint stops reading as a step.
+      // The period stays exactly one perimeter: as the head leaves the end of the path the
+      // same dash re-enters from the start, so nothing is ever clipped.
+      const step = getCometStep(tail);
+      const length = Math.min(step * COMET_OVERLAP, 100);
+      dasharray = `${length} ${100 - length}`;
     }
 
     return {
@@ -583,7 +618,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   const withGradient = !isComet;
   const stops = withGradient ? getStops(colorStops, colorFrom, colorTo, theme) : [];
   const segments = isComet ? Array.from({ length: COMET_SEGMENTS }, (_, i) => i) : [];
-  const tailStep = Math.max(tail ?? 25, 0) / COMET_SEGMENTS;
+  const tailStep = getCometStep(tail);
 
   const ringProps = {
     'data-variant': variant,
@@ -622,7 +657,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
                   {...getStyles('stroke', {
                     style: {
                       '--border-animate-segment': `${i * tailStep * (reverse ? -1 : 1)}`,
-                      '--border-animate-segment-opacity': `${1 - i / COMET_SEGMENTS}`,
+                      '--border-animate-segment-opacity': `${((1 - i / COMET_SEGMENTS) ** 1.6).toFixed(4)}`,
                       '--border-animate-segment-mix': `${(i / Math.max(COMET_SEGMENTS - 1, 1)) * 100}%`,
                     } as React.CSSProperties,
                   })}
