@@ -2,9 +2,8 @@
    CUSTOM PROPERTY REGISTRATION
    ============================================ */
 
-/* Required for animating the conic-gradient angle in conic beam mode.
-   Browser support: Chrome 85+, Edge 85+, Safari 15.4+, Firefox 128+.
-   Older browsers will display a static gradient instead. */
+/* Required for animating the conic-gradient angle in wedge beam mode.
+   Available in every current browser; older engines show a static gradient. */
 @property --border-animate-angle {
   syntax: '<angle>';
   initial-value: 0deg;
@@ -15,8 +14,8 @@
    KEYFRAMES
    ============================================ */
 
-/* Beam conic mode — rotates the conic-gradient angle via @property */
-@keyframes border-animate-beam-conic {
+/* Beam wedge mode — rotates the conic-gradient angle via @property */
+@keyframes border-animate-beam-wedge {
   0% {
     --border-animate-angle: 0deg;
   }
@@ -26,7 +25,7 @@
   }
 }
 
-/* Beam conic mode (colorStops) — rotates the ::after element via transform */
+/* Beam wedge mode (colorStops) — rotates the ::after element via transform */
 @keyframes border-animate-beam-rotate {
   0% {
     transform: rotate(0deg);
@@ -37,8 +36,8 @@
   }
 }
 
-/* Beam path mode — moves along the border via offset-distance */
-@keyframes border-animate-beam-path {
+/* Beam dot mode — travels along the border via offset-distance */
+@keyframes border-animate-beam-dot {
   0% {
     offset-distance: 0%;
   }
@@ -76,21 +75,29 @@
   }
 }
 
+/* Dash variant — marches the pattern forward by exactly one period, so it loops seamlessly */
+@keyframes border-animate-march {
+  100% {
+    stroke-dashoffset: calc(
+      (var(--border-animate-progress, 0) + var(--border-animate-dash-period, 8)) * -1px
+    );
+  }
+}
+
+/* Comet beam — every segment travels the whole perimeter, keeping its distance from the head */
+@keyframes border-animate-comet {
+  100% {
+    stroke-dashoffset: calc(
+      (var(--border-animate-segment, 0) - var(--border-animate-progress, 0) - 100) * 1px
+    );
+  }
+}
+
 /* ============================================
    ROOT
    ============================================ */
 
 .root {
-  position: relative;
-  display: flex;
-  border-radius: var(--border-animate-radius);
-}
-
-/* ============================================
-   BORDER BASE
-   ============================================ */
-
-.border {
   --border-animate-width-xs: 1px;
   --border-animate-width-sm: 2px;
   --border-animate-width-md: 4px;
@@ -109,42 +116,108 @@
   --border-animate-size-lg: 320px;
   --border-animate-size-xl: 480px;
 
+  --border-animate-offset-xs: 2px;
+  --border-animate-offset-sm: 4px;
+  --border-animate-offset-md: 8px;
+  --border-animate-offset-lg: 16px;
+  --border-animate-offset-xl: 32px;
+
   --border-animate-width: var(--border-animate-width-xs);
 
+  /* Geometry shared by both ring implementations: the offset pushes the ring outwards
+     and grows its radius by the same amount, so it stays concentric with the content. */
+  --border-animate-ring-inset: calc(var(--border-animate-offset, 0px) * -1);
+  --border-animate-ring-radius: calc(
+    var(--border-animate-radius, 0px) + var(--border-animate-offset, 0px)
+  );
+
+  position: relative;
+  display: flex;
+  border-radius: var(--border-animate-radius);
+
+  /* Keeps a negative z-index ring (glow) inside the component: without a stacking context
+     it would paint behind the background of the first ancestor that has one. */
+  isolation: isolate;
+}
+
+/* ============================================
+   BORDER BASE (masked CSS ring: beam dot/wedge, glow, pulse)
+   ============================================ */
+
+.border {
   position: absolute;
-  inset: 0;
+  inset: var(--border-animate-ring-inset);
   pointer-events: none;
-  border-radius: inherit;
+  border-radius: var(--border-animate-ring-radius);
   z-index: var(--border-animate-z-index, 1);
-  opacity: var(--border-animate-opacity, 1);
+  opacity: calc(var(--border-animate-opacity, 1) * var(--border-animate-active, 1));
 
   /* Transparent border to define the mask width */
   border: var(--border-animate-width) solid transparent;
-
-  /* Glow variant must render behind the content */
-  &[data-variant='glow'] {
-    z-index: -1;
-  }
 }
 
 /* Mask: shows only the border area (enabled by default) */
 .border[data-with-mask='true'] {
-  &:not([data-variant='glow']) {
-    mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
-    mask-clip: content-box, border-box;
-    mask-composite: exclude;
-  }
+  mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
 }
 
 /* WebKit fallback for older Safari (< 15.4) */
 @supports not (mask-composite: exclude) {
   .border[data-with-mask='true'] {
-    &:not([data-variant='glow']) {
-      -webkit-mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
-      -webkit-mask-clip: content-box, border-box;
-      -webkit-mask-composite: xor;
-    }
+    -webkit-mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
   }
+}
+
+/* ============================================
+   SVG STROKE RING (draw, dash, beam comet)
+   ============================================ */
+
+.svg {
+  position: absolute;
+  inset: var(--border-animate-ring-inset);
+
+  /* An absolutely positioned <svg> is a replaced element: without explicit dimensions it
+     falls back to its intrinsic 300x150 instead of stretching to the insets. */
+  width: calc(100% + var(--border-animate-offset, 0px) * 2);
+  height: calc(100% + var(--border-animate-offset, 0px) * 2);
+
+  overflow: visible;
+  pointer-events: none;
+  z-index: var(--border-animate-z-index, 1);
+  opacity: calc(var(--border-animate-opacity, 1) * var(--border-animate-active, 1));
+}
+
+.svg[data-beam-mode='comet'] {
+  filter: blur(var(--border-animate-blur));
+}
+
+.track,
+.stroke {
+  /* The stroke is centred on the path, so the rect sits half a border width inside the
+     box and its radius shrinks by the same amount: the ring then lines up exactly with
+     the masked one. pathLength="100" turns every dash value into a perimeter percentage. */
+  x: calc(var(--border-animate-width) / 2);
+  y: calc(var(--border-animate-width) / 2);
+  width: calc(100% - var(--border-animate-width));
+  height: calc(100% - var(--border-animate-width));
+  rx: max(0px, calc(var(--border-animate-ring-radius) - var(--border-animate-width) / 2));
+
+  fill: none;
+  stroke-width: var(--border-animate-width);
+  shape-rendering: geometricPrecision;
+}
+
+.track {
+  stroke: var(--border-animate-track-color);
+}
+
+.stroke {
+  stroke: var(--border-animate-color-from);
+  stroke-linecap: var(--border-animate-dash-cap, butt);
 }
 
 /* ============================================
@@ -152,36 +225,85 @@
    ============================================ */
 
 /* Disable all animations when data-animate is false */
-.border[data-animate='false'] {
-  animation: none !important;
-}
-
-.border[data-animate='false']::after {
+.border[data-animate='false'],
+.border[data-animate='false']::after,
+.svg[data-animate='false'] .stroke {
   animation: none !important;
 }
 
 /* Pause on hover */
 .root[data-pause-on-hover]:hover .border,
-.root[data-pause-on-hover]:hover .border::after {
+.root[data-pause-on-hover]:hover .border::after,
+.root[data-pause-on-hover]:hover .stroke {
   animation-play-state: paused;
+}
+
+/* ============================================
+   TRIGGERS
+   ============================================ */
+
+/* Any trigger other than `always` starts from the resting state. The draw variant also
+   retracts (rule further down): it needs the opacity too, because a zero-length dash with
+   a round cap still paints a dot at the starting point. */
+.root[data-trigger] .border,
+.root[data-trigger] .svg {
+  --border-animate-active: 0;
+
+  /* The fade in and out is a reveal, not the effect itself: capping it keeps a slow loop
+     (duration is 5s by default) from taking five seconds to appear, while a deliberately
+     fast animation still reveals itself at its own pace. */
+  transition: opacity min(var(--border-animate-duration, 5s), 0.4s)
+    var(--border-animate-timing, ease-in-out);
+}
+
+.root[data-trigger] .border,
+.root[data-trigger] .border::after,
+.root[data-trigger] .stroke {
+  animation-play-state: paused;
+}
+
+.root[data-trigger='hover']:hover .border,
+.root[data-trigger='hover']:hover .svg,
+.root[data-trigger='focus-within']:focus-within .border,
+.root[data-trigger='focus-within']:focus-within .svg,
+.root[data-active='true'] .border,
+.root[data-active='true'] .svg {
+  --border-animate-active: 1;
+}
+
+.root[data-trigger='hover']:hover .border,
+.root[data-trigger='hover']:hover .border::after,
+.root[data-trigger='hover']:hover .stroke,
+.root[data-trigger='focus-within']:focus-within .border,
+.root[data-trigger='focus-within']:focus-within .border::after,
+.root[data-trigger='focus-within']:focus-within .stroke,
+.root[data-active='true'] .border,
+.root[data-active='true'] .border::after,
+.root[data-active='true'] .stroke {
+  animation-play-state: running;
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
 
+/* Honours theme.respectReducedMotion: MantineProvider adds the attribute on the root
+   element. Our own rule is still needed because Mantine's does not reach pseudo-elements. */
 @media (prefers-reduced-motion: reduce) {
-  .border,
-  .border::after {
+  [data-respect-reduced-motion] .border,
+  [data-respect-reduced-motion] .border::after,
+  [data-respect-reduced-motion] .svg,
+  [data-respect-reduced-motion] .stroke {
     animation: none !important;
+    transition: none !important;
   }
 }
 
 /* ============================================
-   BEAM VARIANT — CONIC MODE
+   BEAM VARIANT — WEDGE MODE
    ============================================ */
 
-.border[data-variant='beam'][data-beam-mode='conic']::after {
+.border[data-variant='beam'][data-beam-mode='wedge']::after {
   content: '';
   position: absolute;
   /* Extend outward proportionally to borderWidth so the gradient fills
@@ -205,31 +327,31 @@
 
   filter: blur(var(--border-animate-blur));
 
-  animation: border-animate-beam-conic var(--border-animate-duration, 5s)
+  animation: border-animate-beam-wedge var(--border-animate-duration, 5s)
     var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
+  animation-delay: var(--border-animate-phase, 0s);
 }
 
-/* Static angle for conic beam */
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='conic']::after {
-  --border-animate-angle: calc(var(--border-animate-static-angle) * 1deg);
+/* Static angle for the wedge */
+.border[data-animate='false'][data-variant='beam'][data-beam-mode='wedge']::after {
+  --border-animate-angle: calc(var(--border-animate-progress) * 3.6deg);
 }
 
-/* Conic beam with colorStops — uses transform: rotate() instead of @property */
-.border[data-variant='beam'][data-beam-mode='conic'][data-color-stops]::after {
+/* Wedge with colorStops — uses transform: rotate() instead of @property */
+.border[data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after {
   inset: -50%;
   animation-name: border-animate-beam-rotate;
 }
 
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='conic'][data-color-stops]::after {
-  transform: rotate(calc(var(--border-animate-static-angle) * 1deg));
+.border[data-animate='false'][data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after {
+  transform: rotate(calc(var(--border-animate-progress) * 3.6deg));
 }
 
 /* ============================================
-   BEAM VARIANT — PATH MODE
+   BEAM VARIANT — DOT MODE
    ============================================ */
 
-.border[data-variant='beam'][data-beam-mode='path']::after {
+.border[data-variant='beam'][data-beam-mode='dot']::after {
   content: '';
   position: absolute;
   aspect-ratio: 1;
@@ -249,21 +371,89 @@
 
   filter: blur(var(--border-animate-blur));
 
-  /* Travel along the border perimeter via offset-path */
-  offset-path: inset(0px round var(--border-animate-radius));
+  /* Travel along the middle of the ring. inset() measures from the border box, so half a
+     border width inwards puts the dot at the centre of the visible band instead of riding
+     its outer edge (where a small dot with a wide border is half clipped away). */
+  offset-path: inset(
+    calc(var(--border-animate-width) / 2) round
+      max(0px, calc(var(--border-animate-ring-radius) - var(--border-animate-width) / 2))
+  );
   offset-anchor: 50% 50%;
 
   /* GPU layer promotion */
   will-change: offset-distance;
 
-  animation: border-animate-beam-path var(--border-animate-duration, 5s)
+  animation: border-animate-beam-dot var(--border-animate-duration, 5s)
     var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
+  animation-delay: var(--border-animate-phase, 0s);
 }
 
-/* Static position for path beam */
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='path']::after {
-  offset-distance: calc(var(--border-animate-static-angle) / 360 * 100%);
+/* Static position for the dot */
+.border[data-animate='false'][data-variant='beam'][data-beam-mode='dot']::after {
+  offset-distance: calc(var(--border-animate-progress) * 1%);
+}
+
+/* ============================================
+   BEAM VARIANT — COMET MODE
+   ============================================ */
+
+.svg[data-variant='beam'][data-beam-mode='comet'] .stroke {
+  stroke-dasharray: var(--border-animate-dasharray);
+  stroke-linecap: round;
+  stroke-dashoffset: calc(
+    (var(--border-animate-segment, 0) - var(--border-animate-progress, 0)) * 1px
+  );
+
+  /* Head keeps colorFrom, the tail fades towards colorTo and out */
+  stroke: color-mix(
+    in oklab,
+    var(--border-animate-color-from),
+    var(--border-animate-color-to) var(--border-animate-segment-mix, 0%)
+  );
+  stroke-opacity: var(--border-animate-segment-opacity, 1);
+
+  animation: border-animate-comet var(--border-animate-duration, 5s)
+    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-phase, 0s);
+}
+
+/* ============================================
+   DRAW VARIANT
+   ============================================ */
+
+.svg[data-variant='draw'] .stroke {
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc(var(--border-animate-draw-offset, 0) * 1px);
+  stroke-linecap: round;
+}
+
+.svg[data-variant='draw'][data-animate='true'] .stroke {
+  transition: stroke-dashoffset var(--border-animate-duration, 1s)
+    var(--border-animate-timing, ease-in-out);
+}
+
+/* With a trigger the border is not drawn until the trigger is active */
+.root[data-trigger] .svg[data-variant='draw'] .stroke {
+  stroke-dashoffset: 100px;
+}
+
+.root[data-trigger='hover']:hover .svg[data-variant='draw'] .stroke,
+.root[data-trigger='focus-within']:focus-within .svg[data-variant='draw'] .stroke,
+.root[data-active='true'] .svg[data-variant='draw'] .stroke {
+  stroke-dashoffset: calc(var(--border-animate-draw-offset, 0) * 1px);
+}
+
+/* ============================================
+   DASH VARIANT
+   ============================================ */
+
+.svg[data-variant='dash'] .stroke {
+  stroke-dasharray: var(--border-animate-dasharray);
+  stroke-dashoffset: calc(var(--border-animate-progress, 0) * -1px);
+
+  animation: border-animate-march var(--border-animate-duration, 5s)
+    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* ============================================
@@ -273,7 +463,6 @@
 .border[data-variant='glow']::after {
   content: '';
   position: absolute;
-  inset: -1px;
   border-radius: inherit;
   background: linear-gradient(
     90deg,
@@ -285,9 +474,9 @@
   filter: blur(var(--border-animate-blur));
   will-change: filter, opacity;
 
-  animation: border-animate-glow var(--border-animate-duration, 2s)
+  animation: border-animate-glow var(--border-animate-duration, 5s)
     var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
+  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* ============================================
@@ -297,7 +486,6 @@
 .border[data-variant='pulse']::after {
   content: '';
   position: absolute;
-  inset: -1px;
   border-radius: inherit;
   background: linear-gradient(
     90deg,
@@ -309,15 +497,23 @@
   transform-origin: center;
   will-change: transform, opacity;
 
-  animation: border-animate-pulse var(--border-animate-duration, 2s)
+  animation: border-animate-pulse var(--border-animate-duration, 5s)
     var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-delay, 0s);
+  animation-delay: var(--border-animate-phase, 0s);
 }
 
-/* Static angle for glow variant when animate is false */
+/* The gradient of glow and pulse must cover the whole masked band, not just its inner
+   edge: an ::after is positioned against the padding box, so it has to be pushed back
+   out by a full border width or the ring collapses to a hairline with empty corners. */
+.border[data-variant='glow']::after,
+.border[data-variant='pulse']::after {
+  inset: calc(var(--border-animate-width) * -1);
+}
+
+/* Static gradient angle for glow when animate is false */
 .border[data-animate='false'][data-variant='glow']::after {
   background: linear-gradient(
-    calc(var(--border-animate-static-angle) * 1deg),
+    calc(var(--border-animate-progress) * 3.6deg),
     var(--border-animate-color-from),
     var(--border-animate-color-to),
     var(--border-animate-color-from)
@@ -325,10 +521,10 @@
   opacity: var(--border-animate-opacity);
 }
 
-/* Static angle for pulse variant when animate is false */
+/* Static gradient angle for pulse when animate is false */
 .border[data-animate='false'][data-variant='pulse']::after {
   background: linear-gradient(
-    calc(var(--border-animate-static-angle) * 1deg),
+    calc(var(--border-animate-progress) * 3.6deg),
     var(--border-animate-color-from),
     var(--border-animate-color-to)
   );

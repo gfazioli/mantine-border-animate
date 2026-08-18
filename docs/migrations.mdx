@@ -6,6 +6,194 @@ This page collects the **breaking changes** and **migration steps** for each maj
 
 New features introduced in a release (that do not break anything) are **not** listed here. See the [GitHub Releases](https://github.com/gfazioli/mantine-border-animate/releases) page or the newsletter for the full changelog.
 
+## v3
+
+Version 3.0 renames a handful of props so that each one means exactly one thing, and adds two
+variants plus a third beam mode. It also **fixes two rendering bugs**, which is why the release is
+a major even though most codebases only need a find-and-replace: if you relied on the broken
+behaviour, the border will look different after the upgrade.
+
+### Renamed props
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>v2</Table.Th>
+      <Table.Th>v3</Table.Th>
+      <Table.Th>Why</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td>
+        <Code>angle</Code> (0-360)
+      </Table.Td>
+      <Table.Td>
+        <Code>progress</Code> (0-100)
+      </Table.Td>
+      <Table.Td>
+        One value for "where along the border are we", shared by the static position, the new
+        draw variant and the triggers. Divide your old value by 3.6.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>delay</Code>
+      </Table.Td>
+      <Table.Td>
+        <Code>phase</Code>
+      </Table.Td>
+      <Table.Td>
+        The value was always emitted negated: it never delayed the start, it shifted the
+        animation. Same behaviour, honest name.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>size</Code> (wedge)
+      </Table.Td>
+      <Table.Td>
+        <Code>spread</Code>
+      </Table.Td>
+      <Table.Td>
+        <Code>size</Code> meant pixels in one beam mode and a share of the circle in the other.
+        Now <Code>size</Code> is only the dot and <Code>spread</Code> is the wedge width, in real
+        degrees.
+      </Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+### Renamed beam modes
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>v2</Table.Th>
+      <Table.Th>v3</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td>
+        <Code>beamMode="path"</Code>
+      </Table.Td>
+      <Table.Td>
+        <Code>beamMode="dot"</Code>
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>beamMode="conic"</Code>
+      </Table.Td>
+      <Table.Td>
+        <Code>beamMode="wedge"</Code>
+      </Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+Both names described the same thing — a path around the perimeter — while the shapes are what
+actually differ. The third mode, <Code>comet</Code>, would have had no name left.
+
+### Changed defaults
+
+<Table striped highlightOnHover withTableBorder withColumnBorders>
+  <Table.Thead>
+    <Table.Tr>
+      <Table.Th>Prop</Table.Th>
+      <Table.Th>Change</Table.Th>
+    </Table.Tr>
+  </Table.Thead>
+  <Table.Tbody>
+    <Table.Tr>
+      <Table.Td>
+        <Code>zIndex</Code>
+      </Table.Td>
+      <Table.Td>
+        Now defaults to <Code>-1</Code> on the glow variant instead of being forced to it: in v2
+        the prop was silently ignored there.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>withMask</Code>
+      </Table.Td>
+      <Table.Td>
+        Now defaults to <Code>false</Code> on the glow variant, which keeps its v2 look, and it
+        finally works when you pass it explicitly.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>duration</Code>
+      </Table.Td>
+      <Table.Td>
+        Still 5s, except <Code>1s</Code> for the draw variant, where it is the duration of the
+        drawing transition.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        <Code>blur</Code>
+      </Table.Td>
+      <Table.Td>
+        Still <Code>xs</Code>, except <Code>0</Code> for the draw and dash variants, which are
+        meant to be crisp.
+      </Table.Td>
+    </Table.Tr>
+  </Table.Tbody>
+</Table>
+
+### Rendering fixes that change how v2 looked
+
+These need no code change, but they do change pixels:
+
+- **The glow is visible inside a Card, a Paper or any container with a background.** Its
+  <Code>z-index: -1</Code> used to escape the component, so it painted behind the background of
+  the first ancestor that had one. The root now creates a stacking context.
+- **borderWidth thickens the pulse border instead of breaking it.** Above 1px the gradient only
+  covered a hairline of the masked band and the corners were left empty; a wide pulse border was
+  four disconnected lines. It is now a full, correctly rounded ring.
+- **The dot beam rides the middle of the border band** rather than its outer edge, so a small
+  <Code>size</Code> with a wide <Code>borderWidth</Code> is no longer half clipped away.
+
+### Migration examples
+
+**Rename the position prop, and rescale it:**
+
+```tsx
+// Before
+<BorderAnimate animate={false} angle={90} />
+
+// After — 90° of 360 is 25% of the perimeter
+<BorderAnimate animate={false} progress={25} />
+```
+
+**Rename the beam modes:**
+
+```tsx
+// Before
+<BorderAnimate beamMode="path" size="lg" />
+<BorderAnimate beamMode="conic" size="md" />
+
+// After
+<BorderAnimate beamMode="dot" size="lg" />
+<BorderAnimate beamMode="wedge" spread={72} />
+```
+
+**Rename the stagger prop:**
+
+```tsx
+// Before
+<BorderAnimate delay={1.5} />
+
+// After
+<BorderAnimate phase={1.5} />
+```
+
+In development, passing any of the old props logs a one-time warning pointing back to this page.
+
 ## v1
 
 Version 1.0 is a major rewrite of the beam variant. The beam now supports two rendering modes (`path` and `conic`) and several props have been removed, renamed, or changed semantics.

@@ -27,7 +27,7 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center" wrap="wrap">
-      {/* Path mode: withMask={true} */}
+      {/* Dot mode: withMask={true} */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
@@ -37,7 +37,7 @@ function Demo() {
         <Text size="xs" c="dimmed">Clipped to border</Text>
       </Stack>
 
-      {/* Path mode: withMask={false} */}
+      {/* Dot mode: withMask={false} */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
@@ -47,9 +47,9 @@ function Demo() {
         <Text size="xs" c="dimmed">Glow extends outward</Text>
       </Stack>
 
-      {/* Conic mode: withMask={true} */}
+      {/* Wedge mode: withMask={true} */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} beamMode="conic" withMask size="md" blur="xs">
+        <BorderAnimate w={200} h={150} beamMode="wedge" withMask size="md" blur="xs">
           <Content>
             <Text size="xs">Conic + mask</Text>
           </Content>
@@ -57,9 +57,9 @@ function Demo() {
         <Text size="xs" c="dimmed">Conic clipped</Text>
       </Stack>
 
-      {/* Conic mode: withMask={false} */}
+      {/* Wedge mode: withMask={false} */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} beamMode="conic" withMask={false} size="md" blur="xs">
+        <BorderAnimate w={200} h={150} beamMode="wedge" withMask={false} size="md" blur="xs">
           <Content>
             <Text size="xs">Conic no mask</Text>
           </Content>
@@ -116,7 +116,7 @@ function Demo() {
       </Stack>
 
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} beamMode="conic" withMask size="md" blur="xs">
+        <BorderAnimate w={200} h={150} beamMode="wedge" withMask size="md" blur="xs">
           <Content>
             <Text size="xs">Conic + mask</Text>
           </Content>
@@ -127,7 +127,7 @@ function Demo() {
       </Stack>
 
       <Stack align="center" gap="xs">
-        <BorderAnimate w={200} h={150} beamMode="conic" withMask={false} size="md" blur="xs">
+        <BorderAnimate w={200} h={150} beamMode="wedge" withMask={false} size="md" blur="xs">
           <Content>
             <Text size="xs">Conic no mask</Text>
           </Content>

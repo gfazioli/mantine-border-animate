@@ -4,8 +4,10 @@ export type {
   BorderAnimateBeamMode,
   BorderAnimateColorStop,
   BorderAnimateCssVariables,
+  BorderAnimateDashCap,
   BorderAnimateFactory,
   BorderAnimateProps,
   BorderAnimateStylesNames,
+  BorderAnimateTrigger,
   BorderAnimateVariant,
 } from './BorderAnimate';

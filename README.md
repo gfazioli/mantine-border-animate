@@ -22,15 +22,19 @@ It requires **Mantine 9.x** and **React 19**.
 
 [Mantine BorderAnimate](https://gfazioli.github.io/mantine-border-animate) provides a flexible wrapper that turns any Mantine or plain React element into a visually striking component with animated borders. Designed for both aesthetics and performance, it uses CSS animations to deliver smooth 60fps effects and exposes controls to tailor the look and behavior: you can show/hide the border, keep it static or continuously animated, and adjust parameters like size, radius, border width, blur, duration, and color transitions.
 
-The component includes three distinct variants — **beam** (a traveling glow along the perimeter with two rendering modes: path and conic), **glow** (a rhythmic pulsation with tunable blur and opacity), and **pulse** (a subtle expand-and-fade "breathing" effect).
+The component includes five distinct variants — **beam** (a traveling glow along the perimeter, with three rendering modes), **glow** (a rhythmic pulsation with tunable blur and opacity), **pulse** (a subtle expand-and-fade "breathing" effect), **draw** (a border that measures a value) and **dash** (a dashed border that marches around the perimeter).
 
 Key features include:
 
-- **Two beam rendering modes** — `path` (radial-gradient traveling along the border via CSS offset-path, uniform beam size) and `conic` (rotating conic-gradient, smooth rotation with customizable wedge spread)
-- **Custom color stops** — multi-color gradients via `colorStops` for both beam modes
+- **Three beam rendering modes** — `dot` (a radial-gradient dot traveling along the border via CSS offset-path, uniform at every position), `wedge` (a rotating conic-gradient with a spread you set in degrees) and `comet` (a head with a fading tail, at constant speed on any shape)
+- **A border that measures** — `variant="draw"` with `progress` (0-100) draws exactly that share of the real perimeter, corners included, with an optional track underneath
+- **Dashed borders** — `variant="dash"` with `dashSize`, `dashGap`, `count` and `dashCap`: marching ants, dots, or a fixed number of evenly spaced segments
+- **Triggers** — `trigger` starts the animation on `hover`, on `focus-within`, or only while the component is `inView`
+- **Detached rings** — `offset` pushes the border away from the content and keeps it concentric
+- **Custom color stops** — multi-color gradients via `colorStops`
 - **Pause on hover** — `pauseOnHover` prop to pause animations during user interaction
 - **Custom timing functions** — `timingFunction` prop for full control over animation easing
-- **Accessible** — automatically respects `prefers-reduced-motion` to disable animations for users who prefer reduced motion
+- **Accessible** — honors `prefers-reduced-motion` through the Mantine theme, and marks the decorative ring `aria-hidden`
 
 Advanced visual setups are supported through masking and layering: `withMask` clips the effect to the border area, while disabling it and using `zIndex` allows soft background glows behind content. Integration is straightforward via provided stylesheet imports, and examples demonstrate wrapping common Mantine components like Paper, Cards, Buttons, Inputs, and Alerts.
 
