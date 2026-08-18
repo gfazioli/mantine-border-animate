@@ -31,7 +31,7 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
-            <Text size="xs">Path + mask</Text>
+            <Text size="xs">Dot + mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">Clipped to border</Text>
@@ -41,7 +41,7 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
-            <Text size="xs">Path no mask</Text>
+            <Text size="xs">Dot no mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">Glow extends outward</Text>
@@ -51,20 +51,20 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} beamMode="wedge" withMask size="md" blur="xs">
           <Content>
-            <Text size="xs">Conic + mask</Text>
+            <Text size="xs">Wedge + mask</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Conic clipped</Text>
+        <Text size="xs" c="dimmed">Wedge clipped</Text>
       </Stack>
 
       {/* Wedge mode: withMask={false} */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} beamMode="wedge" withMask={false} size="md" blur="xs">
           <Content>
-            <Text size="xs">Conic no mask</Text>
+            <Text size="xs">Wedge no mask</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Conic full gradient</Text>
+        <Text size="xs" c="dimmed">Wedge full gradient</Text>
       </Stack>
     </Flex>
   );
@@ -96,7 +96,7 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask size="lg" blur={4}>
           <Content>
-            <Text size="xs">Path + mask</Text>
+            <Text size="xs">Dot + mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
@@ -107,7 +107,7 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} withMask={false} size="lg" blur={4}>
           <Content>
-            <Text size="xs">Path no mask</Text>
+            <Text size="xs">Dot no mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
@@ -118,22 +118,22 @@ function Demo() {
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} beamMode="wedge" withMask size="md" blur="xs">
           <Content>
-            <Text size="xs">Conic + mask</Text>
+            <Text size="xs">Wedge + mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Conic clipped
+          Wedge clipped
         </Text>
       </Stack>
 
       <Stack align="center" gap="xs">
         <BorderAnimate w={200} h={150} beamMode="wedge" withMask={false} size="md" blur="xs">
           <Content>
-            <Text size="xs">Conic no mask</Text>
+            <Text size="xs">Wedge no mask</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Conic full gradient
+          Wedge full gradient
         </Text>
       </Stack>
     </Flex>

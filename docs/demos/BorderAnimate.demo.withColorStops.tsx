@@ -27,7 +27,7 @@ function Content({ children }: { children: React.ReactNode }) {
 function Demo() {
   return (
     <Flex gap="xl" align="center" wrap="wrap">
-      {/* Conic beam with custom wedge */}
+      {/* Wedge beam with a custom spread */}
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
@@ -46,13 +46,13 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Conic beam</Text>
+            <Text size="sm">Wedge beam</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Conic with colorStops</Text>
+        <Text size="xs" c="dimmed">Wedge with colorStops</Text>
       </Stack>
 
-      {/* Conic beam as full rotating gradient */}
+      {/* Wedge beam as a full rotating gradient */}
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
@@ -74,10 +74,10 @@ function Demo() {
             <Text size="sm">Rainbow</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Conic full gradient</Text>
+        <Text size="xs" c="dimmed">Wedge full gradient</Text>
       </Stack>
 
-      {/* Path beam with colorStops */}
+      {/* Dot beam with colorStops */}
       <Stack align="center" gap="xs">
         <BorderAnimate
           w={200}
@@ -94,10 +94,10 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Path beam</Text>
+            <Text size="sm">Dot beam</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Path with colorStops</Text>
+        <Text size="xs" c="dimmed">Dot with colorStops</Text>
       </Stack>
     </Flex>
   );
@@ -144,11 +144,11 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Conic beam</Text>
+            <Text size="sm">Wedge beam</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Conic with colorStops
+          Wedge with colorStops
         </Text>
       </Stack>
 
@@ -174,7 +174,7 @@ function Demo() {
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Conic full gradient
+          Wedge full gradient
         </Text>
       </Stack>
 
@@ -194,11 +194,11 @@ function Demo() {
           ]}
         >
           <Content>
-            <Text size="sm">Path beam</Text>
+            <Text size="sm">Dot beam</Text>
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Path with colorStops
+          Dot with colorStops
         </Text>
       </Stack>
     </Flex>
