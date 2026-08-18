@@ -85,16 +85,31 @@ export const configurator: MantineDemo = {
         { value: 'never', label: 'Never' },
       ],
     },
+
     { type: 'boolean', prop: 'show', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'animate', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'reverse', initialValue: false, libraryValue: false },
-    { type: 'boolean', prop: 'withMask', initialValue: true, libraryValue: true },
     { type: 'boolean', prop: 'pauseOnHover', initialValue: false, libraryValue: false },
+    { type: 'boolean', prop: 'withTrack', initialValue: false, libraryValue: false },
+
+    {
+      type: 'segmented',
+      prop: 'dashCap',
+      initialValue: 'butt',
+      libraryValue: 'butt',
+      data: [
+        { value: 'butt', label: 'Butt' },
+        { value: 'round', label: 'Round' },
+      ],
+    },
 
     { type: 'size', prop: 'size', initialValue: 'sm', libraryValue: 'sm' },
     { type: 'size', prop: 'radius', initialValue: 'md', libraryValue: 'md' },
     { type: 'size', prop: 'borderWidth', initialValue: 'xs', libraryValue: 'xs' },
-    { type: 'size', prop: 'blur', initialValue: 'xs', libraryValue: 'xs' },
+    // blur and duration have per-variant defaults, so there is no single library value to
+    // compare against: an impossible one keeps them in the generated snippet, which is what
+    // makes the snippet render exactly what the playground shows.
+    { type: 'size', prop: 'blur', initialValue: 'xs', libraryValue: '' },
     {
       prop: 'offset',
       type: 'number',
@@ -104,6 +119,7 @@ export const configurator: MantineDemo = {
       min: 0,
       max: 40,
     },
+
     {
       prop: 'w',
       type: 'number',
@@ -122,14 +138,24 @@ export const configurator: MantineDemo = {
       min: 160,
       max: 480,
     },
+
     {
       prop: 'duration',
       type: 'number',
       initialValue: 5,
-      libraryValue: 5,
+      libraryValue: -1,
       step: 0.1,
       min: 0.5,
       max: 60,
+    },
+    {
+      prop: 'phase',
+      type: 'number',
+      initialValue: 0,
+      libraryValue: 0,
+      step: 0.5,
+      min: 0,
+      max: 10,
     },
     {
       prop: 'progress',
@@ -167,7 +193,31 @@ export const configurator: MantineDemo = {
       min: 0,
       max: 1,
     },
+
+    {
+      prop: 'dashSize',
+      type: 'number',
+      initialValue: 4,
+      libraryValue: 4,
+      step: 0.5,
+      min: 0.5,
+      max: 25,
+    },
+    {
+      prop: 'dashGap',
+      type: 'number',
+      initialValue: 4,
+      libraryValue: 4,
+      step: 0.5,
+      min: 0,
+      max: 25,
+    },
+    // 0 means "not set": the component falls back to dashSize/dashGap, and the snippet
+    // leaves count out entirely.
+    { prop: 'count', type: 'number', initialValue: 0, libraryValue: 0, step: 1, min: 0, max: 16 },
+
     { type: 'color', prop: 'colorFrom', initialValue: 'yellow.6', libraryValue: 'yellow.6' },
     { type: 'color', prop: 'colorTo', initialValue: 'violet.6', libraryValue: 'violet.6' },
+    { type: 'color', prop: 'trackColor', initialValue: 'gray.6', libraryValue: '' },
   ],
 };

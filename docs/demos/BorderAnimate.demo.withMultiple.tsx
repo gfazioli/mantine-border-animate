@@ -28,7 +28,7 @@ function Demo() {
   return (
     <BorderAnimate w={400} h={250}>
       <BorderAnimate w={400} h={250} duration={55} reverse borderWidth={1} size="xl" colorFrom="#ff6b6b" colorTo="#2b00ff">
-        <BorderAnimate w={400} h={250} duration={23} withMask={false} size="xl" borderOpacity={0.2} blur={14} zIndex={-1}>
+        <BorderAnimate w={400} h={250} duration={23} phase={8} withMask={false} size="xl" borderOpacity={0.2} blur={14} zIndex={-1}>
           <BorderAnimate w={400} h={250} variant="glow" blur={4}>
             <Content>
               <Text fw={500}>Multiple Animated Borders</Text>
@@ -78,6 +78,7 @@ function Demo() {
             w={400}
             h={250}
             duration={23}
+            phase={8}
             withMask={false}
             size="xl"
             borderOpacity={0.2}
