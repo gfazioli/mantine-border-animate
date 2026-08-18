@@ -22,7 +22,6 @@ function Demo() {
       </BorderAnimate>
 
       <BorderAnimate
-        size="lg"
         radius="md"
         duration={2}
         colorFrom="red"
@@ -52,14 +51,7 @@ function Demo() {
         </Alert>
       </BorderAnimate>
 
-      <BorderAnimate
-        size="lg"
-        radius="md"
-        duration={2}
-        colorFrom="red"
-        colorTo="orange"
-        variant="glow"
-      >
+      <BorderAnimate radius="md" duration={2} colorFrom="red" colorTo="orange" variant="glow">
         <Alert variant="light" color="red" title="Warning" icon={<IconAlertTriangle />}>
           This is a warning alert with a glowing border effect.
         </Alert>

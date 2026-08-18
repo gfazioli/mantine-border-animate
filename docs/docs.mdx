@@ -66,12 +66,15 @@ The **beam** variant (default) creates an animated glow that moves around the bo
 - **`wedge`** — a rotating conic-gradient wedge. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear.
 - **`comet`** — a stroked head with a fading tail, drawn along the real perimeter. It is the only mode with a trail, and unlike `wedge` its speed is constant on any shape.
 
+<Demo data={demos.withBeamModes} />
+
 Key props for the beam variant:
 
 - `beamMode` - Rendering mode: `'dot'` (default), `'wedge'` or `'comet'`
 - `size` - Pixel size of the traveling dot (`dot` mode)
 - `spread` - Visible width of the wedge in degrees (`wedge` mode, default 36)
 - `tail` - Length of the comet tail as a percentage of the perimeter (`comet` mode, default 25)
+- `blur` - Softens the effect. It matters most on the comet: SVG cannot fade a stroke along its own path, so the tail is built from stacked strokes, and a small blur — the default — melts their joints together
 - `duration` - Controls how fast the beam travels
 - `colorFrom` / `colorTo` - Colors of the beam
 - `colorStops` - Full control over the gradient (overrides colorFrom/colorTo)
@@ -117,7 +120,7 @@ The **dash** variant paints a dashed border and marches it around the perimeter.
 
 Key props for the dash variant:
 
-- `dashSize` / `dashGap` - Length of each dash and of each gap (default 4 and 4)
+- `dashSize` / `dashGap` - Length of each dash and of each gap, as percentages of the perimeter (default 4 and 4). Both are nudged by up to half a period so that the pattern divides the perimeter exactly: otherwise the last dash would be cut in half right where the perimeter closes, leaving a visible snag at the first corner
 - `count` - Number of segments spread evenly along the perimeter; it overrides the absolute lengths and keeps only their ratio
 - `dashCap` - `'butt'` (default) or `'round'`. A tiny `dashSize` with a round cap gives you dots
 - `withTrack` / `trackColor` - Render the full perimeter underneath the dashes
@@ -148,9 +151,17 @@ For **dot mode**, colorStops creates a `radial-gradient` with concentric color r
 
 ## Animation Control
 
+### Direction and Phase
+
+`reverse` flips the direction of travel. `phase` shifts the animation in time: a value of `2` makes the border start as if it had already been running for two seconds, which is how you keep several borders from moving in lockstep. It is a phase offset, not a delay — nothing ever waits.
+
+<Demo data={demos.withPhase} />
+
 ### Pause on Hover
 
 Set `pauseOnHover` to pause the animation when the user hovers over the component. This is useful for interactive elements where the animation might be distracting during interaction.
+
+It is ignored when `trigger="hover"`, since the two would fight over the same gesture: one wants to start the animation on hover, the other wants to stop it.
 
 <Demo data={demos.withPauseOnHover} />
 
@@ -160,9 +171,15 @@ The `timingFunction` prop controls the CSS animation timing function. By default
 
 <Demo data={demos.withTimingFunction} />
 
-## Offset
+## Geometry
 
-The `offset` prop pushes the ring outwards, leaving a gap between the content and the animated border. The radius grows by the same amount, so the ring stays concentric with the element instead of looking pinched at the corners.
+Three props decide where the ring is drawn and how thick it is.
+
+`borderWidth` is the thickness of the band the effect is painted into — a Mantine size token (`xs` is 1px, `xl` is 8px) or any number. Widening it makes every variant more substantial, not just longer: the beam becomes a broad sweep, the dashes become blocks, the drawn border becomes a stroke you cannot miss.
+
+`radius` should match the radius of the content you are wrapping, and then the ring stays glued to it. `radius="100%"` gives a circle on a square element, an ellipse on anything else.
+
+`offset` pushes the ring outwards, leaving a gap between the content and the animated border. The radius grows by the same amount, so the ring stays concentric with the element instead of looking pinched at the corners.
 
 <Demo data={demos.withOffset} />
 
@@ -190,13 +207,13 @@ BorderAnimate can be used with virtually any Mantine component. Here are some co
 
 ### Buttons
 
-Add animated borders to buttons to make them stand out. Perfect for call-to-action buttons, submit buttons, or any interactive element that needs extra attention.
+Add animated borders to buttons to make them stand out. A call to action can animate all the time, but for anything less shouty `trigger="hover"` is usually the better manner: the button is quiet until the pointer arrives, and then the border draws itself.
 
 <Demo data={demos.withButton} />
 
 ### Input Fields
 
-Highlight input fields with animated borders to guide users through forms or indicate active/focused states.
+`trigger="focus-within"` is the answer here: the wrapper follows the focus of the control inside it, so the border lights up exactly when the field is active — no state to wire up, and it keeps working with the keyboard. Combine it with `variant="draw"` and the border writes itself around the field on focus. A field that needs attention before it is touched is the one case where an always-running animation is right.
 
 <Demo data={demos.withInput} />
 
@@ -226,13 +243,13 @@ Wrap accordion components with animated borders to create visually engaging expa
 
 ### Multiple Borders
 
-Nest multiple `BorderAnimate` components to create complex, layered effects. Combine different variants, speeds, directions, and colors to achieve unique visual compositions. This technique is perfect for hero sections or premium UI elements that need extra visual impact.
+Nest multiple `BorderAnimate` components to create complex, layered effects. Combine different variants, speeds, directions and colors — `reverse` and `phase` are what keep the layers from moving in lockstep. This technique is perfect for hero sections or premium UI elements that need extra visual impact.
 
 <Demo data={demos.withMultiple} />
 
 ### Circular Elements
 
-BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to create animated borders around avatars, profile pictures, or any circular UI element. The beam smoothly follows the circular path.
+BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to create animated borders around avatars, profile pictures, or any circular UI element, and the effect follows the circle instead of cutting corners. It also gives you a ring progress for free: `variant="draw"` on a square element with `radius="100%"` measures the circumference exactly.
 
 <Demo data={demos.withCircle} />
 

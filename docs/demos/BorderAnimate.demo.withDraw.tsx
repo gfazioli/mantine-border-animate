@@ -17,6 +17,7 @@ function Demo() {
         variant="draw"
         progress={progress}
         withTrack={withTrack}
+        trackColor="gray.6"
         borderWidth="sm"
         colorFrom="blue.5"
         colorTo="cyan.4"
@@ -52,6 +53,7 @@ function Demo() {
         variant="draw"
         progress={progress}
         withTrack={withTrack}
+        trackColor="gray.6"
         borderWidth="sm"
         colorFrom="blue.5"
         colorTo="cyan.4"

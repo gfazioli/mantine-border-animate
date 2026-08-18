@@ -12,11 +12,11 @@ function Demo() {
         <Chip defaultChecked>Selected</Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="pulse" colorTo="white" p={3}>
+      <BorderAnimate radius="xl" variant="pulse" colorTo="white" p={3}>
         <Chip defaultChecked color="green">Active</Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="pulse" duration={2}>
+      <BorderAnimate radius="xl" variant="pulse" duration={2}>
         <Chip defaultChecked color="violet">Premium</Chip>
       </BorderAnimate>
     </Flex>
@@ -31,13 +31,13 @@ function Demo() {
         <Chip defaultChecked>Selected</Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="pulse" colorTo="white" p={3}>
+      <BorderAnimate radius="xl" variant="pulse" colorTo="white" p={3}>
         <Chip defaultChecked color="green">
           Active
         </Chip>
       </BorderAnimate>
 
-      <BorderAnimate size="xs" radius="xl" variant="pulse" duration={2}>
+      <BorderAnimate radius="xl" variant="pulse" duration={2}>
         <Chip defaultChecked color="violet">
           Premium
         </Chip>

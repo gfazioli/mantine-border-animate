@@ -42,7 +42,7 @@ function Demo() {
             <Text size="sm">Hover me!</Text>
           </Content>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Gradient pauses on hover</Text>
+        <Text size="xs" c="dimmed">Glow pauses on hover</Text>
       </Stack>
     </Flex>
   );
@@ -89,7 +89,7 @@ function Demo() {
           </Content>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Gradient pauses on hover
+          Glow pauses on hover
         </Text>
       </Stack>
     </Flex>

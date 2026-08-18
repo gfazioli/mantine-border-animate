@@ -38,7 +38,7 @@ function Demo() {
 
       {/* Avatar with glow */}
       <Stack align="center" gap="xs">
-        <BorderAnimate w={80} h={80} variant="glow" radius="100%" size="sm" colorFrom="green" colorTo="cyan">
+        <BorderAnimate w={80} h={80} variant="glow" radius="100%" colorFrom="green" colorTo="cyan">
           <Avatar
             src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
             alt="Avatar"
@@ -49,14 +49,34 @@ function Demo() {
         <Text size="xs" c="dimmed">Avatar</Text>
       </Stack>
 
-      {/* Larger circle with gradient variant */}
+      {/* Larger circle with the pulse variant */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={120} h={120} radius="100%" variant="pulse" duration={3}>
           <CircleContent>
-            <Text size="xs">Gradient</Text>
+            <Text size="xs">Pulse</Text>
           </CircleContent>
         </BorderAnimate>
-        <Text size="xs" c="dimmed">Gradient variant</Text>
+        <Text size="xs" c="dimmed">Pulse variant</Text>
+      </Stack>
+
+      {/* A circular progress: the draw variant follows the ring exactly */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={100}
+          h={100}
+          radius="100%"
+          variant="draw"
+          progress={70}
+          borderWidth="md"
+          withTrack
+          colorFrom="blue.4"
+          colorTo="cyan.4"
+        >
+          <CircleContent>
+            <Text size="xs">70%</Text>
+          </CircleContent>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">draw + radius="100%"</Text>
       </Stack>
     </Flex>
   );
@@ -98,15 +118,7 @@ function Demo() {
 
       {/* Avatar with beam */}
       <Stack align="center" gap="xs">
-        <BorderAnimate
-          w={80}
-          h={80}
-          variant="glow"
-          radius="100%"
-          size="sm"
-          colorFrom="green"
-          colorTo="cyan"
-        >
+        <BorderAnimate w={80} h={80} variant="glow" radius="100%" colorFrom="green" colorTo="cyan">
           <Avatar
             src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
             alt="Avatar"
@@ -119,15 +131,37 @@ function Demo() {
         </Text>
       </Stack>
 
-      {/* Larger circle with gradient variant */}
+      {/* Larger circle with the pulse variant */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={120} h={120} radius="100%" variant="pulse" duration={3}>
           <CircleContent>
-            <Text size="xs">Gradient</Text>
+            <Text size="xs">Pulse</Text>
           </CircleContent>
         </BorderAnimate>
         <Text size="xs" c="dimmed">
-          Gradient variant
+          Pulse variant
+        </Text>
+      </Stack>
+
+      {/* A circular progress: the draw variant follows the ring exactly */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={100}
+          h={100}
+          radius="100%"
+          variant="draw"
+          progress={70}
+          borderWidth="md"
+          withTrack
+          colorFrom="blue.4"
+          colorTo="cyan.4"
+        >
+          <CircleContent>
+            <Text size="xs">70%</Text>
+          </CircleContent>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          draw + radius="100%"
         </Text>
       </Stack>
     </Flex>
