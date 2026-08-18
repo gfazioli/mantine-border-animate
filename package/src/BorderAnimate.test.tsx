@@ -252,19 +252,53 @@ describe('BorderAnimate', () => {
       expect(container.querySelector('svg')).toBeNull();
     });
 
-    it('renders one graded segment per comet step', () => {
+    it('renders enough graded segments for the tail to read as a gradient', () => {
       const { container } = render(<BorderAnimate beamMode="comet" />);
-      expect(container.querySelectorAll('rect').length).toBe(6);
+      // Few segments make the tail look like a row of blocks instead of a fade
+      expect(container.querySelectorAll('rect').length).toBeGreaterThanOrEqual(12);
     });
 
-    it('places every comet segment behind the head', () => {
+    // Regression: a period of `step + 100` does not divide the perimeter, so the dash was
+    // clipped at the end of the path with nothing entering from the start — the comet
+    // shrank and popped every time it crossed the first corner.
+    it('gives the comet a dash pattern that closes on the perimeter', () => {
       const { container } = render(<BorderAnimate beamMode="comet" tail={30} />);
-      const offsets = Array.from(container.querySelectorAll('rect')).map((r) =>
-        (r as unknown as HTMLElement).style.getPropertyValue('--border-animate-segment')
+      const [on, off] = vars(container)
+        .getPropertyValue('--border-animate-dasharray')
+        .split(' ')
+        .map(Number);
+
+      expect(on + off).toBeCloseTo(100, 6);
+
+      // The segments overlap, so the tail is only as long as the last one reaches
+      const rects = Array.from(container.querySelectorAll('rect'));
+      const last = Number(
+        (rects[rects.length - 1] as unknown as HTMLElement).style.getPropertyValue(
+          '--border-animate-segment'
+        )
       );
-      expect(offsets[0]).toBe('0');
-      expect(Number(offsets[1])).toBeGreaterThan(0);
-      expect(Number(offsets[5])).toBeGreaterThan(Number(offsets[1]));
+      expect(last + on).toBeCloseTo(30, 6);
+    });
+
+    it('places every comet segment behind the head, fading as it goes', () => {
+      const { container } = render(<BorderAnimate beamMode="comet" tail={30} />);
+      const segments = Array.from(container.querySelectorAll('rect')).map((r) => {
+        const { style } = r as unknown as HTMLElement;
+        return {
+          offset: Number(style.getPropertyValue('--border-animate-segment')),
+          opacity: Number(style.getPropertyValue('--border-animate-segment-opacity')),
+        };
+      });
+
+      expect(segments[0].offset).toBe(0);
+      expect(segments[0].opacity).toBe(1);
+
+      for (let i = 1; i < segments.length; i += 1) {
+        expect(segments[i].offset).toBeGreaterThan(segments[i - 1].offset);
+        expect(segments[i].opacity).toBeLessThan(segments[i - 1].opacity);
+      }
+
+      expect(segments[segments.length - 1].opacity).toBeGreaterThan(0);
     });
 
     it('flips the comet tail when the animation is reversed', () => {
@@ -283,10 +317,37 @@ describe('BorderAnimate', () => {
   });
 
   describe('dash pattern', () => {
-    it('uses dashSize and dashGap as perimeter percentages', () => {
+    // Regression: the pattern is anchored to the start of the path, so a period that does
+    // not divide 100 breaks the last dash right where the perimeter closes.
+    it('keeps the dash ratio while snapping the period to the perimeter', () => {
       const { container } = render(<BorderAnimate variant="dash" dashSize={6} dashGap={2} />);
-      expect(vars(container).getPropertyValue('--border-animate-dasharray')).toBe('6 2');
-      expect(vars(container).getPropertyValue('--border-animate-dash-period')).toBe('8');
+      const [on, off] = vars(container)
+        .getPropertyValue('--border-animate-dasharray')
+        .split(' ')
+        .map(Number);
+      const period = Number(vars(container).getPropertyValue('--border-animate-dash-period'));
+
+      expect(on + off).toBeCloseTo(period, 6);
+      expect(on / off).toBeCloseTo(3, 6);
+      expect(100 / period).toBeCloseTo(Math.round(100 / period), 6);
+      expect(period).toBeCloseTo(8, 0);
+    });
+
+    it('closes the pattern for any dash and gap the consumer asks for', () => {
+      for (const [dashSize, dashGap] of [
+        [4, 4],
+        [1, 1],
+        [0.5, 5],
+        [8, 6],
+        [25, 25],
+        [3, 11],
+      ]) {
+        const { container } = render(
+          <BorderAnimate variant="dash" dashSize={dashSize} dashGap={dashGap} />
+        );
+        const period = Number(vars(container).getPropertyValue('--border-animate-dash-period'));
+        expect(100 / period).toBeCloseTo(Math.round(100 / period), 6);
+      }
     });
 
     it('distributes count segments evenly and keeps the dash/gap ratio', () => {
@@ -295,6 +356,8 @@ describe('BorderAnimate', () => {
       );
       expect(vars(container).getPropertyValue('--border-animate-dasharray')).toBe('12.5 12.5');
       expect(vars(container).getPropertyValue('--border-animate-dash-period')).toBe('25');
+      // count always divides the perimeter, so it is seamless by construction
+      expect(100 / 25).toBe(4);
     });
 
     it('exposes the cap so a small dash can become a dot', () => {
