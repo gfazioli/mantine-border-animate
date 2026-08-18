@@ -116,11 +116,13 @@
   --border-animate-size-lg: 320px;
   --border-animate-size-xl: 480px;
 
-  --border-animate-offset-xs: 2px;
-  --border-animate-offset-sm: 4px;
-  --border-animate-offset-md: 8px;
-  --border-animate-offset-lg: 16px;
-  --border-animate-offset-xl: 32px;
+  /* Same shape getSize() produces for a number, so the keyword and the numeric value of
+     offset behave identically under a scaled theme */
+  --border-animate-offset-xs: calc(0.125rem * var(--mantine-scale));
+  --border-animate-offset-sm: calc(0.25rem * var(--mantine-scale));
+  --border-animate-offset-md: calc(0.5rem * var(--mantine-scale));
+  --border-animate-offset-lg: calc(1rem * var(--mantine-scale));
+  --border-animate-offset-xl: calc(2rem * var(--mantine-scale));
 
   --border-animate-width: var(--border-animate-width-xs);
 
@@ -242,11 +244,13 @@
    TRIGGERS
    ============================================ */
 
-/* Any trigger other than `always` starts from the resting state. The draw variant also
-   retracts (rule further down): it needs the opacity too, because a zero-length dash with
-   a round cap still paints a dot at the starting point. */
-.root[data-trigger] .border,
-.root[data-trigger] .svg {
+/* Any trigger other than `always` or `never` starts hidden and is revealed by the
+   interaction. `never` is different: it renders the resting state and simply does not
+   animate, so it keeps its opacity — otherwise it would be a slower way to write
+   show={false}. The draw variant is included here because a zero-length dash with a round
+   cap still paints a dot at the starting point. */
+.root[data-trigger]:not([data-trigger='never']) .border,
+.root[data-trigger]:not([data-trigger='never']) .svg {
   --border-animate-active: 0;
 
   /* The fade in and out is a reveal, not the effect itself: capping it keeps a slow loop
@@ -432,8 +436,9 @@
     var(--border-animate-timing, ease-in-out);
 }
 
-/* With a trigger the border is not drawn until the trigger is active */
-.root[data-trigger] .svg[data-variant='draw'] .stroke {
+/* With a trigger the border is not drawn until the trigger is active — except under
+   `never`, which keeps whatever progress it was given */
+.root[data-trigger]:not([data-trigger='never']) .svg[data-variant='draw'] .stroke {
   stroke-dashoffset: 100px;
 }
 
