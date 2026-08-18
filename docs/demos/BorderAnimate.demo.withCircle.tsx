@@ -25,7 +25,7 @@ function CircleContent({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center">
+    <Flex gap="xl" align="center" wrap="wrap" justify="center">
       {/* Simple circle */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={100} h={100} radius="100%">
@@ -103,7 +103,7 @@ function CircleContent({ children }: { children: React.ReactNode }) {
 
 function Demo() {
   return (
-    <Flex gap="xl" align="center" justify="center">
+    <Flex gap="xl" align="center" wrap="wrap" justify="center">
       {/* Simple circle */}
       <Stack align="center" gap="xs">
         <BorderAnimate w={100} h={100} radius="100%">

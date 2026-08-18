@@ -145,7 +145,7 @@ The transition lasts `duration`, and for `variant="draw"` the border literally d
 
 The `colorStops` prop gives you full control over the beam gradient. Each stop has a `color` (any Mantine color) and a `position` (0-100%). When provided, it overrides `colorFrom`/`colorTo`.
 
-For **dot mode**, colorStops creates a `radial-gradient` with concentric color rings inside the traveling dot. For **wedge mode**, it creates a custom `conic-gradient` — use transparent stops for a wedge, or fill the entire circle for a rotating gradient border. For **comet mode**, and for the draw and dash variants, the stops become a real SVG gradient along the stroke.
+For **dot mode**, colorStops creates a `radial-gradient` with concentric color rings inside the traveling dot. For **wedge mode**, it creates a custom `conic-gradient` — use transparent stops for a wedge, or fill the entire circle for a rotating gradient border. For the **draw** and **dash** variants the stops become a real SVG gradient along the stroke. The **comet** mode ignores `colorStops`: it has no gradient to paint into, because SVG cannot fade a stroke along its own path, so its tail is a stack of strokes each mixed between `colorFrom` and `colorTo`.
 
 <Demo data={demos.withColorStops} />
 
