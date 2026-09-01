@@ -97,10 +97,15 @@ A border that waits for the interaction instead of looping. On a form field `foc
 follows the focus of the control inside it, so there is no state to wire up:
 
 ```tsx
-<BorderAnimate variant="draw" trigger="focus-within" radius="sm">
-  <TextInput label="Email" placeholder="you@example.com" />
-</BorderAnimate>
+<Input.Wrapper label="Email">
+  <BorderAnimate variant="draw" trigger="focus-within" radius="sm">
+    <Input w="100%" placeholder="you@example.com" />
+  </BorderAnimate>
+</Input.Wrapper>
 ```
+
+Wrap the control, not the whole field: a `TextInput` is an `Input.Wrapper`, so wrapping it would put the
+border around the label too.
 
 ## Sponsor
 
