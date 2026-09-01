@@ -1,9 +1,9 @@
 import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { Flex, Paper, Text, TextInput } from '@mantine/core';
+import { Flex, Input, Paper, Text } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
 
 const code = `import { BorderAnimate } from '@gfazioli/mantine-border-animate';
-import { Flex, Paper, Text, TextInput } from '@mantine/core';
+import { Flex, Input, Paper, Text } from '@mantine/core';
 
 function Demo() {
   return (
@@ -17,8 +17,11 @@ function Demo() {
       </BorderAnimate>
 
       {/* Follows the focus of anything inside, so it works with real form controls */}
-      <BorderAnimate trigger="focus-within" borderWidth="sm" radius="sm">
-        <TextInput w={190} placeholder="Click into the field" label='trigger="focus-within"' />
+      <BorderAnimate trigger="focus-within" borderWidth="sm">
+        <Paper radius="md" p="md" w={190}>
+          <Text fw={600}>trigger="focus-within"</Text>
+          <Input mt="xs" placeholder="Click into the field" />
+        </Paper>
       </BorderAnimate>
 
       {/* Animates only while the component is on screen */}
@@ -47,8 +50,11 @@ function Demo() {
       </BorderAnimate>
 
       {/* Follows the focus of anything inside, so it works with real form controls */}
-      <BorderAnimate trigger="focus-within" borderWidth="sm" radius="sm">
-        <TextInput w={190} placeholder="Click into the field" label='trigger="focus-within"' />
+      <BorderAnimate trigger="focus-within" borderWidth="sm">
+        <Paper radius="md" p="md" w={190}>
+          <Text fw={600}>trigger="focus-within"</Text>
+          <Input mt="xs" placeholder="Click into the field" />
+        </Paper>
       </BorderAnimate>
 
       {/* Animates only while the component is on screen */}
