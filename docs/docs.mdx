@@ -215,6 +215,8 @@ Add animated borders to buttons to make them stand out. A call to action can ani
 
 `trigger="focus-within"` is the answer here: the wrapper follows the focus of the control inside it, so the border lights up exactly when the field is active — no state to wire up, and it keeps working with the keyboard. Combine it with `variant="draw"` and the border writes itself around the field on focus. A field that needs attention before it is touched is the one case where an always-running animation is right.
 
+Wrap the **control**, not the whole field. A Mantine `TextInput` is an `Input.Wrapper` — label, description, input and error in one box — so wrapping it puts the animated border around the label as well, and the `radius` you set to match the input no longer traces its corners. Use `Input.Wrapper` for the label and let `BorderAnimate` hold only the `Input`. The label still points at the real control: `Input` reads the id from `Input.Wrapper` through React context, which does not care how deep the consumer sits.
+
 <Demo data={demos.withInput} />
 
 ### Alerts and Notifications
