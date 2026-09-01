@@ -1,6 +1,6 @@
 {
   "name": "@gfazioli/mantine-border-animate",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Mantine component offering five border animation variants (beam, glow, pulse, draw, dash) with a progress-driven border, dashed patterns, hover/focus/in-view triggers and full animation control, perfect for creating dynamic, visually engaging UI elements.",
   "homepage": "https://gfazioli.github.io/mantine-border-animate/",
   "packageManager": "yarn@4.0.1",
