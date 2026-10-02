@@ -18,7 +18,7 @@
 | `yarn storybook` | Start Storybook dev server |
 | `yarn clean` | Remove build artifacts |
 | `yarn release:patch` | Bump patch version and deploy docs |
-| `diny yolo` | AI-assisted commit (stage all, generate message, commit + push) |
+| `diny yolo` | AI-assisted commit (stage all, generate message, commit + push); it needs a TTY, so from Claude Code commit with `git commit` + `git push` |
 
 > **Important**: After changing the public API, always run `yarn clean && yarn build` before `yarn test`.
 
@@ -65,8 +65,7 @@ rendered pixel — a Storybook story plus the Chrome tools — before it counts 
 Jest with `jsdom`, `esbuild-jest` transform, CSS mocked via `identity-obj-proxy`. Tests use `@mantine-tests/core` render helper.
 
 ## Ecosystem
-This repo is part of the Mantine Extensions ecosystem, derived from the `mantine-base-component` template. See the workspace `CLAUDE.md` (in the parent directory) for:
-- Development checklist (code -> test -> build -> docs -> release)
-- Cross-cutting patterns (compound components, responsive CSS, GitHub sync)
-- Update packages workflow
-- Release process
+This repo is part of the Mantine Extensions ecosystem, derived from the `mantine-base-component` template. See the workspace (the parent directory) for:
+- Development checklist and cross-cutting patterns (compound components, responsive CSS, GitHub sync): the workspace's `.claude/rules/component-development.md`, which loads with this repo's files
+- Update packages workflow: the workspace's `fleet-maintenance` skill
+- Release process: the workspace's `/release` command
