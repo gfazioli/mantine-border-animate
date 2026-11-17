@@ -209,6 +209,20 @@ export function Triggers() {
       >
         {card('inView, comet, pauseOnHover')}
       </BorderAnimate>
+      <BorderAnimate trigger="never" data-testid="never-outer">
+        <Paper p="xl">
+          <BorderAnimate variant="beam" beamMode="comet" data-testid="nested-comet">
+            {card('comet, nested in a never border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
+      <BorderAnimate pauseOnHover data-testid="pause-outer">
+        <Paper p="xl">
+          <BorderAnimate variant="dash" data-testid="nested-dash">
+            {card('dash, nested in a pauseOnHover border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
       <BorderAnimate trigger="hover" data-active="true" data-testid="hover-with-data-active">
         {card('hover, with a data-active of its own')}
       </BorderAnimate>

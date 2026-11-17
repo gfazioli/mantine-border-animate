@@ -233,10 +233,12 @@
   animation: none !important;
 }
 
-/* Pause on hover */
-.root[data-pause-on-hover]:hover .border,
-.root[data-pause-on-hover]:hover .border::after,
-.root[data-pause-on-hover]:hover .stroke {
+/* Pause on hover. This rule and every trigger rule below reach their own root's ring with `>`
+   (and :where(.svg), which weighs nothing): a BorderAnimate nested inside another answers only
+   to its own trigger and pauseOnHover. */
+.root[data-pause-on-hover]:hover > .border,
+.root[data-pause-on-hover]:hover > .border::after,
+.root[data-pause-on-hover]:hover > :where(.svg) > .stroke {
   animation-play-state: paused;
 }
 
@@ -249,8 +251,8 @@
    animate, so it keeps its opacity — otherwise it would be a slower way to write
    show={false}. The draw variant is included here because a zero-length dash with a round
    cap still paints a dot at the starting point. */
-.root[data-trigger]:not([data-trigger='never']) .border,
-.root[data-trigger]:not([data-trigger='never']) .svg {
+.root[data-trigger]:not([data-trigger='never']) > .border,
+.root[data-trigger]:not([data-trigger='never']) > .svg {
   --border-animate-active: 0;
 
   /* The fade in and out is a reveal, not the effect itself: capping it keeps a slow loop
@@ -260,9 +262,9 @@
     var(--border-animate-timing, ease-in-out);
 }
 
-.root[data-trigger] .border,
-.root[data-trigger] .border::after,
-.root[data-trigger] .stroke {
+.root[data-trigger] > .border,
+.root[data-trigger] > .border::after,
+.root[data-trigger] > :where(.svg) > .stroke {
   animation-play-state: paused;
 }
 
@@ -270,12 +272,11 @@
    (.root + two attributes + the ring), and come after it: a lighter one loses whatever its place
    in the file. The inView rules name [data-trigger='inView'] for that weight (with
    .root[data-active] alone an inView border stayed at opacity 0 on screen), which also leaves a
-   data-active set by hand on another trigger alone; and they reach the root's own ring with `>`,
-   so an active inView border does not show a hover or focus-within border nested inside it. */
-.root[data-trigger='hover']:hover .border,
-.root[data-trigger='hover']:hover .svg,
-.root[data-trigger='focus-within']:focus-within .border,
-.root[data-trigger='focus-within']:focus-within .svg,
+   data-active set by hand on another trigger alone. */
+.root[data-trigger='hover']:hover > .border,
+.root[data-trigger='hover']:hover > .svg,
+.root[data-trigger='focus-within']:focus-within > .border,
+.root[data-trigger='focus-within']:focus-within > .svg,
 .root[data-trigger='inView'][data-active='true'] > .border,
 .root[data-trigger='inView'][data-active='true'] > .svg {
   --border-animate-active: 1;
@@ -283,12 +284,12 @@
 
 /* The running rules stay lighter than the pauseOnHover rule above, which must still pause an
    active border under the pointer: hence :where() around the inView rule's svg. */
-.root[data-trigger='hover']:hover .border,
-.root[data-trigger='hover']:hover .border::after,
-.root[data-trigger='hover']:hover .stroke,
-.root[data-trigger='focus-within']:focus-within .border,
-.root[data-trigger='focus-within']:focus-within .border::after,
-.root[data-trigger='focus-within']:focus-within .stroke,
+.root[data-trigger='hover']:hover > .border,
+.root[data-trigger='hover']:hover > .border::after,
+.root[data-trigger='hover']:hover > :where(.svg) > .stroke,
+.root[data-trigger='focus-within']:focus-within > .border,
+.root[data-trigger='focus-within']:focus-within > .border::after,
+.root[data-trigger='focus-within']:focus-within > :where(.svg) > .stroke,
 .root[data-active='true'] > .border,
 .root[data-active='true'] > .border::after,
 .root[data-active='true'] > :where(.svg) > .stroke {
@@ -452,12 +453,12 @@
 
 /* With a trigger the border is not drawn until the trigger is active — except under
    `never`, which keeps whatever progress it was given */
-.root[data-trigger]:not([data-trigger='never']) .svg[data-variant='draw'] .stroke {
+.root[data-trigger]:not([data-trigger='never']) > .svg[data-variant='draw'] > .stroke {
   stroke-dashoffset: 100px;
 }
 
-.root[data-trigger='hover']:hover .svg[data-variant='draw'] .stroke,
-.root[data-trigger='focus-within']:focus-within .svg[data-variant='draw'] .stroke,
+.root[data-trigger='hover']:hover > .svg[data-variant='draw'] > .stroke,
+.root[data-trigger='focus-within']:focus-within > .svg[data-variant='draw'] > .stroke,
 .root[data-trigger='inView'][data-active='true'] > .svg[data-variant='draw'] > .stroke {
   stroke-dashoffset: calc(var(--border-animate-draw-offset, 0) * 1px);
 }

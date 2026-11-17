@@ -566,6 +566,22 @@ describe('BorderAnimate.module.css', () => {
       }
     });
 
+    it('reaches only its own ring, so a nested BorderAnimate keeps its own state', () => {
+      const state = rules.flatMap((rule) =>
+        rule.selectors.filter((selector) => selector.startsWith('.root['))
+      );
+      expect(state.length).toBeGreaterThan(10);
+      for (const selector of state) {
+        // Only child combinators between the root and its ring: no descendant one.
+        expect({
+          selector,
+          descendant: /\S\s+[^>\s]/.test(selector.replace(/\s*>\s*/g, '>')),
+        }).toMatchObject({
+          descendant: false,
+        });
+      }
+    });
+
     it('lets pauseOnHover pause an active inView border', () => {
       const pause = find('animation-play-state: paused', (selector) =>
         selector.includes('[data-pause-on-hover]:hover')
