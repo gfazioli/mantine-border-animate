@@ -191,6 +191,19 @@ export function Triggers() {
       <BorderAnimate trigger="inView" variant="dash" data-testid="in-view-dash">
         {card('inView, dash')}
       </BorderAnimate>
+      <BorderAnimate trigger="inView" variant="draw" progress={100} data-testid="in-view-draw">
+        {card('inView, draw')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" pauseOnHover data-testid="in-view-pause">
+        {card('inView, pauseOnHover')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" data-testid="in-view-outer">
+        <Paper p="xl">
+          <BorderAnimate trigger="hover" data-testid="nested-hover">
+            {card('hover, nested in an inView border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
     </Stack>
   );
 }

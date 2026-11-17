@@ -508,32 +508,73 @@ describe('BorderAnimate.module.css', () => {
     expect(exclusions.length).toBeGreaterThanOrEqual(2);
   });
 
-  // Specificity, not file order, decides between the rule that hides a triggered border and the
-  // rules that show it. Through 3.0.12 the inView rule (`.root[data-active='true'] .border`)
-  // weighed less than the hiding one, so an inView border stayed at opacity 0 on screen.
-  it('shows every trigger with a selector at least as specific as the one that hides it', () => {
+  // An inView border is revealed by `data-active`, against rules that hide it at rest. Through
+  // 3.0.12 the reveal weighed less than the hiding rule and lost whatever its place in the file:
+  // an inView border stayed at opacity 0 on screen, and a draw stroke stayed collapsed. The
+  // reveal must not win where it should not either: pauseOnHover still pauses an active border.
+  describe('the inView cascade', () => {
     const plain = css.replace(/\/\*[\s\S]*?\*\//g, '');
-    const selectorsSetting = (value: string) =>
-      [...plain.matchAll(/([^{}]+)\{[^}]*--border-animate-active:\s*(\d);/g)]
-        .filter((match) => match[2] === value)
-        .flatMap((match) => match[1].split(',').map((selector) => selector.trim()));
-    // The middle column of a selector's specificity: classes, attributes, pseudo-classes
-    // (`:not()` counts by its argument, whose attribute is already among the attributes).
-    const weight = (selector: string) =>
-      (selector.match(/\[[^\]]*\]/g) ?? []).length +
-      (selector.replace(/\[[^\]]*\]/g, '').match(/\.[A-Za-z][\w-]*/g) ?? []).length +
-      (selector.match(/:(?!:)(?!not\()[a-z-]+/g) ?? []).length;
+    const rules = [...plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match, index) => ({
+      index,
+      selectors: match[1].split(',').map((selector) => selector.trim()),
+      body: match[2],
+    }));
+    // The middle column of a selector's specificity: classes, attributes and pseudo-classes.
+    // `:not()` counts by its argument, already among the attributes; `:where()` counts nothing.
+    const weight = (selector: string) => {
+      const bare = selector.replace(/:where\([^)]*\)/g, '');
+      return (
+        (bare.match(/\[[^\]]*\]/g) ?? []).length +
+        (bare.replace(/\[[^\]]*\]/g, '').match(/\.[A-Za-z][\w-]*/g) ?? []).length +
+        (bare.match(/:(?!:)(?!not\()[a-z-]+/g) ?? []).length
+      );
+    };
+    const find = (declaration: string, test: (selector: string) => boolean) =>
+      rules.flatMap((rule) =>
+        rule.body.includes(declaration)
+          ? rule.selectors.filter(test).map((selector) => ({ selector, index: rule.index }))
+          : []
+      );
+    const beats = (
+      a: { selector: string; index: number },
+      b: { selector: string; index: number }
+    ) =>
+      weight(a.selector) > weight(b.selector) ||
+      (weight(a.selector) === weight(b.selector) && a.index > b.index);
 
-    const hide = selectorsSetting('0');
-    const show = selectorsSetting('1');
-    expect(hide.length).toBeGreaterThan(0);
-    expect(show.some((selector) => selector.includes("[data-active='true']"))).toBe(true);
-    const hideWeight = Math.max(...hide.map(weight));
-    for (const selector of show) {
-      expect({ selector, enough: weight(selector) >= hideWeight }).toEqual({
-        selector,
-        enough: true,
-      });
-    }
+    it.each([
+      ['.border', '--border-animate-active: 0', '--border-animate-active: 1'],
+      ['.svg', '--border-animate-active: 0', '--border-animate-active: 1'],
+      ["[data-variant='draw'] > .stroke", 'stroke-dashoffset: 100px', 'draw-offset'],
+    ])('reveals the %s ring over the rule that hides it', (ring, hidden, shown) => {
+      const hide = find(hidden, (selector) => selector.endsWith(ring.split(' > ').pop()!));
+      const reveal = find(shown, (selector) => selector.includes("[data-active='true']"));
+      const own = reveal.filter((r) => r.selector.endsWith(ring));
+      expect(hide.length).toBeGreaterThan(0);
+      expect(own.length).toBeGreaterThan(0);
+      for (const r of own) {
+        // `>`: the root's own ring, not the ring of a BorderAnimate nested inside it
+        expect(r.selector).toMatch(/\[data-active='true'\] > /);
+        for (const h of hide) {
+          expect({ reveal: r.selector, hide: h.selector, wins: beats(r, h) }).toMatchObject({
+            wins: true,
+          });
+        }
+      }
+    });
+
+    it('lets pauseOnHover pause an active inView border', () => {
+      const pause = find('animation-play-state: paused', (selector) =>
+        selector.includes('[data-pause-on-hover]:hover')
+      );
+      const running = find('animation-play-state: running', (selector) =>
+        selector.includes("[data-active='true']")
+      );
+      expect(pause.length).toBeGreaterThan(0);
+      expect(running.length).toBeGreaterThan(0);
+      for (const r of running) {
+        expect(pause.some((p) => beats(p, r))).toBe(true);
+      }
+    });
   });
 });
