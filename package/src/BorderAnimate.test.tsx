@@ -520,13 +520,14 @@ describe('BorderAnimate.module.css', () => {
       body: match[2],
     }));
     // The middle column of a selector's specificity: classes, attributes and pseudo-classes.
-    // `:not()` counts by its argument, already among the attributes; `:where()` counts nothing.
+    // `:not()` counts by its argument, already among the attributes; `:where()` counts nothing;
+    // a pseudo-element (`::after`) belongs to the third column.
     const weight = (selector: string) => {
       const bare = selector.replace(/:where\([^)]*\)/g, '');
       return (
         (bare.match(/\[[^\]]*\]/g) ?? []).length +
         (bare.replace(/\[[^\]]*\]/g, '').match(/\.[A-Za-z][\w-]*/g) ?? []).length +
-        (bare.match(/:(?!:)(?!not\()[a-z-]+/g) ?? []).length
+        (bare.match(/(?<!:):(?!:)(?!not\()[a-z-]+/g) ?? []).length
       );
     };
     const find = (declaration: string, test: (selector: string) => boolean) =>
@@ -548,7 +549,9 @@ describe('BorderAnimate.module.css', () => {
       ["[data-variant='draw'] > .stroke", 'stroke-dashoffset: 100px', 'draw-offset'],
     ])('reveals the %s ring over the rule that hides it', (ring, hidden, shown) => {
       const hide = find(hidden, (selector) => selector.endsWith(ring.split(' > ').pop()!));
-      const reveal = find(shown, (selector) => selector.includes("[data-active='true']"));
+      const reveal = find(shown, (selector) =>
+        selector.includes("[data-trigger='inView'][data-active='true']")
+      );
       const own = reveal.filter((r) => r.selector.endsWith(ring));
       expect(hide.length).toBeGreaterThan(0);
       expect(own.length).toBeGreaterThan(0);
@@ -572,8 +575,16 @@ describe('BorderAnimate.module.css', () => {
       );
       expect(pause.length).toBeGreaterThan(0);
       expect(running.length).toBeGreaterThan(0);
+      // The element a selector styles: its last compound, pseudo-element included.
+      const target = (selector: string) => selector.split(/\s|>/).filter(Boolean).pop()!;
       for (const r of running) {
-        expect(pause.some((p) => beats(p, r))).toBe(true);
+        const rivals = pause.filter((p) => target(p.selector) === target(r.selector));
+        expect({ running: r.selector, rivals: rivals.length }).not.toMatchObject({ rivals: 0 });
+        for (const p of rivals) {
+          expect({ pause: p.selector, running: r.selector, wins: beats(p, r) }).toMatchObject({
+            wins: true,
+          });
+        }
       }
     });
   });

@@ -268,15 +268,16 @@
 
 /* Each rule that shows the border must weigh at least as much as the one above that hides it
    (.root + two attributes + the ring), and come after it: a lighter one loses whatever its place
-   in the file. The inView rules name [data-trigger] for that weight (with .root[data-active]
-   alone an inView border stayed at opacity 0 on screen), and reach the root's own ring with `>`,
+   in the file. The inView rules name [data-trigger='inView'] for that weight (with
+   .root[data-active] alone an inView border stayed at opacity 0 on screen), which also leaves a
+   data-active set by hand on another trigger alone; and they reach the root's own ring with `>`,
    so an active inView border does not show a hover or focus-within border nested inside it. */
 .root[data-trigger='hover']:hover .border,
 .root[data-trigger='hover']:hover .svg,
 .root[data-trigger='focus-within']:focus-within .border,
 .root[data-trigger='focus-within']:focus-within .svg,
-.root[data-trigger][data-active='true'] > .border,
-.root[data-trigger][data-active='true'] > .svg {
+.root[data-trigger='inView'][data-active='true'] > .border,
+.root[data-trigger='inView'][data-active='true'] > .svg {
   --border-animate-active: 1;
 }
 
@@ -451,7 +452,7 @@
 
 .root[data-trigger='hover']:hover .svg[data-variant='draw'] .stroke,
 .root[data-trigger='focus-within']:focus-within .svg[data-variant='draw'] .stroke,
-.root[data-trigger][data-active='true'] > .svg[data-variant='draw'] > .stroke {
+.root[data-trigger='inView'][data-active='true'] > .svg[data-variant='draw'] > .stroke {
   stroke-dashoffset: calc(var(--border-animate-draw-offset, 0) * 1px);
 }
 
