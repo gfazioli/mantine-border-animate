@@ -555,15 +555,12 @@ describe('BorderAnimate.module.css', () => {
       const own = reveal.filter((r) => r.selector.endsWith(ring));
       expect(hide.length).toBeGreaterThan(0);
       expect(own.length).toBeGreaterThan(0);
-      for (const r of own) {
-        // `>`: the root's own ring, not the ring of a BorderAnimate nested inside it
-        expect(r.selector).toMatch(/\[data-active='true'\] > /);
-        for (const h of hide) {
-          expect({ reveal: r.selector, hide: h.selector, wins: beats(r, h) }).toMatchObject({
-            wins: true,
-          });
-        }
-      }
+      // `>`: the root's own ring, not the ring of a BorderAnimate nested inside it
+      expect(own.filter((r) => !/\[data-active='true'\] > /.test(r.selector))).toEqual([]);
+      const losing = own.flatMap((r) =>
+        hide.filter((h) => !beats(r, h)).map((h) => ({ reveal: r.selector, hide: h.selector }))
+      );
+      expect(losing).toEqual([]);
     });
 
     it('reaches only its own ring, so a nested BorderAnimate keeps its own state', () => {
@@ -571,37 +568,33 @@ describe('BorderAnimate.module.css', () => {
         rule.selectors.filter((selector) => selector.startsWith('.root['))
       );
       expect(state.length).toBeGreaterThan(10);
-      for (const selector of state) {
-        // Only child combinators between the root and its ring: no descendant one.
-        expect({
-          selector,
-          descendant: /\S\s+[^>\s]/.test(selector.replace(/\s*>\s*/g, '>')),
-        }).toMatchObject({
-          descendant: false,
-        });
-      }
+      // Only child combinators between the root and its ring: no descendant one.
+      const descendant = state.filter((selector) =>
+        /\S\s+[^>\s]/.test(selector.replace(/\s*>\s*/g, '>'))
+      );
+      expect(descendant).toEqual([]);
     });
 
-    it('lets pauseOnHover pause an active inView border', () => {
+    // Through 3.0.12 the pause sat above the running rules and weighed as much as the hover and
+    // focus-within ones: a focused focus-within border kept running under the pointer.
+    it('lets pauseOnHover pause a ring whichever trigger runs it', () => {
       const pause = find('animation-play-state: paused', (selector) =>
         selector.includes('[data-pause-on-hover]:hover')
       );
-      const running = find('animation-play-state: running', (selector) =>
-        selector.includes("[data-active='true']")
-      );
+      const running = find('animation-play-state: running', () => true);
       expect(pause.length).toBeGreaterThan(0);
       expect(running.length).toBeGreaterThan(0);
       // The element a selector styles: its last compound, pseudo-element included.
       const target = (selector: string) => selector.split(/\s|>/).filter(Boolean).pop()!;
-      for (const r of running) {
+      const unpaused = running.flatMap((r) => {
         const rivals = pause.filter((p) => target(p.selector) === target(r.selector));
-        expect({ running: r.selector, rivals: rivals.length }).not.toMatchObject({ rivals: 0 });
-        for (const p of rivals) {
-          expect({ pause: p.selector, running: r.selector, wins: beats(p, r) }).toMatchObject({
-            wins: true,
-          });
-        }
-      }
+        return rivals.length === 0
+          ? [{ running: r.selector, pause: 'none' }]
+          : rivals
+              .filter((p) => !beats(p, r))
+              .map((p) => ({ running: r.selector, pause: p.selector }));
+      });
+      expect(unpaused).toEqual([]);
     });
 
     // An `animation` shorthand resets animation-play-state as well. A variant rule written with

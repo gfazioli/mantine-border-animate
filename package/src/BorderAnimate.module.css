@@ -239,18 +239,13 @@
   animation: none !important;
 }
 
-/* Pause on hover. This rule and every trigger rule below reach their own root's ring with `>`
-   (and :where(.svg), which weighs nothing): a BorderAnimate nested inside another answers only
-   to its own trigger and pauseOnHover. */
-.root[data-pause-on-hover]:hover > .border,
-.root[data-pause-on-hover]:hover > .border::after,
-.root[data-pause-on-hover]:hover > :where(.svg) > .stroke {
-  animation-play-state: paused;
-}
-
 /* ============================================
    TRIGGERS
    ============================================ */
+
+/* Every rule below reaches its own root's ring with `>`, so a BorderAnimate nested inside
+   another answers only to its own trigger and pauseOnHover. :where(.svg) weighs nothing, which
+   keeps a stroke rule as heavy as its .border twin. */
 
 /* Any trigger other than `always` or `never` starts hidden and is revealed by the
    interaction. `never` is different: it renders the resting state and simply does not
@@ -288,18 +283,26 @@
   --border-animate-active: 1;
 }
 
-/* The running rules stay lighter than the pauseOnHover rule above, which must still pause an
-   active border under the pointer: hence :where() around the inView rule's svg. */
 .root[data-trigger='hover']:hover > .border,
 .root[data-trigger='hover']:hover > .border::after,
 .root[data-trigger='hover']:hover > :where(.svg) > .stroke,
 .root[data-trigger='focus-within']:focus-within > .border,
 .root[data-trigger='focus-within']:focus-within > .border::after,
 .root[data-trigger='focus-within']:focus-within > :where(.svg) > .stroke,
-.root[data-active='true'] > .border,
-.root[data-active='true'] > .border::after,
-.root[data-active='true'] > :where(.svg) > .stroke {
+.root[data-trigger='inView'][data-active='true'] > .border,
+.root[data-trigger='inView'][data-active='true'] > .border::after,
+.root[data-trigger='inView'][data-active='true'] > :where(.svg) > .stroke {
   animation-play-state: running;
+}
+
+/* Pause on hover comes last: it weighs as much as the hover and focus-within running rules
+   (.root + an attribute + a pseudo-class + the ring) and as much as the inView one, so its place
+   is what lets it pause a ring its trigger is running. Through 3.0.12 it sat above them, and a
+   focused focus-within border kept running under the pointer. */
+.root[data-pause-on-hover]:hover > .border,
+.root[data-pause-on-hover]:hover > .border::after,
+.root[data-pause-on-hover]:hover > :where(.svg) > .stroke {
+  animation-play-state: paused;
 }
 
 /* ============================================

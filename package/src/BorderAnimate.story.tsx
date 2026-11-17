@@ -180,6 +180,9 @@ export function Triggers() {
       <BorderAnimate trigger="focus-within">
         <Input placeholder='trigger="focus-within"' />
       </BorderAnimate>
+      <BorderAnimate trigger="focus-within" pauseOnHover data-testid="focus-pause">
+        <Input placeholder='trigger="focus-within", pauseOnHover' />
+      </BorderAnimate>
       <BorderAnimate trigger="never">{card('never')}</BorderAnimate>
       <div style={{ height: '120vh' }} />
       <BorderAnimate
