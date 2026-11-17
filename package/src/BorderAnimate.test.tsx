@@ -586,6 +586,25 @@ describe('BorderAnimate.module.css', () => {
           });
         }
       }
+
+      // An `animation` shorthand resets animation-play-state too: no variant rule that uses one
+      // may outweigh the pause rule for the element it animates (the comet did, until 3.0.12).
+      const shorthands = rules.flatMap((rule) =>
+        /(^|;)\s*animation:\s*(?!none)/.test(rule.body)
+          ? rule.selectors.map((selector) => ({ selector, index: rule.index }))
+          : []
+      );
+      expect(shorthands.length).toBeGreaterThan(0);
+      for (const shorthand of shorthands) {
+        const rivals = pause.filter((p) => target(p.selector) === target(shorthand.selector));
+        for (const p of rivals) {
+          expect({
+            pause: p.selector,
+            shorthand: shorthand.selector,
+            wins: beats(p, shorthand),
+          }).toMatchObject({ wins: true });
+        }
+      }
     });
   });
 });

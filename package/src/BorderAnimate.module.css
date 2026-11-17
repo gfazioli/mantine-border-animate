@@ -424,8 +424,14 @@
   );
   stroke-opacity: var(--border-animate-segment-opacity, 1);
 
-  animation: border-animate-comet var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  /* Longhands, not the `animation` shorthand: the shorthand also resets animation-play-state,
+     and this selector weighs as much as the pauseOnHover rule and comes later, so a comet kept
+     moving under the pointer and ran while a trigger kept it hidden. */
+  animation-name: border-animate-comet;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 

@@ -200,6 +200,15 @@ export function Triggers() {
       <BorderAnimate trigger="inView" variant="dash" pauseOnHover data-testid="in-view-pause-dash">
         {card('inView, dash, pauseOnHover')}
       </BorderAnimate>
+      <BorderAnimate
+        trigger="inView"
+        variant="beam"
+        beamMode="comet"
+        pauseOnHover
+        data-testid="in-view-pause-comet"
+      >
+        {card('inView, comet, pauseOnHover')}
+      </BorderAnimate>
       <BorderAnimate trigger="hover" data-active="true" data-testid="hover-with-data-active">
         {card('hover, with a data-active of its own')}
       </BorderAnimate>
