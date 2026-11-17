@@ -266,12 +266,16 @@
   animation-play-state: paused;
 }
 
+/* Each rule that shows the border must weigh at least as much as the one above that hides it
+   (.root + two attributes + .border): a lighter one loses, whatever its place in the file. The
+   inView rule names [data-trigger] for that reason; with .root[data-active] alone, an inView
+   border stayed at opacity 0 on screen. */
 .root[data-trigger='hover']:hover .border,
 .root[data-trigger='hover']:hover .svg,
 .root[data-trigger='focus-within']:focus-within .border,
 .root[data-trigger='focus-within']:focus-within .svg,
-.root[data-active='true'] .border,
-.root[data-active='true'] .svg {
+.root[data-trigger][data-active='true'] .border,
+.root[data-trigger][data-active='true'] .svg {
   --border-animate-active: 1;
 }
 
@@ -281,9 +285,9 @@
 .root[data-trigger='focus-within']:focus-within .border,
 .root[data-trigger='focus-within']:focus-within .border::after,
 .root[data-trigger='focus-within']:focus-within .stroke,
-.root[data-active='true'] .border,
-.root[data-active='true'] .border::after,
-.root[data-active='true'] .stroke {
+.root[data-trigger][data-active='true'] .border,
+.root[data-trigger][data-active='true'] .border::after,
+.root[data-trigger][data-active='true'] .stroke {
   animation-play-state: running;
 }
 

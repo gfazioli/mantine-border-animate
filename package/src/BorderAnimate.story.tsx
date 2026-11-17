@@ -153,3 +153,44 @@ export function WithAlert() {
     </Flex>
   );
 }
+
+/**
+ * Every trigger side by side. `inView` is the one a page reaches by scrolling: each card below
+ * the fold shows its border only once it is on screen.
+ */
+export function Triggers() {
+  const card = (label: string) => (
+    <Paper p="xl" withBorder={false}>
+      <Text fw={600}>trigger=&quot;{label}&quot;</Text>
+    </Paper>
+  );
+  return (
+    <Stack gap={48} p="xl">
+      <BorderAnimate trigger="always">{card('always')}</BorderAnimate>
+      <BorderAnimate trigger="hover">{card('hover')}</BorderAnimate>
+      <BorderAnimate trigger="focus-within">
+        <Input placeholder='trigger="focus-within"' />
+      </BorderAnimate>
+      <BorderAnimate trigger="never">{card('never')}</BorderAnimate>
+      <div style={{ height: '120vh' }} />
+      <BorderAnimate
+        trigger="inView"
+        variant="beam"
+        beamMode="wedge"
+        colorStops={[
+          { color: 'transparent', position: 0 },
+          { color: 'transparent', position: 58 },
+          { color: 'blue.5', position: 80 },
+          { color: 'cyan.4', position: 94 },
+          { color: 'transparent', position: 100 },
+        ]}
+        data-testid="in-view-beam"
+      >
+        {card('inView, beam')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" variant="dash" data-testid="in-view-dash">
+        {card('inView, dash')}
+      </BorderAnimate>
+    </Stack>
+  );
+}

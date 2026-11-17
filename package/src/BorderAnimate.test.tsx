@@ -507,4 +507,33 @@ describe('BorderAnimate.module.css', () => {
     const exclusions = css.match(/\[data-trigger\]:not\(\[data-trigger='never'\]\)/g) ?? [];
     expect(exclusions.length).toBeGreaterThanOrEqual(2);
   });
+
+  // Specificity, not file order, decides between the rule that hides a triggered border and the
+  // rules that show it. Through 3.0.12 the inView rule (`.root[data-active='true'] .border`)
+  // weighed less than the hiding one, so an inView border stayed at opacity 0 on screen.
+  it('shows every trigger with a selector at least as specific as the one that hides it', () => {
+    const plain = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    const selectorsSetting = (value: string) =>
+      [...plain.matchAll(/([^{}]+)\{[^}]*--border-animate-active:\s*(\d);/g)]
+        .filter((match) => match[2] === value)
+        .flatMap((match) => match[1].split(',').map((selector) => selector.trim()));
+    // The middle column of a selector's specificity: classes, attributes, pseudo-classes
+    // (`:not()` counts by its argument, whose attribute is already among the attributes).
+    const weight = (selector: string) =>
+      (selector.match(/\[[^\]]*\]/g) ?? []).length +
+      (selector.replace(/\[[^\]]*\]/g, '').match(/\.[A-Za-z][\w-]*/g) ?? []).length +
+      (selector.match(/:(?!:)(?!not\()[a-z-]+/g) ?? []).length;
+
+    const hide = selectorsSetting('0');
+    const show = selectorsSetting('1');
+    expect(hide.length).toBeGreaterThan(0);
+    expect(show.some((selector) => selector.includes("[data-active='true']"))).toBe(true);
+    const hideWeight = Math.max(...hide.map(weight));
+    for (const selector of show) {
+      expect({ selector, enough: weight(selector) >= hideWeight }).toEqual({
+        selector,
+        enough: true,
+      });
+    }
+  });
 });
