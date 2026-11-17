@@ -167,6 +167,15 @@ export function Triggers() {
   return (
     <Stack gap={48} p="xl">
       <BorderAnimate trigger="always">{card('always')}</BorderAnimate>
+      <BorderAnimate variant="glow" data-testid="always-glow">
+        {card('always, glow')}
+      </BorderAnimate>
+      <BorderAnimate variant="pulse" data-testid="always-pulse">
+        {card('always, pulse')}
+      </BorderAnimate>
+      <BorderAnimate variant="beam" beamMode="dot" data-testid="always-dot">
+        {card('always, dot')}
+      </BorderAnimate>
       <BorderAnimate trigger="hover">{card('hover')}</BorderAnimate>
       <BorderAnimate trigger="focus-within">
         <Input placeholder='trigger="focus-within"' />

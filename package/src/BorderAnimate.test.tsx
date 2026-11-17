@@ -602,25 +602,17 @@ describe('BorderAnimate.module.css', () => {
           });
         }
       }
+    });
 
-      // An `animation` shorthand resets animation-play-state too: no variant rule that uses one
-      // may outweigh the pause rule for the element it animates (the comet did, until 3.0.12).
+    // An `animation` shorthand resets animation-play-state as well. A variant rule written with
+    // one sets its ring running again after the state rules, whenever it weighs as much: through
+    // 3.0.12 a comet ignored pauseOnHover, and every variant ran while a trigger hid it.
+    it('leaves the play state to the state rules: no animation shorthand but `none`', () => {
       const shorthands = rules.flatMap((rule) =>
-        /(^|;)\s*animation:\s*(?!none)/.test(rule.body)
-          ? rule.selectors.map((selector) => ({ selector, index: rule.index }))
-          : []
+        /(^|;)\s*animation:(?!\s*none)/.test(rule.body) ? rule.selectors : []
       );
-      expect(shorthands.length).toBeGreaterThan(0);
-      for (const shorthand of shorthands) {
-        const rivals = pause.filter((p) => target(p.selector) === target(shorthand.selector));
-        for (const p of rivals) {
-          expect({
-            pause: p.selector,
-            shorthand: shorthand.selector,
-            wins: beats(p, shorthand),
-          }).toMatchObject({ wins: true });
-        }
-      }
+      expect(shorthands).toEqual([]);
+      expect(plain).toMatch(/animation-name:\s*border-animate-march/);
     });
   });
 });

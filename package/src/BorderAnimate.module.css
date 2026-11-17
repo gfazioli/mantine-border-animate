@@ -226,6 +226,12 @@
    ANIMATION CONTROL
    ============================================ */
 
+/* Every variant sets its animation with longhands, never the `animation` shorthand: the
+   shorthand also resets animation-play-state, and a variant rule placed after these state rules
+   and weighing as much as one of them would set it back to running. Through 3.0.12 a comet kept
+   moving under the pointer with pauseOnHover, and every variant ran while a trigger kept it
+   hidden, coming back at another phase. */
+
 /* Disable all animations when data-animate is false */
 .border[data-animate='false'],
 .border[data-animate='false']::after,
@@ -340,8 +346,11 @@
 
   filter: blur(var(--border-animate-blur));
 
-  animation: border-animate-beam-wedge var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-beam-wedge;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -396,8 +405,11 @@
   /* GPU layer promotion */
   will-change: offset-distance;
 
-  animation: border-animate-beam-dot var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-beam-dot;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -425,9 +437,6 @@
   );
   stroke-opacity: var(--border-animate-segment-opacity, 1);
 
-  /* Longhands, not the `animation` shorthand: the shorthand also resets animation-play-state,
-     and this selector weighs as much as the pauseOnHover rule and comes later, so a comet kept
-     moving under the pointer and ran while a trigger kept it hidden. */
   animation-name: border-animate-comet;
   animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, linear);
@@ -471,8 +480,11 @@
   stroke-dasharray: var(--border-animate-dasharray);
   stroke-dashoffset: calc(var(--border-animate-progress, 0) * -1px);
 
-  animation: border-animate-march var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-march;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -494,8 +506,11 @@
   filter: blur(var(--border-animate-blur));
   will-change: filter, opacity;
 
-  animation: border-animate-glow var(--border-animate-duration, 5s)
-    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-glow;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -517,8 +532,11 @@
   transform-origin: center;
   will-change: transform, opacity;
 
-  animation: border-animate-pulse var(--border-animate-duration, 5s)
-    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-pulse;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
