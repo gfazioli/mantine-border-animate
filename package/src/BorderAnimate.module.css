@@ -226,6 +226,12 @@
    ANIMATION CONTROL
    ============================================ */
 
+/* Every variant sets its animation with longhands, never the `animation` shorthand: the
+   shorthand also resets animation-play-state, and a variant rule placed after these state rules
+   and weighing as much as one of them would set it back to running. Through 3.0.12 a comet kept
+   moving under the pointer with pauseOnHover, and every variant ran while a trigger kept it
+   hidden, coming back at another phase. */
+
 /* Disable all animations when data-animate is false */
 .border[data-animate='false'],
 .border[data-animate='false']::after,
@@ -233,24 +239,21 @@
   animation: none !important;
 }
 
-/* Pause on hover */
-.root[data-pause-on-hover]:hover .border,
-.root[data-pause-on-hover]:hover .border::after,
-.root[data-pause-on-hover]:hover .stroke {
-  animation-play-state: paused;
-}
-
 /* ============================================
    TRIGGERS
    ============================================ */
+
+/* Every rule below reaches its own root's ring with `>`, so a BorderAnimate nested inside
+   another answers only to its own trigger and pauseOnHover. :where(.svg) weighs nothing, which
+   keeps a stroke rule as heavy as its .border twin. */
 
 /* Any trigger other than `always` or `never` starts hidden and is revealed by the
    interaction. `never` is different: it renders the resting state and simply does not
    animate, so it keeps its opacity — otherwise it would be a slower way to write
    show={false}. The draw variant is included here because a zero-length dash with a round
    cap still paints a dot at the starting point. */
-.root[data-trigger]:not([data-trigger='never']) .border,
-.root[data-trigger]:not([data-trigger='never']) .svg {
+.root[data-trigger]:not([data-trigger='never']) > .border,
+.root[data-trigger]:not([data-trigger='never']) > .svg {
   --border-animate-active: 0;
 
   /* The fade in and out is a reveal, not the effect itself: capping it keeps a slow loop
@@ -260,31 +263,46 @@
     var(--border-animate-timing, ease-in-out);
 }
 
-.root[data-trigger] .border,
-.root[data-trigger] .border::after,
-.root[data-trigger] .stroke {
+.root[data-trigger] > .border,
+.root[data-trigger] > .border::after,
+.root[data-trigger] > :where(.svg) > .stroke {
   animation-play-state: paused;
 }
 
-.root[data-trigger='hover']:hover .border,
-.root[data-trigger='hover']:hover .svg,
-.root[data-trigger='focus-within']:focus-within .border,
-.root[data-trigger='focus-within']:focus-within .svg,
-.root[data-active='true'] .border,
-.root[data-active='true'] .svg {
+/* Each rule that shows the border must weigh at least as much as the one above that hides it
+   (.root + two attributes + the ring), and come after it: a lighter one loses whatever its place
+   in the file. The inView rules name [data-trigger='inView'] for that weight (with
+   .root[data-active] alone an inView border stayed at opacity 0 on screen), which also leaves a
+   data-active set by hand on another trigger alone. */
+.root[data-trigger='hover']:hover > .border,
+.root[data-trigger='hover']:hover > .svg,
+.root[data-trigger='focus-within']:focus-within > .border,
+.root[data-trigger='focus-within']:focus-within > .svg,
+.root[data-trigger='inView'][data-active='true'] > .border,
+.root[data-trigger='inView'][data-active='true'] > .svg {
   --border-animate-active: 1;
 }
 
-.root[data-trigger='hover']:hover .border,
-.root[data-trigger='hover']:hover .border::after,
-.root[data-trigger='hover']:hover .stroke,
-.root[data-trigger='focus-within']:focus-within .border,
-.root[data-trigger='focus-within']:focus-within .border::after,
-.root[data-trigger='focus-within']:focus-within .stroke,
-.root[data-active='true'] .border,
-.root[data-active='true'] .border::after,
-.root[data-active='true'] .stroke {
+.root[data-trigger='hover']:hover > .border,
+.root[data-trigger='hover']:hover > .border::after,
+.root[data-trigger='hover']:hover > :where(.svg) > .stroke,
+.root[data-trigger='focus-within']:focus-within > .border,
+.root[data-trigger='focus-within']:focus-within > .border::after,
+.root[data-trigger='focus-within']:focus-within > :where(.svg) > .stroke,
+.root[data-trigger='inView'][data-active='true'] > .border,
+.root[data-trigger='inView'][data-active='true'] > .border::after,
+.root[data-trigger='inView'][data-active='true'] > :where(.svg) > .stroke {
   animation-play-state: running;
+}
+
+/* Pause on hover comes last: it weighs as much as the hover and focus-within running rules
+   (.root + an attribute + a pseudo-class + the ring) and as much as the inView one, so its place
+   is what lets it pause a ring its trigger is running. Through 3.0.12 it sat above them, and a
+   focused focus-within border kept running under the pointer. */
+.root[data-pause-on-hover]:hover > .border,
+.root[data-pause-on-hover]:hover > .border::after,
+.root[data-pause-on-hover]:hover > :where(.svg) > .stroke {
+  animation-play-state: paused;
 }
 
 /* ============================================
@@ -331,8 +349,11 @@
 
   filter: blur(var(--border-animate-blur));
 
-  animation: border-animate-beam-wedge var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-beam-wedge;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -387,8 +408,11 @@
   /* GPU layer promotion */
   will-change: offset-distance;
 
-  animation: border-animate-beam-dot var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-beam-dot;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -416,8 +440,11 @@
   );
   stroke-opacity: var(--border-animate-segment-opacity, 1);
 
-  animation: border-animate-comet var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-comet;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -438,13 +465,13 @@
 
 /* With a trigger the border is not drawn until the trigger is active — except under
    `never`, which keeps whatever progress it was given */
-.root[data-trigger]:not([data-trigger='never']) .svg[data-variant='draw'] .stroke {
+.root[data-trigger]:not([data-trigger='never']) > .svg[data-variant='draw'] > .stroke {
   stroke-dashoffset: 100px;
 }
 
-.root[data-trigger='hover']:hover .svg[data-variant='draw'] .stroke,
-.root[data-trigger='focus-within']:focus-within .svg[data-variant='draw'] .stroke,
-.root[data-active='true'] .svg[data-variant='draw'] .stroke {
+.root[data-trigger='hover']:hover > .svg[data-variant='draw'] > .stroke,
+.root[data-trigger='focus-within']:focus-within > .svg[data-variant='draw'] > .stroke,
+.root[data-trigger='inView'][data-active='true'] > .svg[data-variant='draw'] > .stroke {
   stroke-dashoffset: calc(var(--border-animate-draw-offset, 0) * 1px);
 }
 
@@ -456,8 +483,11 @@
   stroke-dasharray: var(--border-animate-dasharray);
   stroke-dashoffset: calc(var(--border-animate-progress, 0) * -1px);
 
-  animation: border-animate-march var(--border-animate-duration, 5s)
-    var(--border-animate-timing, linear) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-march;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, linear);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -479,8 +509,11 @@
   filter: blur(var(--border-animate-blur));
   will-change: filter, opacity;
 
-  animation: border-animate-glow var(--border-animate-duration, 5s)
-    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-glow;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 
@@ -502,8 +535,11 @@
   transform-origin: center;
   will-change: transform, opacity;
 
-  animation: border-animate-pulse var(--border-animate-duration, 5s)
-    var(--border-animate-timing, ease-in-out) infinite var(--border-animate-direction, normal);
+  animation-name: border-animate-pulse;
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-timing-function: var(--border-animate-timing, ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: var(--border-animate-direction, normal);
   animation-delay: var(--border-animate-phase, 0s);
 }
 

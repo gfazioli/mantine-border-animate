@@ -153,3 +153,98 @@ export function WithAlert() {
     </Flex>
   );
 }
+
+/**
+ * Every trigger side by side. `inView` is the one a page reaches by scrolling: each card below
+ * the fold shows its border only once it is on screen.
+ */
+export function Triggers() {
+  const card = (label: string) => (
+    <Paper p="xl" withBorder={false}>
+      <Text fw={600}>trigger=&quot;{label}&quot;</Text>
+    </Paper>
+  );
+  return (
+    <Stack gap={48} p="xl">
+      <BorderAnimate trigger="always">{card('always')}</BorderAnimate>
+      <BorderAnimate variant="glow" data-testid="always-glow">
+        {card('always, glow')}
+      </BorderAnimate>
+      <BorderAnimate variant="pulse" data-testid="always-pulse">
+        {card('always, pulse')}
+      </BorderAnimate>
+      <BorderAnimate variant="beam" beamMode="dot" data-testid="always-dot">
+        {card('always, dot')}
+      </BorderAnimate>
+      <BorderAnimate trigger="hover">{card('hover')}</BorderAnimate>
+      <BorderAnimate trigger="focus-within">
+        <Input placeholder='trigger="focus-within"' />
+      </BorderAnimate>
+      <BorderAnimate trigger="focus-within" pauseOnHover data-testid="focus-pause">
+        <Input placeholder='trigger="focus-within", pauseOnHover' />
+      </BorderAnimate>
+      <BorderAnimate trigger="never">{card('never')}</BorderAnimate>
+      <div style={{ height: '120vh' }} />
+      <BorderAnimate
+        trigger="inView"
+        variant="beam"
+        beamMode="wedge"
+        colorStops={[
+          { color: 'transparent', position: 0 },
+          { color: 'transparent', position: 58 },
+          { color: 'blue.5', position: 80 },
+          { color: 'cyan.4', position: 94 },
+          { color: 'transparent', position: 100 },
+        ]}
+        data-testid="in-view-beam"
+      >
+        {card('inView, beam')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" variant="dash" data-testid="in-view-dash">
+        {card('inView, dash')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" variant="draw" progress={100} data-testid="in-view-draw">
+        {card('inView, draw')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" pauseOnHover data-testid="in-view-pause">
+        {card('inView, pauseOnHover')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" variant="dash" pauseOnHover data-testid="in-view-pause-dash">
+        {card('inView, dash, pauseOnHover')}
+      </BorderAnimate>
+      <BorderAnimate
+        trigger="inView"
+        variant="beam"
+        beamMode="comet"
+        pauseOnHover
+        data-testid="in-view-pause-comet"
+      >
+        {card('inView, comet, pauseOnHover')}
+      </BorderAnimate>
+      <BorderAnimate trigger="never" data-testid="never-outer">
+        <Paper p="xl">
+          <BorderAnimate variant="beam" beamMode="comet" data-testid="nested-comet">
+            {card('comet, nested in a never border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
+      <BorderAnimate pauseOnHover data-testid="pause-outer">
+        <Paper p="xl">
+          <BorderAnimate variant="dash" data-testid="nested-dash">
+            {card('dash, nested in a pauseOnHover border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
+      <BorderAnimate trigger="hover" data-active="true" data-testid="hover-with-data-active">
+        {card('hover, with a data-active of its own')}
+      </BorderAnimate>
+      <BorderAnimate trigger="inView" data-testid="in-view-outer">
+        <Paper p="xl">
+          <BorderAnimate trigger="hover" data-testid="nested-hover">
+            {card('hover, nested in an inView border')}
+          </BorderAnimate>
+        </Paper>
+      </BorderAnimate>
+    </Stack>
+  );
+}

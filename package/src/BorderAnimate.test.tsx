@@ -507,4 +507,105 @@ describe('BorderAnimate.module.css', () => {
     const exclusions = css.match(/\[data-trigger\]:not\(\[data-trigger='never'\]\)/g) ?? [];
     expect(exclusions.length).toBeGreaterThanOrEqual(2);
   });
+
+  // An inView border is revealed by `data-active`, against rules that hide it at rest. Through
+  // 3.0.12 the reveal weighed less than the hiding rule and lost whatever its place in the file:
+  // an inView border stayed at opacity 0 on screen, and a draw stroke stayed collapsed. The
+  // reveal must not win where it should not either: pauseOnHover still pauses an active border.
+  describe('the inView cascade', () => {
+    const plain = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    const rules = [...plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match, index) => ({
+      index,
+      selectors: match[1].split(',').map((selector) => selector.trim()),
+      body: match[2],
+    }));
+    // The middle column of a selector's specificity: classes, attributes and pseudo-classes.
+    // `:not()` counts by its argument, already among the attributes; `:where()` counts nothing;
+    // a pseudo-element (`::after`) belongs to the third column.
+    const weight = (selector: string) => {
+      const bare = selector.replace(/:where\([^)]*\)/g, '');
+      return (
+        (bare.match(/\[[^\]]*\]/g) ?? []).length +
+        (bare.replace(/\[[^\]]*\]/g, '').match(/\.[A-Za-z][\w-]*/g) ?? []).length +
+        (bare.match(/(?<!:):(?!:)(?!not\()[a-z-]+/g) ?? []).length
+      );
+    };
+    const find = (declaration: string, test: (selector: string) => boolean) =>
+      rules.flatMap((rule) =>
+        rule.body.includes(declaration)
+          ? rule.selectors.filter(test).map((selector) => ({ selector, index: rule.index }))
+          : []
+      );
+    const beats = (
+      a: { selector: string; index: number },
+      b: { selector: string; index: number }
+    ) =>
+      weight(a.selector) > weight(b.selector) ||
+      (weight(a.selector) === weight(b.selector) && a.index > b.index);
+
+    it.each([
+      ['.border', '--border-animate-active: 0', '--border-animate-active: 1'],
+      ['.svg', '--border-animate-active: 0', '--border-animate-active: 1'],
+      ["[data-variant='draw'] > .stroke", 'stroke-dashoffset: 100px', 'draw-offset'],
+    ])('reveals the %s ring over the rule that hides it', (ring, hidden, shown) => {
+      const hide = find(hidden, (selector) => selector.endsWith(ring.split(' > ').pop()!));
+      const reveal = find(shown, (selector) =>
+        selector.includes("[data-trigger='inView'][data-active='true']")
+      );
+      const own = reveal.filter((r) => r.selector.endsWith(ring));
+      expect(hide.length).toBeGreaterThan(0);
+      expect(own.length).toBeGreaterThan(0);
+      // `>`: the root's own ring, not the ring of a BorderAnimate nested inside it
+      expect(own.filter((r) => !/\[data-active='true'\] > /.test(r.selector))).toEqual([]);
+      const losing = own.flatMap((r) =>
+        hide.filter((h) => !beats(r, h)).map((h) => ({ reveal: r.selector, hide: h.selector }))
+      );
+      expect(losing).toEqual([]);
+    });
+
+    it('reaches only its own ring, so a nested BorderAnimate keeps its own state', () => {
+      const state = rules.flatMap((rule) =>
+        rule.selectors.filter((selector) => selector.startsWith('.root['))
+      );
+      expect(state.length).toBeGreaterThan(10);
+      // Only child combinators between the root and its ring: no descendant one.
+      const descendant = state.filter((selector) =>
+        /\S\s+[^>\s]/.test(selector.replace(/\s*>\s*/g, '>'))
+      );
+      expect(descendant).toEqual([]);
+    });
+
+    // Through 3.0.12 the pause sat above the running rules and weighed as much as the hover and
+    // focus-within ones: a focused focus-within border kept running under the pointer.
+    it('lets pauseOnHover pause a ring whichever trigger runs it', () => {
+      const pause = find('animation-play-state: paused', (selector) =>
+        selector.includes('[data-pause-on-hover]:hover')
+      );
+      const running = find('animation-play-state: running', () => true);
+      expect(pause.length).toBeGreaterThan(0);
+      expect(running.length).toBeGreaterThan(0);
+      // The element a selector styles: its last compound, pseudo-element included.
+      const target = (selector: string) => selector.split(/\s|>/).filter(Boolean).pop()!;
+      const unpaused = running.flatMap((r) => {
+        const rivals = pause.filter((p) => target(p.selector) === target(r.selector));
+        return rivals.length === 0
+          ? [{ running: r.selector, pause: 'none' }]
+          : rivals
+              .filter((p) => !beats(p, r))
+              .map((p) => ({ running: r.selector, pause: p.selector }));
+      });
+      expect(unpaused).toEqual([]);
+    });
+
+    // An `animation` shorthand resets animation-play-state as well. A variant rule written with
+    // one sets its ring running again after the state rules, whenever it weighs as much: through
+    // 3.0.12 a comet ignored pauseOnHover, and every variant ran while a trigger hid it.
+    it('leaves the play state to the state rules: no animation shorthand but `none`', () => {
+      const shorthands = rules.flatMap((rule) =>
+        /(^|;)\s*animation:(?!\s*none)/.test(rule.body) ? rule.selectors : []
+      );
+      expect(shorthands).toEqual([]);
+      expect(plain).toMatch(/animation-name:\s*border-animate-march/);
+    });
+  });
 });
