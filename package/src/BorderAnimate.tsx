@@ -57,6 +57,12 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-progress'
     | '--border-animate-gradient-background'
     | '--border-animate-beam-stops'
+    // Deprecated since the wedge became a bell: no longer read, kept so that `vars`
+    // overrides written for 3.0 still compile. The wedge's width comes from `spread`.
+    | '--border-animate-beam-start'
+    | '--border-animate-beam-from'
+    | '--border-animate-beam-to'
+    | '--border-animate-beam-end'
     | '--border-animate-size'
     | '--border-animate-timing'
     | '--border-animate-iterations'
@@ -153,11 +159,14 @@ function samplePalette(sorted: { color: string; position: number }[], position: 
   return `color-mix(in oklab, ${a.color}, ${b.color} ${round(mix)}%)`;
 }
 
-/** animation-iteration-count for a finite run, or undefined for the stylesheet's `infinite` */
+/**
+ * animation-iteration-count, always spelled out: custom properties inherit, so a ring that left
+ * it to the stylesheet's fallback would take the count of a finite ring it is nested in.
+ */
 function getIterations(iterations: number | 'infinite' | undefined) {
   return typeof iterations === 'number' && Number.isFinite(iterations)
     ? `${Math.max(iterations, 0)}`
-    : undefined;
+    : 'infinite';
 }
 
 /**
@@ -342,6 +351,7 @@ export interface BorderAnimateBaseProps {
   /** What makes the border animate.
    * - `always`: animates continuously. It pauses while scrolled out of the viewport and
    *   catches up on the way back, so it costs nothing off-screen and stays in step
+   *   (a finite run, see iterations, is never paused)
    * - `hover` / `focus-within`: fades in and animates while the wrapper is hovered/focused
    * - `inView`: animates while the component is inside the viewport
    * - `never`: renders the border in its resting state
@@ -363,8 +373,8 @@ export interface BorderAnimateBaseProps {
    */
   onComplete?: () => void;
 
-  /** Keep the ring still for users who ask their system to reduce motion: it stays in its
-   * resting state, the same one `animate={false}` shows (see progress).
+  /** Keep the ring still for users who ask their system to reduce motion: it stops moving,
+   * and a beam rests where `progress` puts it, as with `animate={false}`.
    * @default theme.respectReducedMotion
    */
   respectReducedMotion?: boolean;
@@ -574,6 +584,11 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-progress': `${value}`,
         '--border-animate-gradient-background': gradientBackground,
         '--border-animate-beam-stops': beamStops,
+        // Deprecated and unread, see BorderAnimateCssVariables
+        '--border-animate-beam-start': undefined,
+        '--border-animate-beam-from': undefined,
+        '--border-animate-beam-to': undefined,
+        '--border-animate-beam-end': undefined,
         '--border-animate-size': dotSize,
         '--border-animate-timing': timingFunction,
         '--border-animate-iterations': getIterations(iterations),
@@ -641,22 +656,26 @@ function useVisible(
       return undefined;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      setVisible(entries[entries.length - 1].isIntersecting);
-    });
+    // An `always` ring only pauses, so it may keep running a little past the edge: a ring
+    // pushed out by `offset`, or a glow halo, is still in sight after the wrapper has left.
+    // `inView` keeps the exact viewport, since that is what reveals it.
+    const observer = new IntersectionObserver(
+      (entries) => setVisible(entries[entries.length - 1].isIntersecting),
+      trigger === 'always' ? { rootMargin: '25%' } : undefined
+    );
     observer.observe(node);
 
     return () => observer.disconnect();
-  }, [observed]);
+  }, [observed, trigger]);
 
   return visible;
 }
 
 /**
  * Pauses nothing by itself: while `paused` is true the stylesheet holds the ring still, and
- * when it turns false this moves every ring animation forward by the time it spent paused.
+ * when it turns false this moves the ring's animations forward by the time they spent paused.
  * The ring then resumes where it would have been had it kept running, so borders staggered
- * with `phase` stay in step and a finite animation still ends when it was going to.
+ * with `phase` stay in step.
  */
 function useCatchUp(getRing: () => Element | null, paused: boolean) {
   React.useEffect(() => {
@@ -665,21 +684,25 @@ function useCatchUp(getRing: () => Element | null, paused: boolean) {
     }
 
     const pausedAt = performance.now();
+    // Only the CSS animations running when the pause began: one started during it (a ring
+    // shown or restarted off-screen) has not waited for anything, and a transition (a draw
+    // stroke, the trigger fade) is not paused by animation-play-state at all. getAnimations
+    // with subtree reaches the ::after of the masked ring and every rect of the svg one, and
+    // nothing of the children, which are not inside the ring.
+    const animations = (getRing()?.getAnimations?.({ subtree: true }) ?? []).filter(
+      (animation) => 'animationName' in animation
+    );
 
     return () => {
       const elapsed = performance.now() - pausedAt;
 
-      // getAnimations with subtree reaches the ::after of the masked ring and every rect of
-      // the svg one, and nothing of the children, which are not inside the ring.
-      getRing()
-        ?.getAnimations?.({ subtree: true })
-        .forEach((animation) => {
-          const time = animation.currentTime;
+      animations.forEach((animation) => {
+        const time = animation.currentTime;
 
-          if (typeof time === 'number') {
-            animation.currentTime = time + elapsed;
-          }
-        });
+        if (animation.playState !== 'idle' && typeof time === 'number') {
+          animation.currentTime = time + elapsed;
+        }
+      });
     };
   }, [paused]);
 }
@@ -756,13 +779,15 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   const borderRef = React.useRef<HTMLDivElement>(null);
   const svgRef = React.useRef<SVGSVGElement>(null);
 
+  const finite = getIterations(iterations) !== 'infinite';
   const visible = useVisible(rootRef, trigger);
-  const offscreen = trigger === 'always' && !visible;
+  // A finite run is left alone: it ends soon anyway, and paused it would hold back an
+  // onComplete that someone may be waiting for until the ring happened to scroll back.
+  const offscreen = trigger === 'always' && !finite && !visible;
   useCatchUp(() => borderRef.current ?? svgRef.current, offscreen);
 
   const theme = useMantineTheme();
   const complete = useCallbackRef(onComplete);
-  const finite = getIterations(iterations) !== undefined;
 
   const gradientId = `border-animate-${React.useId().replace(/:/g, '')}`;
   const stroke = usesStroke(variant, beamMode);
@@ -789,8 +814,13 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   // enough to tell when the last lap is over: the masked ring has a single ::after, and the
   // svg ring reports it from its first stroke (the comet's head). Under reduced motion every
   // animation ends at once, an infinite one included, and only a finite one has laps to report.
-  const handleAnimationEnd = () => {
-    if (finite) {
+  // The masked ring animates its ::after only, so an animation a consumer puts on the element
+  // itself (through styles) is not ours.
+  const handleAnimationEnd = (event: React.AnimationEvent<Element>) => {
+    if (
+      finite &&
+      (event.currentTarget !== borderRef.current || event.pseudoElement === '::after')
+    ) {
       complete();
     }
   };

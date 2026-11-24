@@ -30,9 +30,17 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
         'Full gradient string for the beam background (set via the colorStops prop)',
       '--border-animate-beam-stops':
         'Conic-gradient stops of the wedge, a bell of brightness from colorFrom to colorTo (computed from spread)',
+      '--border-animate-beam-start':
+        'Deprecated: no longer read since the wedge became a bell. Use spread, or override --border-animate-beam-stops',
+      '--border-animate-beam-from':
+        'Deprecated: no longer read since the wedge became a bell. Use spread, or override --border-animate-beam-stops',
+      '--border-animate-beam-to':
+        'Deprecated: no longer read since the wedge became a bell. Use spread, or override --border-animate-beam-stops',
+      '--border-animate-beam-end':
+        'Deprecated: no longer read since the wedge became a bell. Use spread, or override --border-animate-beam-stops',
       '--border-animate-timing': 'CSS animation timing function (e.g. linear, ease-in-out)',
       '--border-animate-iterations':
-        'animation-iteration-count of every looping animation; unset means infinite',
+        'animation-iteration-count of every looping animation: a number of laps, or infinite',
       '--border-animate-dasharray': 'Dash pattern of the SVG ring, in perimeter percentages',
       '--border-animate-dash-period': 'Length of one dash cycle, in perimeter percentages',
       '--border-animate-dash-cap': 'Line cap of the dash segments',

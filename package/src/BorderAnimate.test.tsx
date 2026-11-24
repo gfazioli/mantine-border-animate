@@ -24,6 +24,16 @@ function vars(container: HTMLElement) {
 }
 
 /**
+ * jsdom has no AnimationEvent, so fireEvent.animationEnd drops pseudoElement: build the event
+ * by hand. The masked ring animates its ::after, whose events carry '::after'.
+ */
+function endAnimation(element: Element, pseudoElement = '') {
+  const event = new Event('animationend', { bubbles: true });
+  Object.defineProperty(event, 'pseudoElement', { value: pseudoElement });
+  fireEvent(element, event);
+}
+
+/**
  * The wedge's conic-gradient stops, parsed: the share of colorFrom and colorTo in each
  * color-mix (their sum is the stop's brightness) and the stop's position along the turn.
  */
@@ -561,9 +571,17 @@ describe('BorderAnimate', () => {
   });
 
   describe('iterations', () => {
-    it('leaves the count to the stylesheet, which loops forever, by default', () => {
-      const { container } = render(<BorderAnimate />);
-      expect(vars(container).getPropertyValue('--border-animate-iterations')).toBe('');
+    it('spells out infinite by default, so a nested ring never inherits a finite count', () => {
+      const { container } = render(
+        <BorderAnimate iterations={2}>
+          <BorderAnimate variant="dash" />
+        </BorderAnimate>
+      );
+      const [outer, inner] = Array.from(
+        container.querySelectorAll<HTMLElement>('.mantine-BorderAnimate-root')
+      );
+      expect(outer.style.getPropertyValue('--border-animate-iterations')).toBe('2');
+      expect(inner.style.getPropertyValue('--border-animate-iterations')).toBe('infinite');
     });
 
     it('exposes a finite count, fractions included, and never a negative one', () => {
@@ -574,15 +592,25 @@ describe('BorderAnimate', () => {
       expect(vars(negative.container).getPropertyValue('--border-animate-iterations')).toBe('0');
 
       const endless = render(<BorderAnimate iterations={Infinity} />);
-      expect(vars(endless.container).getPropertyValue('--border-animate-iterations')).toBe('');
+      expect(vars(endless.container).getPropertyValue('--border-animate-iterations')).toBe(
+        'infinite'
+      );
     });
 
     it('calls onComplete when the masked ring ends its last lap', () => {
       const onComplete = jest.fn();
       const { container } = render(<BorderAnimate iterations={2} onComplete={onComplete} />);
 
-      fireEvent.animationEnd(container.querySelector('[data-with-mask]')!);
+      endAnimation(container.querySelector('[data-with-mask]')!, '::after');
       expect(onComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores an animation a consumer puts on the masked ring element itself', () => {
+      const onComplete = jest.fn();
+      const { container } = render(<BorderAnimate iterations={2} onComplete={onComplete} />);
+
+      endAnimation(container.querySelector('[data-with-mask]')!);
+      expect(onComplete).not.toHaveBeenCalled();
     });
 
     it('calls onComplete once for the comet, not once per segment', () => {
@@ -629,8 +657,8 @@ describe('BorderAnimate', () => {
       const a = render(<BorderAnimate iterations={3} onComplete={finite} />);
       const b = render(<BorderAnimate onComplete={endless} />);
 
-      fireEvent.animationEnd(a.container.querySelector('[data-with-mask]')!);
-      fireEvent.animationEnd(b.container.querySelector('[data-with-mask]')!);
+      endAnimation(a.container.querySelector('[data-with-mask]')!, '::after');
+      endAnimation(b.container.querySelector('[data-with-mask]')!, '::after');
 
       expect(finite).toHaveBeenCalledTimes(1);
       expect(endless).not.toHaveBeenCalled();
@@ -641,11 +669,13 @@ describe('BorderAnimate', () => {
     const original = window.IntersectionObserver;
     let report: (isIntersecting: boolean) => void;
     let observed = 0;
+    let options: IntersectionObserverInit | undefined;
 
     beforeEach(() => {
       observed = 0;
       window.IntersectionObserver = class {
-        constructor(callback: IntersectionObserverCallback) {
+        constructor(callback: IntersectionObserverCallback, init?: IntersectionObserverInit) {
+          options = init;
           report = (isIntersecting) =>
             act(() =>
               callback(
@@ -686,19 +716,67 @@ describe('BorderAnimate', () => {
       expect(root(container)).not.toHaveAttribute('data-offscreen');
     });
 
+    function animation(currentTime: number, kind: 'animation' | 'transition' = 'animation') {
+      return {
+        currentTime: currentTime as number | null,
+        playState: 'paused',
+        ...(kind === 'animation' ? { animationName: 'ring' } : { transitionProperty: 'opacity' }),
+      };
+    }
+
     it('moves the clock forward by the time spent off-screen, so nothing falls out of step', () => {
       const now = jest.spyOn(performance, 'now');
       const { container } = render(<BorderAnimate />);
       const ring = container.querySelector('[data-with-mask]')!;
-      const animation = { currentTime: 250 as number | null };
-      Object.assign(ring, { getAnimations: () => [animation] });
+      const looping = animation(250);
+      Object.assign(ring, { getAnimations: () => [looping] });
 
       now.mockReturnValue(1000);
       report(false);
       now.mockReturnValue(1600);
       report(true);
 
-      expect(animation.currentTime).toBe(850);
+      expect(looping.currentTime).toBe(850);
+    });
+
+    // A transition is not paused by animation-play-state, so it already ran; an animation that
+    // started during the pause (a ring shown off-screen) never waited; one that ended is gone.
+    it('moves only the animations that the pause actually held', () => {
+      const now = jest.spyOn(performance, 'now');
+      const { container } = render(<BorderAnimate />);
+      const ring = container.querySelector('[data-with-mask]')!;
+      const held = animation(250);
+      const fade = animation(100, 'transition');
+      const gone = animation(300);
+      const late = animation(50);
+      let current = [held, fade, gone];
+      Object.assign(ring, { getAnimations: () => current });
+
+      now.mockReturnValue(1000);
+      report(false);
+      gone.playState = 'idle';
+      current = [held, fade, late];
+      now.mockReturnValue(1600);
+      report(true);
+
+      expect(held.currentTime).toBe(850);
+      expect(fade.currentTime).toBe(100);
+      expect(gone.currentTime).toBe(300);
+      expect(late.currentTime).toBe(50);
+    });
+
+    it('never pauses a finite run, whose onComplete someone may be waiting for', () => {
+      const { container } = render(<BorderAnimate iterations={2} />);
+      report(false);
+      expect(root(container)).not.toHaveAttribute('data-offscreen');
+    });
+
+    it('lets an always ring run a little past the edge, and keeps inView on the exact viewport', () => {
+      render(<BorderAnimate />);
+      expect(options?.rootMargin).toBe('25%');
+
+      render(<BorderAnimate trigger="inView" />);
+      expect(options?.rootMargin).toBeUndefined();
     });
 
     it('observes only for the triggers that need it, and never marks them off-screen', () => {

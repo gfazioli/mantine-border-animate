@@ -132,7 +132,7 @@ Key props for the dash variant:
 
 By default the animation runs forever. The `trigger` prop lets an interaction start it instead, which is usually what you want on something a person can actually touch:
 
-- `always` (default) - animates continuously. While the component is scrolled out of the viewport the animation pauses, and when it comes back it catches up on the time it missed: off-screen it costs nothing, and on screen it is exactly where it would have been, still in step with every other border
+- `always` (default) - animates continuously. While the component is scrolled out of the viewport the animation pauses, and when it comes back it catches up on the time it missed: off-screen it costs nothing, and on screen it is exactly where it would have been, still in step with every other border. A finite animation (see Finite Laps) is the exception: it is never paused, so its `onComplete` does not wait for the component to scroll back
 - `hover` - fades in and animates while the pointer is over the wrapper
 - `focus-within` - the same, but driven by focus, so it works with real form controls
 - `inView` - animates only while the component is inside the viewport
@@ -266,7 +266,7 @@ BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to creat
 
 ## Accessibility
 
-BorderAnimate honors the `prefers-reduced-motion` media query through the Mantine theme. When a user has enabled "Reduce motion" in their operating system settings, every animation and transition is disabled — including the ones on pseudo-elements, which the rule shipped by Mantine core cannot reach on its own. The border does not disappear: it stays still in its resting state, the same one `animate={false}` shows, so a beam sits where `progress` puts it.
+BorderAnimate honors the `prefers-reduced-motion` media query through the Mantine theme. When a user has enabled "Reduce motion" in their operating system settings, every animation and transition is disabled — including the ones on pseudo-elements, which the rule shipped by Mantine core cannot reach on its own. The border does not disappear: it stops moving, and a beam rests where `progress` puts it, as with `animate={false}`.
 
 Because the guard is scoped to `theme.respectReducedMotion`, an application that deliberately turns that setting off keeps its animations, exactly like every other Mantine component. The `respectReducedMotion` prop decides for a single component instead: `true` keeps that border still for those users whatever the theme says, `false` keeps it moving.
 
