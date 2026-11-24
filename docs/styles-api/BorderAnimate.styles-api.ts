@@ -40,7 +40,7 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
         'Deprecated: no longer read since the wedge became a bell. Use spread, or override --border-animate-beam-stops',
       '--border-animate-timing': 'CSS animation timing function (e.g. linear, ease-in-out)',
       '--border-animate-iterations':
-        'animation-iteration-count of every looping animation: a number of laps, or infinite',
+        'animation-iteration-count of every looping animation, set from the iterations prop. Use the prop: onComplete and the off-screen pause read it, not this variable',
       '--border-animate-dasharray': 'Dash pattern of the SVG ring, in perimeter percentages',
       '--border-animate-dash-period': 'Length of one dash cycle, in perimeter percentages',
       '--border-animate-dash-cap': 'Line cap of the dash segments',

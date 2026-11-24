@@ -15,7 +15,7 @@ import {
   type MantineRadius,
   type MantineSize,
 } from '@mantine/core';
-import { clamp, useCallbackRef, useMergedRef } from '@mantine/hooks';
+import { clamp, useCallbackRef, useIsomorphicEffect, useMergedRef } from '@mantine/hooks';
 import React from 'react';
 import classes from './BorderAnimate.module.css';
 
@@ -635,38 +635,34 @@ function warnRenamed(props: Record<string, unknown>) {
 }
 
 /**
- * Whether the element is inside the viewport, for the two triggers that care. Until the first
- * observation it assumes what costs nothing to be wrong about: an `always` ring is visible (so
- * a server render and the first frame never pause it, and the first report, almost always
- * "visible", changes nothing and re-renders nothing), an `inView` one is not (it fades in).
- * Mantine's useInViewport starts at `false` for both, which would pause every `always` ring
- * until its first report.
+ * Whether the element is inside the viewport, watched for one of two reasons: to `reveal` an
+ * inView ring, or to `pause` a looping one. Until the first observation it assumes what costs
+ * nothing to be wrong about: a looping ring is visible (so a server render and the first frame
+ * never pause it, and the first report, almost always "visible", re-renders nothing), an
+ * inView one is not (it fades in). Mantine's useInViewport starts at `false` for both, which
+ * would pause every looping ring until its first report.
  */
-function useVisible(
-  ref: React.RefObject<HTMLElement | null>,
-  trigger: BorderAnimateTrigger | undefined
-) {
-  const observed = trigger === 'always' || trigger === 'inView';
-  const [visible, setVisible] = React.useState(trigger !== 'inView');
+function useVisible(ref: React.RefObject<HTMLElement | null>, watch: 'reveal' | 'pause' | null) {
+  const [visible, setVisible] = React.useState(watch !== 'reveal');
 
   React.useEffect(() => {
     const node = ref.current;
 
-    if (!observed || !node || typeof IntersectionObserver === 'undefined') {
+    if (!watch || !node || typeof IntersectionObserver === 'undefined') {
       return undefined;
     }
 
-    // An `always` ring only pauses, so it may keep running a little past the edge: a ring
-    // pushed out by `offset`, or a glow halo, is still in sight after the wrapper has left.
-    // `inView` keeps the exact viewport, since that is what reveals it.
+    // A looping ring only pauses, so it may keep running a little past the edge: a ring pushed
+    // out by `offset`, or a glow halo, is still in sight after the wrapper has left. inView
+    // keeps the exact viewport, since that is what reveals it.
     const observer = new IntersectionObserver(
       (entries) => setVisible(entries[entries.length - 1].isIntersecting),
-      trigger === 'always' ? { rootMargin: '25%' } : undefined
+      watch === 'pause' ? { rootMargin: '25%' } : undefined
     );
     observer.observe(node);
 
     return () => observer.disconnect();
-  }, [observed, trigger]);
+  }, [watch]);
 
   return visible;
 }
@@ -675,18 +671,19 @@ function useVisible(
  * Pauses nothing by itself: while `paused` is true the stylesheet holds the ring still, and
  * when it turns false this moves the ring's animations forward by the time they spent paused.
  * The ring then resumes where it would have been had it kept running, so borders staggered
- * with `phase` stay in step.
+ * with `phase` stay in step. `run` names the animations the ring is made of: when it changes
+ * during a pause (the ring shown, restarted, or switched to another variant), the new ones are
+ * held from that moment, and that is the time they get back.
  */
-function useCatchUp(getRing: () => Element | null, paused: boolean) {
+function useCatchUp(getRing: () => Element | null, paused: boolean, run: string) {
   React.useEffect(() => {
     if (!paused) {
       return undefined;
     }
 
     const pausedAt = performance.now();
-    // Only the CSS animations running when the pause began: one started during it (a ring
-    // shown or restarted off-screen) has not waited for anything, and a transition (a draw
-    // stroke, the trigger fade) is not paused by animation-play-state at all. getAnimations
+    // Only the CSS animations running when the pause (or this run) began: a transition (a
+    // draw stroke, the trigger fade) is not paused by animation-play-state at all. getAnimations
     // with subtree reaches the ::after of the masked ring and every rect of the svg one, and
     // nothing of the children, which are not inside the ring.
     const animations = (getRing()?.getAnimations?.({ subtree: true }) ?? []).filter(
@@ -704,7 +701,7 @@ function useCatchUp(getRing: () => Element | null, paused: boolean) {
         }
       });
     };
-  }, [paused]);
+  }, [paused, run]);
 }
 
 export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
@@ -780,14 +777,32 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
   const finite = getIterations(iterations) !== 'infinite';
-  const visible = useVisible(rootRef, trigger);
-  // A finite run is left alone: it ends soon anyway, and paused it would hold back an
-  // onComplete that someone may be waiting for until the ring happened to scroll back.
-  const offscreen = trigger === 'always' && !finite && !visible;
-  useCatchUp(() => borderRef.current ?? svgRef.current, offscreen);
+  // Only a ring that loops can be paused off-screen. A finite run is left alone: it ends soon
+  // anyway, and paused it would hold back an onComplete someone may be waiting for until the
+  // ring happened to scroll back. A hidden, still or draw ring has nothing to pause.
+  const loops = trigger === 'always' && !!show && !!animate && variant !== 'draw' && !finite;
+  const visible = useVisible(rootRef, trigger === 'inView' ? 'reveal' : loops ? 'pause' : null);
+  const offscreen = loops && !visible;
+  useCatchUp(
+    () => borderRef.current ?? svgRef.current,
+    offscreen,
+    `${show}:${animate}:${variant}:${beamMode}`
+  );
 
   const theme = useMantineTheme();
   const complete = useCallbackRef(onComplete);
+
+  // A finite run that someone listens to starts only once React can hear it end. Rendered on
+  // the server, it could end before hydration attaches onAnimationEnd (at once, under reduced
+  // motion), and the browser never replays the event. The layout effect runs before the first
+  // client paint, so a ring mounted on the client starts without a visible delay.
+  const listening = finite && onComplete !== undefined;
+  const [mounted, setMounted] = React.useState(false);
+  useIsomorphicEffect(() => {
+    if (listening) {
+      setMounted(true);
+    }
+  }, [listening]);
 
   const gradientId = `border-animate-${React.useId().replace(/:/g, '')}`;
   const stroke = usesStroke(variant, beamMode);
@@ -833,6 +848,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
       data-trigger={trigger === 'always' ? undefined : trigger}
       data-active={trigger === 'inView' ? visible : undefined}
       data-offscreen={offscreen || undefined}
+      data-pending={(listening && !mounted) || undefined}
       data-reduced-motion={
         (respectReducedMotion ?? theme.respectReducedMotion) ? 'respect' : undefined
       }
@@ -895,7 +911,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
                     ? ({ stroke: `url(#${gradientId})` } as React.CSSProperties)
                     : undefined,
                 })}
-                onAnimationEnd={handleAnimationEnd}
+                onAnimationEnd={variant === 'draw' ? undefined : handleAnimationEnd}
                 width="100%"
                 height="100%"
                 pathLength="100"

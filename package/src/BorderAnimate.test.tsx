@@ -1,4 +1,5 @@
 import { render } from '@mantine-tests/core';
+import { MantineProvider } from '@mantine/core';
 import { act, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import React from 'react';
@@ -613,6 +614,34 @@ describe('BorderAnimate', () => {
       expect(onComplete).not.toHaveBeenCalled();
     });
 
+    it('never reports the draw variant, which does not loop', () => {
+      const onComplete = jest.fn();
+      const { container } = render(
+        <BorderAnimate variant="draw" iterations={1} onComplete={onComplete} />
+      );
+
+      container.querySelectorAll('rect').forEach((rect) => fireEvent.animationEnd(rect));
+      expect(onComplete).not.toHaveBeenCalled();
+    });
+
+    // The browser never replays animationend, so a run that ends before hydration (at once,
+    // under reduced motion) would leave onComplete waiting forever: it waits for the mount.
+    it('holds a run that reports onComplete until the component mounts', () => {
+      // The node build: the browser one that jsdom resolves needs MessageChannel and TextEncoder
+      const { renderToString } =
+        require('react-dom/server.node') as typeof import('react-dom/server');
+      const html = (ui: React.ReactNode) => renderToString(<MantineProvider>{ui}</MantineProvider>);
+
+      expect(html(<BorderAnimate iterations={2} onComplete={() => {}} />)).toContain(
+        'data-pending'
+      );
+      expect(html(<BorderAnimate iterations={2} />)).not.toContain('data-pending');
+      expect(html(<BorderAnimate onComplete={() => {}} />)).not.toContain('data-pending');
+
+      const { container } = render(<BorderAnimate iterations={2} onComplete={() => {}} />);
+      expect(root(container)).not.toHaveAttribute('data-pending');
+    });
+
     it('calls onComplete once for the comet, not once per segment', () => {
       const onComplete = jest.fn();
       const { container } = render(
@@ -765,6 +794,34 @@ describe('BorderAnimate', () => {
       expect(late.currentTime).toBe(50);
     });
 
+    it('holds a ring that changes during the pause from that moment, not from before it', () => {
+      const now = jest.spyOn(performance, 'now');
+      const { container, rerender } = render(<BorderAnimate />);
+      const ring = container.querySelector('[data-with-mask]')!;
+      const dot = animation(250);
+      const wedge = animation(0);
+      let current = [dot];
+      Object.assign(ring, { getAnimations: () => current });
+
+      now.mockReturnValue(1000);
+      report(false);
+      // Another beam mode is another animation: the dot's is gone, the wedge's starts held
+      dot.playState = 'idle';
+      current = [wedge];
+      now.mockReturnValue(1300);
+      // The same fragment render() wraps the ui in, or MantineProvider remounts the subtree
+      rerender(
+        <>
+          <BorderAnimate beamMode="wedge" />
+        </>
+      );
+      now.mockReturnValue(1600);
+      report(true);
+
+      expect(wedge.currentTime).toBe(300);
+      expect(dot.currentTime).toBe(250);
+    });
+
     it('never pauses a finite run, whose onComplete someone may be waiting for', () => {
       const { container } = render(<BorderAnimate iterations={2} />);
       report(false);
@@ -779,8 +836,12 @@ describe('BorderAnimate', () => {
       expect(options?.rootMargin).toBeUndefined();
     });
 
-    it('observes only for the triggers that need it, and never marks them off-screen', () => {
+    it('observes only the rings that loop, plus inView, and never marks inView off-screen', () => {
       render(<BorderAnimate trigger="hover" />);
+      render(<BorderAnimate show={false} />);
+      render(<BorderAnimate animate={false} />);
+      render(<BorderAnimate variant="draw" />);
+      render(<BorderAnimate iterations={3} />);
       expect(observed).toBe(0);
 
       const { container } = render(<BorderAnimate trigger="inView" />);
@@ -898,6 +959,15 @@ describe('BorderAnimate.module.css', () => {
     expect(shared).toMatch(/animation-fill-mode:\s*forwards/);
     expect(css.match(/animation-iteration-count:/g)).toHaveLength(2); // shared + reduced motion
     expect(css.match(/animation-fill-mode:/g)).toHaveLength(2);
+  });
+
+  it('starts nothing while a run that reports onComplete waits for the mount', () => {
+    const rule = css.match(/(\.root\[data-pending\][^{]*)\{([^}]*)\}/)!;
+    expect(rule[1].split(',').map((s) => s.trim())).toEqual([
+      '.root[data-pending] > .border::after',
+      '.root[data-pending] > :where(.svg) > .stroke',
+    ]);
+    expect(rule[2]).toMatch(/animation-name:\s*none\s*!important/);
   });
 
   it('pauses an always ring scrolled off-screen, on every animated element', () => {

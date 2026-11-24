@@ -326,6 +326,15 @@
   animation-play-state: paused;
 }
 
+/* A finite run whose end someone listens for (onComplete) waits for the component to mount:
+   rendered on the server, it could otherwise end before hydration can hear it. No animation
+   meanwhile, so the ring shows its resting state; the name comes back on mount and the run
+   starts from its first frame. */
+.root[data-pending] > .border::after,
+.root[data-pending] > :where(.svg) > .stroke {
+  animation-name: none !important;
+}
+
 /* ============================================
    ACCESSIBILITY
    ============================================ */
