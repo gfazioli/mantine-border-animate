@@ -99,6 +99,30 @@ function Demo() {
         </BorderAnimate>
         <Text size="xs" c="dimmed">Dot with colorStops</Text>
       </Stack>
+
+      {/* Comet beam: position 0 is the head, 100 the end of the tail */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={200}
+          h={200}
+          variant="beam"
+          beamMode="comet"
+          borderWidth="sm"
+          tail={45}
+          duration={5}
+          colorStops={[
+            { color: 'yellow', position: 0 },
+            { color: 'red', position: 35 },
+            { color: 'grape', position: 70 },
+            { color: 'blue', position: 100 },
+          ]}
+        >
+          <Content>
+            <Text size="sm">Comet beam</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">Comet with colorStops</Text>
+      </Stack>
     </Flex>
   );
 }
@@ -199,6 +223,32 @@ function Demo() {
         </BorderAnimate>
         <Text size="xs" c="dimmed">
           Dot with colorStops
+        </Text>
+      </Stack>
+
+      {/* Comet beam: position 0 is the head, 100 the end of the tail */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate
+          w={200}
+          h={200}
+          variant="beam"
+          beamMode="comet"
+          borderWidth="sm"
+          tail={45}
+          duration={5}
+          colorStops={[
+            { color: 'yellow', position: 0 },
+            { color: 'red', position: 35 },
+            { color: 'grape', position: 70 },
+            { color: 'blue', position: 100 },
+          ]}
+        >
+          <Content>
+            <Text size="sm">Comet beam</Text>
+          </Content>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          Comet with colorStops
         </Text>
       </Stack>
     </Flex>

@@ -31,15 +31,16 @@ The component includes five distinct variants — **beam** (a traveling glow alo
 
 Key features include:
 
-- **Three beam rendering modes** — `dot` (a radial-gradient dot traveling along the border via CSS offset-path, uniform at every position), `wedge` (a rotating conic-gradient with a spread you set in degrees) and `comet` (a head with a fading tail, at constant speed on any shape)
+- **Three beam rendering modes** — `dot` (a radial-gradient dot traveling along the border via CSS offset-path, uniform at every position), `wedge` (a rotating conic-gradient that fades in and out along a bell, with a spread you set in degrees) and `comet` (a head with a fading tail, at constant speed on any shape, coloured by `colorStops` if you like)
 - **A border that measures** — `variant="draw"` with `progress` (0-100) draws exactly that share of the real perimeter, corners included, with an optional track underneath
 - **Dashed borders** — `variant="dash"` with `dashSize`, `dashGap`, `count` and `dashCap`: marching ants, dots, or a fixed number of evenly spaced segments
-- **Triggers** — `trigger` starts the animation on `hover`, on `focus-within`, or only while the component is `inView`
+- **Triggers** — `trigger` starts the animation on `hover`, on `focus-within`, or only while the component is `inView`; an always-running ring pauses while it is scrolled out of view and catches up when it comes back
+- **Finite laps** — `iterations` runs the animation a set number of times and `onComplete` reports when it is over, so a border can mark an event and stop
 - **Detached rings** — `offset` pushes the border away from the content and keeps it concentric
 - **Custom color stops** — multi-color gradients via `colorStops`
 - **Pause on hover** — `pauseOnHover` prop to pause animations during user interaction
 - **Custom timing functions** — `timingFunction` prop for full control over animation easing
-- **Accessible** — honors `prefers-reduced-motion` through the Mantine theme, and marks the decorative ring `aria-hidden`
+- **Accessible** — honors `prefers-reduced-motion` through the Mantine theme or per component with `respectReducedMotion`, leaving the ring still in its resting state, and marks the decorative ring `aria-hidden`
 
 Advanced visual setups are supported through masking and layering: `withMask` clips the effect to the border area, while disabling it and using `zIndex` allows soft background glows behind content. Integration is straightforward via provided stylesheet imports, and examples demonstrate wrapping common Mantine components like Paper, Cards, Buttons, Inputs, and Alerts.
 

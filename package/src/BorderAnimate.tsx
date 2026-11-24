@@ -15,7 +15,7 @@ import {
   type MantineRadius,
   type MantineSize,
 } from '@mantine/core';
-import { useInViewport, useMergedRef } from '@mantine/hooks';
+import { clamp, useCallbackRef, useIsomorphicEffect, useMergedRef } from '@mantine/hooks';
 import React from 'react';
 import classes from './BorderAnimate.module.css';
 
@@ -56,12 +56,16 @@ export type BorderAnimateCssVariables = {
     | '--border-animate-opacity'
     | '--border-animate-progress'
     | '--border-animate-gradient-background'
+    | '--border-animate-beam-stops'
+    // Deprecated since the wedge became a bell: no longer read, kept so that `vars`
+    // overrides written for 3.0 still compile. The wedge's width comes from `spread`.
     | '--border-animate-beam-start'
     | '--border-animate-beam-from'
     | '--border-animate-beam-to'
     | '--border-animate-beam-end'
     | '--border-animate-size'
     | '--border-animate-timing'
+    | '--border-animate-iterations'
     | '--border-animate-dasharray'
     | '--border-animate-dash-period'
     | '--border-animate-dash-cap'
@@ -88,18 +92,81 @@ function getCometStep(tail: number | undefined) {
 }
 
 /**
- * Angular positions of the wedge color stops, as conic-gradient percentages.
- * `spread` is the visible width of the wedge in degrees.
+ * Samples of the wedge's brightness curve. A gradient interpolates linearly between its
+ * stops, so this is what decides whether the reader sees a curve or a row of facets.
+ */
+const WEDGE_SAMPLES = 16;
+
+/**
+ * How much wider than `spread` the wedge's bell is drawn. A bell is dimmer at its edges than
+ * the trapezoid it replaced, so at the same extent it would look about a fifth narrower;
+ * this keeps the width at half brightness where `spread` always put it.
+ */
+const WEDGE_SPAN = 1.2;
+
+/** Two decimals are below what a gradient can show, and keep the inline style short */
+function round(value: number) {
+  return Number(value.toFixed(2));
+}
+
+/**
+ * Conic-gradient stops of the wedge, as percentages of the turn around 50%. Brightness
+ * follows a bell (`sin(πt)^1.2`), so both ends fade out with no visible edge; colour runs
+ * from colorFrom on the trailing side to colorTo on the leading one, in the same places
+ * the flat band used to put them. A color-mix whose percentages add up to less than 100%
+ * scales the alpha by that sum, which paints colour and brightness in one stop.
  */
 function getWedgeStops(spread: number) {
-  const half = Math.min(Math.max(spread, 0), 360) / 2 / 3.6;
+  const span = Math.min(Math.max(spread, 0) * WEDGE_SPAN, 360) / 3.6;
+  const start = 50 - span / 2;
+  const stops = [`transparent ${round(start)}%`];
 
-  return {
-    start: `${50 - half}%`,
-    from: `${50 - half / 2}%`,
-    to: `${50 + half / 2}%`,
-    end: `${50 + half}%`,
-  };
+  for (let k = 1; k < WEDGE_SAMPLES; k += 1) {
+    const t = k / WEDGE_SAMPLES;
+    const alpha = Math.sin(Math.PI * t) ** 1.2 * 100;
+    const mix = clamp((t - 0.25) / 0.5, 0, 1);
+
+    stops.push(
+      `color-mix(in oklab, var(--border-animate-color-from) ${round((1 - mix) * alpha)}%, var(--border-animate-color-to) ${round(mix * alpha)}%) ${round(start + span * t)}%`
+    );
+  }
+
+  stops.push(`transparent ${round(start + span)}%`);
+
+  return stops.join(', ');
+}
+
+/**
+ * Colour at `position` (0-100) along a palette of stops sorted by position: the stop itself
+ * when it sits there, otherwise a color-mix of its two neighbours. The colours may be CSS
+ * variables, so the mixing has to happen in the browser.
+ */
+function samplePalette(sorted: { color: string; position: number }[], position: number) {
+  const next = sorted.findIndex((s) => s.position >= position);
+
+  if (next === -1) {
+    return sorted[sorted.length - 1].color;
+  }
+
+  if (next === 0 || sorted[next].position === position) {
+    return sorted[next].color;
+  }
+
+  const a = sorted[next - 1];
+  const b = sorted[next];
+  const mix = ((position - a.position) / (b.position - a.position)) * 100;
+
+  return `color-mix(in oklab, ${a.color}, ${b.color} ${round(mix)}%)`;
+}
+
+/**
+ * animation-iteration-count, always spelled out: custom properties inherit, so a ring that left
+ * it to the stylesheet's fallback would take the count of a finite ring it is nested in.
+ */
+function getIterations(iterations: number | 'infinite' | undefined) {
+  return typeof iterations === 'number' && Number.isFinite(iterations)
+    ? `${Math.max(iterations, 0)}`
+    : 'infinite';
 }
 
 /**
@@ -196,8 +263,8 @@ export interface BorderAnimateBaseProps {
   /** Color stops for the border gradient. When provided, overrides colorFrom/colorTo.
    * Each stop has a color (any MantineColor) and a position (0-100).
    * Stops should be provided in ascending position order.
-   * Ignored by `beamMode="comet"`, which grades its own segments between colorFrom and
-   * colorTo instead of painting a gradient.
+   * With `beamMode="comet"` they colour the tail instead: position 0 is the head, 100 the
+   * end of the tail.
    */
   colorStops?: BorderAnimateColorStop[];
 
@@ -282,13 +349,35 @@ export interface BorderAnimateBaseProps {
   timingFunction?: string;
 
   /** What makes the border animate.
-   * - `always`: animates continuously
+   * - `always`: animates continuously. It pauses while scrolled out of the viewport and
+   *   catches up on the way back, so it costs nothing off-screen and stays in step
+   *   (a finite run, see iterations, is never paused)
    * - `hover` / `focus-within`: fades in and animates while the wrapper is hovered/focused
    * - `inView`: animates while the component is inside the viewport
    * - `never`: renders the border in its resting state
    * @default 'always'
    */
   trigger?: BorderAnimateTrigger;
+
+  /** How many times the animation runs: a number of laps (fractions allowed) or
+   * `'infinite'`. A finite animation stops where its last lap ends and calls onComplete;
+   * remount the component (a new `key`) or toggle `animate` to run it again.
+   * Ignored by the draw variant, which transitions to its progress instead of looping.
+   * @default 'infinite'
+   */
+  iterations?: number | 'infinite';
+
+  /** Called once when the last lap of a finite animation (see iterations) has run.
+   * When reduced motion keeps the ring still there are no laps to wait for, so it is
+   * called right away.
+   */
+  onComplete?: () => void;
+
+  /** Keep the ring still for users who ask their system to reduce motion: it stops moving,
+   * and a beam rests where `progress` puts it, as with `animate={false}`.
+   * @default theme.respectReducedMotion
+   */
+  respectReducedMotion?: boolean;
 
   /** Pause the animation when the user hovers over the component.
    * Ignored when `trigger="hover"`.
@@ -358,6 +447,7 @@ export const defaultProps: Partial<BorderAnimateProps> = {
   progress: 100,
   borderOpacity: 1,
   trigger: 'always',
+  iterations: 'infinite',
   pauseOnHover: false,
   dashSize: 4,
   dashGap: 4,
@@ -421,6 +511,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
       count,
       dashCap,
       trackColor,
+      iterations,
     }
   ) => {
     const stroke = usesStroke(variant, beamMode);
@@ -430,10 +521,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
     const value = Math.min(Math.max(progress ?? 100, 0), 100);
 
     let gradientBackground: string | undefined;
-    let beamStart: string | undefined;
-    let beamFrom: string | undefined;
-    let beamTo: string | undefined;
-    let beamEnd: string | undefined;
+    let beamStops: string | undefined;
     let dotSize: string | undefined;
     let dasharray: string | undefined;
     let dashPeriod: string | undefined;
@@ -455,11 +543,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
           .join(', ');
         gradientBackground = `conic-gradient(from 0deg, ${stops})`;
       } else {
-        const stops = getWedgeStops(spread ?? 36);
-        beamStart = stops.start;
-        beamFrom = stops.from;
-        beamTo = stops.to;
-        beamEnd = stops.end;
+        beamStops = getWedgeStops(spread ?? 36);
       }
     }
 
@@ -499,12 +583,15 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-opacity': `${borderOpacity ?? 1}`,
         '--border-animate-progress': `${value}`,
         '--border-animate-gradient-background': gradientBackground,
-        '--border-animate-beam-start': beamStart,
-        '--border-animate-beam-from': beamFrom,
-        '--border-animate-beam-to': beamTo,
-        '--border-animate-beam-end': beamEnd,
+        '--border-animate-beam-stops': beamStops,
+        // Deprecated and unread, see BorderAnimateCssVariables
+        '--border-animate-beam-start': undefined,
+        '--border-animate-beam-from': undefined,
+        '--border-animate-beam-to': undefined,
+        '--border-animate-beam-end': undefined,
         '--border-animate-size': dotSize,
         '--border-animate-timing': timingFunction,
+        '--border-animate-iterations': getIterations(iterations),
         '--border-animate-dasharray': dasharray,
         '--border-animate-dash-period': dashPeriod,
         '--border-animate-dash-cap': variant === 'dash' ? dashCap : undefined,
@@ -547,6 +634,76 @@ function warnRenamed(props: Record<string, unknown>) {
   }
 }
 
+/**
+ * Whether the element is inside the viewport, watched for one of two reasons: to `reveal` an
+ * inView ring, or to `pause` a looping one. Until the first observation it assumes what costs
+ * nothing to be wrong about: a looping ring is visible (so a server render and the first frame
+ * never pause it, and the first report, almost always "visible", re-renders nothing), an
+ * inView one is not (it fades in). Mantine's useInViewport starts at `false` for both, which
+ * would pause every looping ring until its first report.
+ */
+function useVisible(ref: React.RefObject<HTMLElement | null>, watch: 'reveal' | 'pause' | null) {
+  const [visible, setVisible] = React.useState(watch !== 'reveal');
+
+  React.useEffect(() => {
+    const node = ref.current;
+
+    if (!watch || !node || typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+
+    // A looping ring only pauses, so it may keep running a little past the edge: a ring pushed
+    // out by `offset`, or a glow halo, is still in sight after the wrapper has left. inView
+    // keeps the exact viewport, since that is what reveals it.
+    const observer = new IntersectionObserver(
+      (entries) => setVisible(entries[entries.length - 1].isIntersecting),
+      watch === 'pause' ? { rootMargin: '25%' } : undefined
+    );
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [watch]);
+
+  return visible;
+}
+
+/**
+ * Pauses nothing by itself: while `paused` is true the stylesheet holds the ring still, and
+ * when it turns false this moves the ring's animations forward by the time they spent paused.
+ * The ring then resumes where it would have been had it kept running, so borders staggered
+ * with `phase` stay in step. `run` names the animations the ring is made of: when it changes
+ * during a pause (the ring shown, restarted, or switched to another variant), the new ones are
+ * held from that moment, and that is the time they get back.
+ */
+function useCatchUp(getRing: () => Element | null, paused: boolean, run: string) {
+  React.useEffect(() => {
+    if (!paused) {
+      return undefined;
+    }
+
+    const pausedAt = performance.now();
+    // Only the CSS animations running when the pause (or this run) began: a transition (a
+    // draw stroke, the trigger fade) is not paused by animation-play-state at all. getAnimations
+    // with subtree reaches the ::after of the masked ring and every rect of the svg one, and
+    // nothing of the children, which are not inside the ring.
+    const animations = (getRing()?.getAnimations?.({ subtree: true }) ?? []).filter(
+      (animation) => 'animationName' in animation
+    );
+
+    return () => {
+      const elapsed = performance.now() - pausedAt;
+
+      animations.forEach((animation) => {
+        const time = animation.currentTime;
+
+        if (animation.playState !== 'idle' && typeof time === 'number') {
+          animation.currentTime = time + elapsed;
+        }
+      });
+    };
+  }, [paused, run]);
+}
+
 export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   const { ref, ...restProps } = _props as typeof _props & { ref?: React.Ref<HTMLDivElement> };
   const props = useProps('BorderAnimate', defaultProps, restProps);
@@ -580,6 +737,9 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
     progress,
     timingFunction,
     trigger,
+    iterations,
+    onComplete,
+    respectReducedMotion,
     pauseOnHover,
     dashSize,
     dashGap,
@@ -611,19 +771,53 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
     varsResolver,
   });
 
-  const { ref: inViewRef, inViewport } = useInViewport<HTMLDivElement>();
-  const mergedRef = useMergedRef(ref, trigger === 'inView' ? inViewRef : null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRef(ref, rootRef);
+  const borderRef = React.useRef<HTMLDivElement>(null);
+  const svgRef = React.useRef<SVGSVGElement>(null);
+
+  const finite = getIterations(iterations) !== 'infinite';
+  // Only a ring that loops can be paused off-screen. A finite run is left alone: it ends soon
+  // anyway, and paused it would hold back an onComplete someone may be waiting for until the
+  // ring happened to scroll back. A hidden, still or draw ring has nothing to pause.
+  const loops = trigger === 'always' && !!show && !!animate && variant !== 'draw' && !finite;
+  const visible = useVisible(rootRef, trigger === 'inView' ? 'reveal' : loops ? 'pause' : null);
+  const offscreen = loops && !visible;
+  useCatchUp(
+    () => borderRef.current ?? svgRef.current,
+    offscreen,
+    `${show}:${animate}:${variant}:${beamMode}:${!!colorStops?.length}`
+  );
 
   const theme = useMantineTheme();
+  const complete = useCallbackRef(onComplete);
+
+  // A finite run that someone listens to starts only once React can hear it end. Rendered on
+  // the server, it could end before hydration attaches onAnimationEnd (at once, under reduced
+  // motion), and the browser never replays the event. The layout effect runs before the first
+  // client paint, so a ring mounted on the client starts without a visible delay.
+  const listening = finite && onComplete !== undefined;
+  const [mounted, setMounted] = React.useState(false);
+  useIsomorphicEffect(() => {
+    if (listening) {
+      setMounted(true);
+    }
+  }, [listening]);
+
   const gradientId = `border-animate-${React.useId().replace(/:/g, '')}`;
   const stroke = usesStroke(variant, beamMode);
   const isComet = variant === 'beam' && beamMode === 'comet';
   // The comet grades its own segments with color-mix; every other stroke variant paints
   // a real SVG gradient, so colorStops and colorFrom/colorTo behave the same way here.
   const withGradient = !isComet;
-  const stops = withGradient ? getStops(colorStops, colorFrom, colorTo, theme) : [];
+  const stops = getStops(colorStops, colorFrom, colorTo, theme);
   const segments = isComet ? Array.from({ length: COMET_SEGMENTS }, (_, i) => i) : [];
   const tailStep = getCometStep(tail);
+  // Without colorStops the stylesheet mixes colorFrom into colorTo along the tail itself
+  const tailPalette =
+    isComet && colorStops && colorStops.length > 0
+      ? [...stops].sort((a, b) => a.position - b.position)
+      : undefined;
 
   const ringProps = {
     'data-variant': variant,
@@ -631,18 +825,46 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
     'data-beam-mode': variant === 'beam' ? beamMode : undefined,
   } as const;
 
+  // Every animation of a ring shares the same duration, delay and count, so one of them is
+  // enough to tell when the last lap is over: the masked ring has a single ::after, and the
+  // svg ring reports it from its first stroke (the comet's head). Under reduced motion every
+  // animation ends at once, an infinite one included (and a never one, held paused), and only
+  // a finite run that may animate has laps to report.
+  // The masked ring animates its ::after only, so an animation a consumer puts on the element
+  // itself (through styles) is not ours.
+  const handleAnimationEnd = (event: React.AnimationEvent<Element>) => {
+    if (
+      finite &&
+      trigger !== 'never' &&
+      (event.currentTarget !== borderRef.current || event.pseudoElement === '::after')
+    ) {
+      complete();
+    }
+  };
+
   return (
     <Box
       ref={mergedRef}
       {...getStyles('root')}
       data-pause-on-hover={pauseOnHover && trigger !== 'hover' ? true : undefined}
       data-trigger={trigger === 'always' ? undefined : trigger}
-      data-active={trigger === 'inView' ? inViewport : undefined}
+      data-active={trigger === 'inView' ? visible : undefined}
+      data-offscreen={offscreen || undefined}
+      data-pending={(listening && !mounted) || undefined}
+      data-reduced-motion={
+        (respectReducedMotion ?? theme.respectReducedMotion) ? 'respect' : undefined
+      }
       {...others}
     >
       {show &&
         (stroke ? (
-          <svg {...getStyles('svg')} {...ringProps} aria-hidden="true" focusable="false">
+          <svg
+            ref={svgRef}
+            {...getStyles('svg')}
+            {...ringProps}
+            aria-hidden="true"
+            focusable="false"
+          >
             {withGradient && (
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
@@ -661,21 +883,29 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
             )}
 
             {isComet ? (
-              segments.map((i) => (
-                <rect
-                  key={i}
-                  {...getStyles('stroke', {
-                    style: {
-                      '--border-animate-segment': `${i * tailStep * (reverse ? -1 : 1)}`,
-                      '--border-animate-segment-opacity': `${((1 - i / COMET_SEGMENTS) ** 1.6).toFixed(4)}`,
-                      '--border-animate-segment-mix': `${(i / Math.max(COMET_SEGMENTS - 1, 1)) * 100}%`,
-                    } as React.CSSProperties,
-                  })}
-                  width="100%"
-                  height="100%"
-                  pathLength="100"
-                />
-              ))
+              segments.map((i) => {
+                const along = (i / Math.max(COMET_SEGMENTS - 1, 1)) * 100;
+
+                return (
+                  <rect
+                    key={i}
+                    {...getStyles('stroke', {
+                      style: {
+                        '--border-animate-segment': `${i * tailStep * (reverse ? -1 : 1)}`,
+                        '--border-animate-segment-opacity': `${((1 - i / COMET_SEGMENTS) ** 1.6).toFixed(4)}`,
+                        '--border-animate-segment-mix': `${along}%`,
+                        '--border-animate-segment-color': tailPalette
+                          ? samplePalette(tailPalette, along)
+                          : undefined,
+                      } as React.CSSProperties,
+                    })}
+                    onAnimationEnd={i === 0 ? handleAnimationEnd : undefined}
+                    width="100%"
+                    height="100%"
+                    pathLength="100"
+                  />
+                );
+              })
             ) : (
               <rect
                 {...getStyles('stroke', {
@@ -683,6 +913,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
                     ? ({ stroke: `url(#${gradientId})` } as React.CSSProperties)
                     : undefined,
                 })}
+                onAnimationEnd={variant === 'draw' ? undefined : handleAnimationEnd}
                 width="100%"
                 height="100%"
                 pathLength="100"
@@ -691,8 +922,10 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
           </svg>
         ) : (
           <Box
+            ref={borderRef}
             {...getStyles('border', { variant })}
             variant={variant}
+            onAnimationEnd={handleAnimationEnd}
             aria-hidden="true"
             data-with-mask={resolveWithMask(withMask, variant)}
             data-animate={animate}
