@@ -786,7 +786,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   useCatchUp(
     () => borderRef.current ?? svgRef.current,
     offscreen,
-    `${show}:${animate}:${variant}:${beamMode}`
+    `${show}:${animate}:${variant}:${beamMode}:${!!colorStops?.length}`
   );
 
   const theme = useMantineTheme();
@@ -828,12 +828,14 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   // Every animation of a ring shares the same duration, delay and count, so one of them is
   // enough to tell when the last lap is over: the masked ring has a single ::after, and the
   // svg ring reports it from its first stroke (the comet's head). Under reduced motion every
-  // animation ends at once, an infinite one included, and only a finite one has laps to report.
+  // animation ends at once, an infinite one included (and a never one, held paused), and only
+  // a finite run that may animate has laps to report.
   // The masked ring animates its ::after only, so an animation a consumer puts on the element
   // itself (through styles) is not ours.
   const handleAnimationEnd = (event: React.AnimationEvent<Element>) => {
     if (
       finite &&
+      trigger !== 'never' &&
       (event.currentTarget !== borderRef.current || event.pseudoElement === '::after')
     ) {
       complete();

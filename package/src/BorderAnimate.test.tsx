@@ -614,6 +614,16 @@ describe('BorderAnimate', () => {
       expect(onComplete).not.toHaveBeenCalled();
     });
 
+    it('never reports a ring that is told never to animate', () => {
+      const onComplete = jest.fn();
+      const { container } = render(
+        <BorderAnimate trigger="never" iterations={1} onComplete={onComplete} />
+      );
+
+      endAnimation(container.querySelector('[data-with-mask]')!, '::after');
+      expect(onComplete).not.toHaveBeenCalled();
+    });
+
     it('never reports the draw variant, which does not loop', () => {
       const onComplete = jest.fn();
       const { container } = render(
