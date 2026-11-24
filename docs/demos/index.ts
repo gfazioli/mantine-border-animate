@@ -14,6 +14,7 @@ export { withComet } from './BorderAnimate.demo.withComet';
 export { withDash } from './BorderAnimate.demo.withDash';
 export { withDraw } from './BorderAnimate.demo.withDraw';
 export { withInput } from './BorderAnimate.demo.withInput';
+export { withIterations } from './BorderAnimate.demo.withIterations';
 export { withMask } from './BorderAnimate.demo.withMask';
 export { withMultiple } from './BorderAnimate.demo.withMultiple';
 export { withOffset } from './BorderAnimate.demo.withOffset';

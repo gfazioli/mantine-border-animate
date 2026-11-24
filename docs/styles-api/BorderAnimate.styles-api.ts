@@ -28,11 +28,11 @@ export const BorderAnimateStylesApi: StylesApiData<BorderAnimateFactory> = {
       '--border-animate-size': 'Pixel size of the traveling dot (dot beam mode only)',
       '--border-animate-gradient-background':
         'Full gradient string for the beam background (set via the colorStops prop)',
-      '--border-animate-beam-start': 'Start position of the wedge transparent zone (%)',
-      '--border-animate-beam-from': 'Position where colorFrom starts in the wedge (%)',
-      '--border-animate-beam-to': 'Position where colorTo ends in the wedge (%)',
-      '--border-animate-beam-end': 'End position of the wedge transparent zone (%)',
+      '--border-animate-beam-stops':
+        'Conic-gradient stops of the wedge, a bell of brightness from colorFrom to colorTo (computed from spread)',
       '--border-animate-timing': 'CSS animation timing function (e.g. linear, ease-in-out)',
+      '--border-animate-iterations':
+        'animation-iteration-count of every looping animation; unset means infinite',
       '--border-animate-dasharray': 'Dash pattern of the SVG ring, in perimeter percentages',
       '--border-animate-dash-period': 'Length of one dash cycle, in perimeter percentages',
       '--border-animate-dash-cap': 'Line cap of the dash segments',

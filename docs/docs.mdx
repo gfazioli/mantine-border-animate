@@ -29,12 +29,13 @@ The `BorderAnimate` component wraps any element to add stunning animated border 
 - **Three beam modes** - `dot` (a traveling dot), `wedge` (a rotating gradient) or `comet` (a head with a tail)
 - **A border that measures** - `variant="draw"` with `progress` turns the border into a progress indicator
 - **Trigger on interaction** - animate on hover, on focus, or only while the component is on screen
+- **Finite laps** - `iterations` and `onComplete` let a border mark an event (a job started, a save finished) and then stop
 - **Fully customizable** - Control colors, duration, size, blur, offset and more
 - **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
-- **Performance optimized** - Pure CSS and SVG animations, no JavaScript per frame
+- **Performance optimized** - Pure CSS and SVG animations, no JavaScript per frame, and a ring scrolled out of view stops costing anything
 - **Custom color stops** - Multi-color gradients with `colorStops`
 - **Pause on hover** - Pause animations when hovering with `pauseOnHover`
-- **Accessible** - Honors `prefers-reduced-motion` through the Mantine theme
+- **Accessible** - Honors `prefers-reduced-motion` through the Mantine theme, or per component with `respectReducedMotion`
 
 Simply wrap your content with `BorderAnimate` and customize it using props:
 
@@ -63,7 +64,7 @@ The `BorderAnimate` component supports five animation variants, each creating a 
 The **beam** variant (default) creates an animated glow that moves around the border. It supports three rendering modes via the `beamMode` prop:
 
 - **`dot`** (default) — a radial-gradient dot that travels along the border perimeter via CSS `offset-path`. Uniform size at every position and constant speed along the perimeter.
-- **`wedge`** — a rotating conic-gradient wedge. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear.
+- **`wedge`** — a rotating conic-gradient wedge whose brightness rises and falls along a bell, so it has no visible edge, while its colour runs from `colorFrom` at the back to `colorTo` at the front. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear.
 - **`comet`** — a stroked head with a fading tail, drawn along the real perimeter. It is the only mode with a trail, and unlike `wedge` its speed is constant on any shape.
 
 <Demo data={demos.withBeamModes} />
@@ -77,7 +78,7 @@ Key props for the beam variant:
 - `blur` - Softens the effect. It matters most on the comet: SVG cannot fade a stroke along its own path, so the tail is built from stacked strokes, and a small blur — the default — melts their joints together
 - `duration` - Controls how fast the beam travels
 - `colorFrom` / `colorTo` - Colors of the beam
-- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo)
+- `colorStops` - Full control over the gradient (overrides colorFrom/colorTo); on the comet they colour the tail
 
 <Demo data={demos.withComet} />
 
@@ -131,7 +132,7 @@ Key props for the dash variant:
 
 By default the animation runs forever. The `trigger` prop lets an interaction start it instead, which is usually what you want on something a person can actually touch:
 
-- `always` (default) - animates continuously
+- `always` (default) - animates continuously. While the component is scrolled out of the viewport the animation pauses, and when it comes back it catches up on the time it missed: off-screen it costs nothing, and on screen it is exactly where it would have been, still in step with every other border
 - `hover` - fades in and animates while the pointer is over the wrapper
 - `focus-within` - the same, but driven by focus, so it works with real form controls
 - `inView` - animates only while the component is inside the viewport
@@ -145,7 +146,7 @@ The transition lasts `duration`, and for `variant="draw"` the border literally d
 
 The `colorStops` prop gives you full control over the beam gradient. Each stop has a `color` (any Mantine color) and a `position` (0-100%). When provided, it overrides `colorFrom`/`colorTo`.
 
-For **dot mode**, colorStops creates a `radial-gradient` with concentric color rings inside the traveling dot. For **wedge mode**, it creates a custom `conic-gradient` — use transparent stops for a wedge, or fill the entire circle for a rotating gradient border. For the **draw** and **dash** variants the stops become a real SVG gradient along the stroke. The **comet** mode ignores `colorStops`: it has no gradient to paint into, because SVG cannot fade a stroke along its own path, so its tail is a stack of strokes each mixed between `colorFrom` and `colorTo`.
+For **dot mode**, colorStops creates a `radial-gradient` with concentric color rings inside the traveling dot. For **wedge mode**, it creates a custom `conic-gradient` — use transparent stops for a wedge, or fill the entire circle for a rotating gradient border. For the **draw** and **dash** variants the stops become a real SVG gradient along the stroke. For the **comet** they colour the tail: position 0 is the head and 100 the end of the tail, and each of the strokes the tail is built from takes the colour of its place along the palette, so the colours travel with the comet while it still fades out.
 
 <Demo data={demos.withColorStops} />
 
@@ -164,6 +165,14 @@ Set `pauseOnHover` to pause the animation when the user hovers over the componen
 It is ignored when `trigger="hover"`, since the two would fight over the same gesture: one wants to start the animation on hover, the other wants to stop it.
 
 <Demo data={demos.withPauseOnHover} />
+
+### Finite Laps
+
+By default the animation loops forever. Give `iterations` a number and it runs that many laps (fractions work too: `0.5` is half a lap), then stops where the last one ends, without jumping back. `onComplete` is called at that moment, which is what lets a border mark an event and then step aside: a job that started, a save that went through.
+
+To run it again, mount the ring again: toggle `show` (as below) or `animate`, or give the component a new `key`. `iterations` has no effect on the draw variant, which transitions to its `progress` instead of looping.
+
+<Demo data={demos.withIterations} />
 
 ### Timing Function
 
@@ -257,8 +266,10 @@ BorderAnimate works perfectly with circular shapes. Set `radius="100%"` to creat
 
 ## Accessibility
 
-BorderAnimate honors the `prefers-reduced-motion` media query through the Mantine theme. When a user has enabled "Reduce motion" in their operating system settings, every animation and transition is disabled — including the ones on pseudo-elements, which the rule shipped by Mantine core cannot reach on its own.
+BorderAnimate honors the `prefers-reduced-motion` media query through the Mantine theme. When a user has enabled "Reduce motion" in their operating system settings, every animation and transition is disabled — including the ones on pseudo-elements, which the rule shipped by Mantine core cannot reach on its own. The border does not disappear: it stays still in its resting state, the same one `animate={false}` shows, so a beam sits where `progress` puts it.
 
-Because the guard is scoped to `theme.respectReducedMotion`, an application that deliberately turns that setting off keeps its animations, exactly like every other Mantine component.
+Because the guard is scoped to `theme.respectReducedMotion`, an application that deliberately turns that setting off keeps its animations, exactly like every other Mantine component. The `respectReducedMotion` prop decides for a single component instead: `true` keeps that border still for those users whatever the theme says, `false` keeps it moving.
+
+A finite animation has no laps to wait for when it is kept still, so `onComplete` is called right away: code that waits for it never hangs on a user who asked for less motion.
 
 The animated ring is decorative and carries `aria-hidden`, so it is never announced by assistive technology.

@@ -232,6 +232,18 @@
    moving under the pointer with pauseOnHover, and every variant ran while a trigger kept it
    hidden, coming back at another phase. */
 
+/* What every looping animation shares; each variant adds only its name and its timing
+   function. A finite count (iterations) holds the last frame, so a ring stops where its last
+   lap ends instead of jumping back to the first. */
+.border::after,
+.stroke {
+  animation-duration: var(--border-animate-duration, 5s);
+  animation-iteration-count: var(--border-animate-iterations, infinite);
+  animation-fill-mode: forwards;
+  animation-direction: var(--border-animate-direction, normal);
+  animation-delay: var(--border-animate-phase, 0s);
+}
+
 /* Disable all animations when data-animate is false */
 .border[data-animate='false'],
 .border[data-animate='false']::after,
@@ -305,18 +317,38 @@
   animation-play-state: paused;
 }
 
+/* An `always` ring scrolled out of the viewport: nobody can see it, so it stops costing a
+   frame. Only the component sets the attribute, and it moves the animation clock forward
+   by the time spent here when the ring comes back, so the pause never shows. */
+.root[data-offscreen] > .border,
+.root[data-offscreen] > .border::after,
+.root[data-offscreen] > :where(.svg) > .stroke {
+  animation-play-state: paused;
+}
+
 /* ============================================
    ACCESSIBILITY
    ============================================ */
 
-/* Honours theme.respectReducedMotion: MantineProvider adds the attribute on the root
-   element. Our own rule is still needed because Mantine's does not reach pseudo-elements. */
+/* The component sets data-reduced-motion when the respectReducedMotion prop, or
+   theme.respectReducedMotion when the prop is not given, asks for it. Mantine's own rule
+   does not reach pseudo-elements, hence ours.
+
+   An animation of zero length ends as soon as it starts: without fill it no longer applies,
+   so the ring rests in its resting state (the base value of its rule, the one animate={false}
+   shows), and animationend still fires, so a finite animation reports onComplete at once
+   instead of leaving it waiting. animation: none would give the same picture and no event. */
 @media (prefers-reduced-motion: reduce) {
-  [data-respect-reduced-motion] .border,
-  [data-respect-reduced-motion] .border::after,
-  [data-respect-reduced-motion] .svg,
-  [data-respect-reduced-motion] .stroke {
-    animation: none !important;
+  .root[data-reduced-motion] > .border::after,
+  .root[data-reduced-motion] > :where(.svg) > .stroke {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    animation-fill-mode: none !important;
+  }
+
+  .root[data-reduced-motion] > .border,
+  .root[data-reduced-motion] > .svg,
+  .root[data-reduced-motion] > :where(.svg) > .stroke {
     transition: none !important;
   }
 }
@@ -333,43 +365,31 @@
   inset: calc(var(--border-animate-width, 1px) * -2);
   border-radius: inherit;
 
-  /* Conic gradient rotated via @property --border-animate-angle */
+  /* Conic gradient rotated via @property --border-animate-angle. The stops (a bell of
+     brightness, colorFrom to colorTo) are computed by the component from spread. */
   background: var(
     --border-animate-gradient-background,
     conic-gradient(
       from var(--border-animate-angle, 0deg),
-      transparent 0%,
-      transparent var(--border-animate-beam-start, 45%),
-      var(--border-animate-color-from) var(--border-animate-beam-from, 47.5%),
-      var(--border-animate-color-to) var(--border-animate-beam-to, 52.5%),
-      transparent var(--border-animate-beam-end, 55%),
-      transparent 100%
+      var(--border-animate-beam-stops, transparent 0% 100%)
     )
   );
+
+  /* The resting angle. A running animation overrides it; once there is none (animate is
+     false, or reduced motion stops it) the wedge rests here, at progress. */
+  --border-animate-angle: calc(var(--border-animate-progress) * 3.6deg);
 
   filter: blur(var(--border-animate-blur));
 
   animation-name: border-animate-beam-wedge;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, linear);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
 }
 
-/* Static angle for the wedge */
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='wedge']::after {
-  --border-animate-angle: calc(var(--border-animate-progress) * 3.6deg);
-}
-
-/* Wedge with colorStops — uses transform: rotate() instead of @property */
+/* Wedge with colorStops — uses transform: rotate() instead of @property, resting at progress */
 .border[data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after {
   inset: -50%;
-  animation-name: border-animate-beam-rotate;
-}
-
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after {
   transform: rotate(calc(var(--border-animate-progress) * 3.6deg));
+  animation-name: border-animate-beam-rotate;
 }
 
 /* ============================================
@@ -405,20 +425,14 @@
   );
   offset-anchor: 50% 50%;
 
+  /* The resting position, used whenever no animation runs (see the wedge) */
+  offset-distance: calc(var(--border-animate-progress) * 1%);
+
   /* GPU layer promotion */
   will-change: offset-distance;
 
   animation-name: border-animate-beam-dot;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, linear);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
-}
-
-/* Static position for the dot */
-.border[data-animate='false'][data-variant='beam'][data-beam-mode='dot']::after {
-  offset-distance: calc(var(--border-animate-progress) * 1%);
 }
 
 /* ============================================
@@ -432,20 +446,20 @@
     (var(--border-animate-segment, 0) - var(--border-animate-progress, 0)) * 1px
   );
 
-  /* Head keeps colorFrom, the tail fades towards colorTo and out */
-  stroke: color-mix(
-    in oklab,
-    var(--border-animate-color-from),
-    var(--border-animate-color-to) var(--border-animate-segment-mix, 0%)
+  /* Head keeps colorFrom, the tail fades towards colorTo and out. With colorStops the
+     component samples the palette for each segment instead. */
+  stroke: var(
+    --border-animate-segment-color,
+    color-mix(
+      in oklab,
+      var(--border-animate-color-from),
+      var(--border-animate-color-to) var(--border-animate-segment-mix, 0%)
+    )
   );
   stroke-opacity: var(--border-animate-segment-opacity, 1);
 
   animation-name: border-animate-comet;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, linear);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* ============================================
@@ -484,11 +498,7 @@
   stroke-dashoffset: calc(var(--border-animate-progress, 0) * -1px);
 
   animation-name: border-animate-march;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, linear);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* ============================================
@@ -510,11 +520,7 @@
   will-change: filter, opacity;
 
   animation-name: border-animate-glow;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, ease-in-out);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* ============================================
@@ -536,11 +542,7 @@
   will-change: transform, opacity;
 
   animation-name: border-animate-pulse;
-  animation-duration: var(--border-animate-duration, 5s);
   animation-timing-function: var(--border-animate-timing, ease-in-out);
-  animation-iteration-count: infinite;
-  animation-direction: var(--border-animate-direction, normal);
-  animation-delay: var(--border-animate-phase, 0s);
 }
 
 /* The gradient of glow and pulse must cover the whole masked band, not just its inner

@@ -41,7 +41,11 @@ Rollup bundles to dual ESM/CJS with `'use client'` banner. CSS modules hashed wi
 - Per-variant defaults are resolved **in the component**, not in `defaultProps`, because they differ by variant (`duration` 1 for draw, `blur` 0 for draw/dash, `zIndex` -1 for glow, `withMask` false for glow)
 - CSS keyframes must be kebab-case (`@keyframes border-beam`, not `borderBeam`)
 - CSS variables prefixed with `--border-animate-*`
-- Data attributes drive everything from CSS: `data-variant`, `data-beam-mode`, `data-trigger`, `data-active`, `data-animate`, `data-with-mask`, `data-color-stops`, `data-pause-on-hover`, `data-respect-reduced-motion`
+- Data attributes drive everything from CSS: `data-variant`, `data-beam-mode`, `data-trigger`, `data-active`, `data-offscreen`, `data-animate`, `data-with-mask`, `data-color-stops`, `data-pause-on-hover`, `data-reduced-motion` (set by the component from the `respectReducedMotion` prop, or from `theme.respectReducedMotion` when the prop is not given)
+- Animation longhands shared by every variant (duration, count, fill, direction, delay) live in one `.border::after, .stroke` rule; a variant rule sets only `animation-name` and `animation-timing-function`
+- Reduced motion gives every animation **zero length**, not `animation: none`: the ring still falls back to its resting state, and `animationend` still fires, which is what reports `onComplete` at once (verified in Chromium and Firefox, paused rings included)
+- A beam's resting state (where `progress` puts the dot or the wedge) is the **base value** of its rule, not a `[data-animate='false']` rule: a running animation overrides it, and anything that removes the animation (`animate={false}`, reduced motion) falls back to it. Glow and pulse still keep theirs in `[data-animate='false']` rules, because their resting gradient differs from the animated one
+- `data-offscreen` pauses an `always` ring scrolled out of view; `useCatchUp` then moves its animations' `currentTime` forward by the paused time, so the pause is invisible (staggered phases and `onComplete` timing survive it). Keep the two together
 
 ### The SVG ring primitive (draw / dash / comet)
 `<rect pathLength="100">` normalizes the perimeter, so every `stroke-dasharray` value is a **percentage
