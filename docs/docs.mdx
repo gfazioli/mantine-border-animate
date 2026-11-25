@@ -254,7 +254,7 @@ Wrap accordion components with animated borders to create visually engaging expa
 
 ### Multiple Borders
 
-Nest multiple `BorderAnimate` components to create complex, layered effects. Combine different variants, speeds, directions and colors — `reverse` and `phase` are what keep the layers from moving in lockstep. This technique is perfect for hero sections or premium UI elements that need extra visual impact.
+Nest multiple `BorderAnimate` components to create complex, layered effects. Combine different variants, speeds, directions and colors — `reverse` and `phase` are what keep the layers from moving in lockstep. Each layer keeps its own settings: a nested `BorderAnimate` never picks up the gradient or the easing of the one around it. This technique is perfect for hero sections or premium UI elements that need extra visual impact.
 
 <Demo data={demos.withMultiple} />
 
