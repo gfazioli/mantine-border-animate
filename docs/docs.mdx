@@ -32,7 +32,7 @@ The `BorderAnimate` component wraps any element to add stunning animated border 
 - **Finite laps** - `iterations` and `onComplete` let a border mark an event (a job started, a save finished) and then stop
 - **Fully customizable** - Control colors, duration, size, blur, offset and more
 - **Works with any element** - Wrap buttons, cards, inputs, or any Mantine component
-- **Performance optimized** - Pure CSS and SVG animations, no JavaScript per frame, and a ring scrolled out of view stops costing anything
+- **Performance optimized** - Pure CSS and SVG animations, no JavaScript per frame, a wedge that turns on the GPU compositor, and a ring scrolled out of view stops costing anything
 - **Custom color stops** - Multi-color gradients with `colorStops`
 - **Pause on hover** - Pause animations when hovering with `pauseOnHover`
 - **Accessible** - Honors `prefers-reduced-motion` through the Mantine theme, or per component with `respectReducedMotion`
@@ -64,7 +64,7 @@ The `BorderAnimate` component supports five animation variants, each creating a 
 The **beam** variant (default) creates an animated glow that moves around the border. It supports three rendering modes via the `beamMode` prop:
 
 - **`dot`** (default) — a radial-gradient dot that travels along the border perimeter via CSS `offset-path`. Uniform size at every position and constant speed along the perimeter.
-- **`wedge`** — a rotating conic-gradient wedge whose brightness rises and falls along a bell, so it has no visible edge, while its colour runs from `colorFrom` at the back to `colorTo` at the front. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear.
+- **`wedge`** — a rotating conic-gradient wedge whose brightness rises and falls along a bell, so it has no visible edge, while its colour runs from `colorFrom` at the back to `colorTo` at the front. The rotation is smooth and continuous, but the visible width varies on rectangular containers (wider at the corners, narrower along the edges) because the sweep is angular rather than linear. It turns on the compositor (a CSS transform), so it costs the main thread nothing while it runs, and its gradient covers a ring of any shape, from a square card to a wide button.
 - **`comet`** — a stroked head with a fading tail, drawn along the real perimeter. It is the only mode with a trail, and unlike `wedge` its speed is constant on any shape.
 
 <Demo data={demos.withBeamModes} />
@@ -198,7 +198,7 @@ The `withMask` and `zIndex` props allow you to create advanced visual effects, i
 
 ### withMask
 
-By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the effect extend beyond the border, creating a softer, more diffused look.
+By default, `withMask` is `true`, which clips the animated effect to the border area only. Set `withMask={false}` to let the effect extend beyond the border, creating a softer, more diffused look. An unmasked `wedge` fills its box with the turning gradient and its blur spreads past the edge, so with `zIndex={-1}` it becomes a glow behind the content.
 
 The **glow** variant is the exception: it defaults to `withMask={false}`, because its whole point is a halo that spreads outwards. Pass `withMask` explicitly to clip it into a blurred ring instead.
 
