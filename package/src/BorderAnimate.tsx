@@ -582,7 +582,10 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-blur': getSize(resolveBlur(blur, variant), 'border-animate-blur'),
         '--border-animate-opacity': `${borderOpacity ?? 1}`,
         '--border-animate-progress': `${value}`,
-        '--border-animate-gradient-background': gradientBackground,
+        // `initial` rather than unset: custom properties inherit, and a ring nested in a colorStops
+        // ring (or in one with a timingFunction) would otherwise paint (or ease) like its parent.
+        // On a custom property `initial` is the guaranteed-invalid value, so var() falls back.
+        '--border-animate-gradient-background': gradientBackground ?? 'initial',
         '--border-animate-beam-stops': beamStops,
         // Deprecated and unread, see BorderAnimateCssVariables
         '--border-animate-beam-start': undefined,
@@ -590,7 +593,7 @@ const varsResolver = createVarsResolver<BorderAnimateFactory>(
         '--border-animate-beam-to': undefined,
         '--border-animate-beam-end': undefined,
         '--border-animate-size': dotSize,
-        '--border-animate-timing': timingFunction,
+        '--border-animate-timing': timingFunction ?? 'initial',
         '--border-animate-iterations': getIterations(iterations),
         '--border-animate-dasharray': dasharray,
         '--border-animate-dash-period': dashPeriod,
