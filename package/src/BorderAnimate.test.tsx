@@ -571,6 +571,33 @@ describe('BorderAnimate', () => {
     });
   });
 
+  describe('nested rings', () => {
+    // Custom properties inherit: what the outer ring sets must not reach the inner one's ring.
+    it('never inherits the gradient or the easing of the ring it is nested in', () => {
+      const { container } = render(
+        <BorderAnimate
+          beamMode="wedge"
+          timingFunction="ease-in"
+          colorStops={[
+            { color: 'red', position: 0 },
+            { color: 'blue', position: 100 },
+          ]}
+        >
+          <BorderAnimate beamMode="dot" />
+        </BorderAnimate>
+      );
+      const [outer, inner] = Array.from(
+        container.querySelectorAll<HTMLElement>('.mantine-BorderAnimate-root')
+      );
+      expect(outer.style.getPropertyValue('--border-animate-gradient-background')).toMatch(
+        /^conic-gradient/
+      );
+      expect(outer.style.getPropertyValue('--border-animate-timing')).toBe('ease-in');
+      expect(inner.style.getPropertyValue('--border-animate-gradient-background')).toBe('initial');
+      expect(inner.style.getPropertyValue('--border-animate-timing')).toBe('initial');
+    });
+  });
+
   describe('iterations', () => {
     it('spells out infinite by default, so a nested ring never inherits a finite count', () => {
       const { container } = render(
