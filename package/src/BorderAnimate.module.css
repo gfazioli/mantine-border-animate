@@ -1,31 +1,8 @@
 /* ============================================
-   CUSTOM PROPERTY REGISTRATION
-   ============================================ */
-
-/* Required for animating the conic-gradient angle in wedge beam mode.
-   Available in every current browser; older engines show a static gradient. */
-@property --border-animate-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-/* ============================================
    KEYFRAMES
    ============================================ */
 
-/* Beam wedge mode — rotates the conic-gradient angle via @property */
-@keyframes border-animate-beam-wedge {
-  0% {
-    --border-animate-angle: 0deg;
-  }
-
-  100% {
-    --border-animate-angle: 360deg;
-  }
-}
-
-/* Beam wedge mode (colorStops) — rotates the ::after element via transform */
+/* Beam wedge mode — turns the whole gradient layer, a transform the compositor runs */
 @keyframes border-animate-beam-rotate {
   0% {
     transform: rotate(0deg);
@@ -366,39 +343,56 @@
    BEAM VARIANT — WEDGE MODE
    ============================================ */
 
+/* The wedge turns its whole gradient layer with a transform, which the compositor runs, so the
+   gradient and its blur are painted once (never animate the gradient's angle: that repaints both
+   on the main thread at every frame). The layer is a square as wide as the ring's diagonal, so
+   it covers the ring at every angle; the ring is a size container so the square can read it. */
+.border[data-variant='beam'][data-beam-mode='wedge'] {
+  container-type: size;
+}
+
 .border[data-variant='beam'][data-beam-mode='wedge']::after {
   content: '';
   position: absolute;
-  /* Extend outward proportionally to borderWidth so the gradient fills
-     the mask strip with denser color coverage */
-  inset: calc(var(--border-animate-width, 1px) * -2);
-  border-radius: inherit;
 
-  /* Conic gradient rotated via @property --border-animate-angle. The stops (a bell of
-     brightness, colorFrom to colorTo) are computed by the component from spread. */
+  /* Engines without hypot() or container units: a layer twice the ring's size, which leaves
+     the corners of a wide ring bare at some angles */
+  inset: -50%;
+
+  /* The stops (a bell of brightness, colorFrom to colorTo) are computed by the component
+     from spread; colorStops replace the whole gradient. */
   background: var(
     --border-animate-gradient-background,
-    conic-gradient(
-      from var(--border-animate-angle, 0deg),
-      var(--border-animate-beam-stops, transparent 0% 100%)
-    )
+    conic-gradient(var(--border-animate-beam-stops, transparent 0% 100%))
   );
 
-  /* The resting angle. A running animation overrides it; once there is none (animate is
-     false, or reduced motion stops it) the wedge rests here, at progress. */
-  --border-animate-angle: calc(var(--border-animate-progress) * 3.6deg);
+  /* Where the wedge rests, at progress, whenever no animation overrides it (animate is false,
+     or reduced motion stops it) */
+  transform: rotate(calc(var(--border-animate-progress) * 3.6deg));
 
   filter: blur(var(--border-animate-blur));
 
-  animation-name: border-animate-beam-wedge;
+  animation-name: border-animate-beam-rotate;
   animation-timing-function: var(--border-animate-timing, linear);
 }
 
-/* Wedge with colorStops — uses transform: rotate() instead of @property, resting at progress */
-.border[data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after {
-  inset: -50%;
-  transform: rotate(calc(var(--border-animate-progress) * 3.6deg));
-  animation-name: border-animate-beam-rotate;
+@supports (width: hypot(1cqw, 1cqh)) {
+  /* 100cqw and 100cqh are the ring's padding box, a border width short of the ring on each side.
+     The margin lets the blur fade out before the ring begins. An inset of (50% - side / 2) on
+     every edge gives a centred square. */
+  .border[data-variant='beam'][data-beam-mode='wedge']::after {
+    --border-animate-wedge-diagonal: hypot(
+      100cqw + 2 * var(--border-animate-width),
+      100cqh + 2 * var(--border-animate-width)
+    );
+    --border-animate-wedge-margin: calc(
+      var(--border-animate-width) + 2 * var(--border-animate-blur)
+    );
+
+    inset: calc(
+      50% - var(--border-animate-wedge-diagonal) / 2 - var(--border-animate-wedge-margin)
+    );
+  }
 }
 
 /* ============================================
