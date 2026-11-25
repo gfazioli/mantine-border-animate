@@ -346,9 +346,17 @@
 /* The wedge turns its whole gradient layer with a transform, which the compositor runs, so the
    gradient and its blur are painted once (never animate the gradient's angle: that repaints both
    on the main thread at every frame). The layer is a square as wide as the ring's diagonal, so
-   it covers the ring at every angle; the ring is a size container so the square can read it. */
+   it covers the ring at every angle; the ring is a size container so the square can read it.
+
+   So large a layer would also widen the page (a mask hides paint, not overflow: a wedge near the
+   edge of a phone screen made it scroll sideways) and spill out of the box with withMask false,
+   so the ring clips it. A clip stops at the padding box, and the band the mask shows was the
+   border: here it is padding instead, so the clip falls on the ring's outer edge. */
 .border[data-variant='beam'][data-beam-mode='wedge'] {
   container-type: size;
+  border-width: 0;
+  padding: var(--border-animate-width);
+  overflow: hidden;
 }
 
 .border[data-variant='beam'][data-beam-mode='wedge']::after {
@@ -377,7 +385,7 @@
 }
 
 @supports (width: hypot(1cqw, 1cqh)) {
-  /* 100cqw and 100cqh are the ring's padding box, a border width short of the ring on each side.
+  /* 100cqw and 100cqh are the ring's content box, a band width short of the ring on each side.
      The margin lets the blur fade out before the ring begins. An inset of (50% - side / 2) on
      every edge gives a centred square. */
   .border[data-variant='beam'][data-beam-mode='wedge']::after {

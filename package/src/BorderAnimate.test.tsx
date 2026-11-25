@@ -984,6 +984,15 @@ describe('BorderAnimate.module.css', () => {
       /@keyframes border-animate-beam-rotate\s*\{[^@]*transform:\s*rotate\(360deg\)/
     );
     expect(ring).toMatch(/container-type:\s*size/);
+    // The square is clipped by the ring, whose band is padding so the clip falls outside it
+    expect(ring).toMatch(/overflow:\s*hidden/);
+    expect(ring).toMatch(/border-width:\s*0/);
+    expect(ring).toMatch(/padding:\s*var\(--border-animate-width\)/);
+    // Engines without hypot() keep a layer of their own, overridden only where it is supported
+    expect(wedge).toMatch(/inset:\s*-50%/);
+    expect(css.indexOf('@supports (width: hypot(1cqw, 1cqh))')).toBeGreaterThan(
+      css.indexOf(".border[data-variant='beam'][data-beam-mode='wedge']::after")
+    );
     expect(square).toMatch(
       /hypot\(\s*100cqw \+ 2 \* var\(--border-animate-width\),\s*100cqh \+ 2 \* var\(--border-animate-width\)\s*\)/
     );
