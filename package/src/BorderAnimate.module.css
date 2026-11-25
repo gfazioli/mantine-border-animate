@@ -384,6 +384,17 @@
   animation-timing-function: var(--border-animate-timing, linear);
 }
 
+/* Without a mask the blurred layer is the whole effect, a glow that spreads past the box (with
+   zIndex -1, a background glow). The clip would cut it at the ring, so the ring blurs what it
+   has clipped instead: the glow spreads as before, and a filter does not widen the page. */
+.border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false'] {
+  filter: blur(var(--border-animate-blur));
+}
+
+.border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false']::after {
+  filter: none;
+}
+
 @supports (width: hypot(1cqw, 1cqh)) {
   /* 100cqw and 100cqh are the ring's content box, a band width short of the ring on each side.
      The margin lets the blur fade out before the ring begins. An inset of (50% - side / 2) on

@@ -988,6 +988,13 @@ describe('BorderAnimate.module.css', () => {
     expect(ring).toMatch(/overflow:\s*hidden/);
     expect(ring).toMatch(/border-width:\s*0/);
     expect(ring).toMatch(/padding:\s*var\(--border-animate-width\)/);
+    // Without a mask the ring blurs what it clipped, so a background glow still spreads past it
+    expect(
+      rule(".border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false']")
+    ).toMatch(/filter:\s*blur\(var\(--border-animate-blur\)\)/);
+    expect(
+      rule(".border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false']::after")
+    ).toMatch(/filter:\s*none/);
     // Engines without hypot() keep a layer of their own, overridden only where it is supported
     expect(wedge).toMatch(/inset:\s*-50%/);
     expect(css.indexOf('@supports (width: hypot(1cqw, 1cqh))')).toBeGreaterThan(
