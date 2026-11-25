@@ -2,8 +2,24 @@ import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { Button, Flex, Stack, Text } from '@mantine/core';
 import { MantineDemo } from '@mantinex/demo';
 
+const rainbow = [
+  { color: 'red', position: 0 },
+  { color: 'yellow', position: 25 },
+  { color: 'lime', position: 50 },
+  { color: 'cyan', position: 75 },
+  { color: 'red', position: 100 },
+];
+
 const code = `import { BorderAnimate } from '@gfazioli/mantine-border-animate';
 import { Button, Flex, Stack, Text } from '@mantine/core';
+
+const rainbow = [
+  { color: 'red', position: 0 },
+  { color: 'yellow', position: 25 },
+  { color: 'lime', position: 50 },
+  { color: 'cyan', position: 75 },
+  { color: 'red', position: 100 },
+];
 
 function Demo() {
   return (
@@ -42,6 +58,16 @@ function Demo() {
           </Button>
         </BorderAnimate>
         <Text size="xs" c="dimmed">variant="glow"</Text>
+      </Stack>
+
+      {/* A wide button: the wedge's gradient covers a ring of any shape, edges included */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate beamMode="wedge" radius="md" borderWidth="sm" colorStops={rainbow}>
+          <Button variant="default" w={280}>
+            Rainbow wedge
+          </Button>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">beamMode="wedge" + colorStops</Text>
       </Stack>
     </Flex>
   );
@@ -92,6 +118,18 @@ function Demo() {
         </BorderAnimate>
         <Text size="xs" c="dimmed">
           variant="glow"
+        </Text>
+      </Stack>
+
+      {/* A wide button: the wedge's gradient covers a ring of any shape, edges included */}
+      <Stack align="center" gap="xs">
+        <BorderAnimate beamMode="wedge" radius="md" borderWidth="sm" colorStops={rainbow}>
+          <Button variant="default" w={280}>
+            Rainbow wedge
+          </Button>
+        </BorderAnimate>
+        <Text size="xs" c="dimmed">
+          beamMode="wedge" + colorStops
         </Text>
       </Stack>
     </Flex>

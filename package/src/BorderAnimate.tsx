@@ -670,6 +670,19 @@ function useVisible(ref: React.RefObject<HTMLElement | null>, watch: 'reveal' | 
   return visible;
 }
 
+// Setting the start time of a paused animation would play it, hence only a running one. `ready`
+// rejects when the animation is cancelled meanwhile (an unmount).
+function restoreStartTime(animation: Animation, startTime: number) {
+  animation.ready.then(
+    () => {
+      if (animation.playState === 'running') {
+        animation.startTime = startTime;
+      }
+    },
+    () => undefined
+  );
+}
+
 /**
  * Pauses nothing by itself: while `paused` is true the stylesheet holds the ring still, and
  * when it turns false this moves the ring's animations forward by the time they spent paused.
@@ -689,18 +702,25 @@ function useCatchUp(getRing: () => Element | null, paused: boolean, run: string)
     // draw stroke, the trigger fade) is not paused by animation-play-state at all. getAnimations
     // with subtree reaches the ::after of the masked ring and every rect of the svg one, and
     // nothing of the children, which are not inside the ring.
-    const animations = (getRing()?.getAnimations?.({ subtree: true }) ?? []).filter(
-      (animation) => 'animationName' in animation
-    );
+    const held = (getRing()?.getAnimations?.({ subtree: true }) ?? [])
+      .filter((animation) => 'animationName' in animation)
+      .map((animation) => ({ animation, startTime: animation.startTime }));
 
     return () => {
       const elapsed = performance.now() - pausedAt;
 
-      animations.forEach((animation) => {
+      held.forEach(({ animation, startTime }) => {
         const time = animation.currentTime;
 
         if (animation.playState !== 'idle' && typeof time === 'number') {
           animation.currentTime = time + elapsed;
+
+          // The compositor takes the wedge's transform back a frame or two after the main
+          // thread resumes it (20-35 ms late per trip in Chromium): its start time from before
+          // the pause is the exact place, for the main-thread animations too.
+          if (typeof startTime === 'number') {
+            restoreStartTime(animation, startTime);
+          }
         }
       });
     };
@@ -789,7 +809,7 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
   useCatchUp(
     () => borderRef.current ?? svgRef.current,
     offscreen,
-    `${show}:${animate}:${variant}:${beamMode}:${!!colorStops?.length}`
+    `${show}:${animate}:${variant}:${beamMode}`
   );
 
   const theme = useMantineTheme();
@@ -933,11 +953,6 @@ export const BorderAnimate = factory<BorderAnimateFactory>((_props) => {
             data-with-mask={resolveWithMask(withMask, variant)}
             data-animate={animate}
             data-beam-mode={variant === 'beam' ? beamMode : undefined}
-            data-color-stops={
-              variant === 'beam' && beamMode === 'wedge' && colorStops && colorStops.length > 0
-                ? true
-                : undefined
-            }
           />
         ))}
       {children}

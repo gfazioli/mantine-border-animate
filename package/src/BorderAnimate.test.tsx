@@ -785,6 +785,8 @@ describe('BorderAnimate', () => {
     function animation(currentTime: number, kind: 'animation' | 'transition' = 'animation') {
       return {
         currentTime: currentTime as number | null,
+        startTime: null as number | null,
+        ready: Promise.resolve(),
         playState: 'paused',
         ...(kind === 'animation' ? { animationName: 'ring' } : { transitionProperty: 'opacity' }),
       };
@@ -803,6 +805,31 @@ describe('BorderAnimate', () => {
       report(true);
 
       expect(looping.currentTime).toBe(850);
+    });
+
+    // The compositor resumes the wedge's transform a frame or two late: its start time goes back
+    // to what it was, once the animation runs again. A paused one keeps its own (setting it
+    // would play the animation).
+    it('puts the start time back once the ring runs again', async () => {
+      const now = jest.spyOn(performance, 'now');
+      const { container } = render(<BorderAnimate />);
+      const ring = container.querySelector('[data-with-mask]')!;
+      const resumed = { ...animation(250), startTime: 100 as number | null };
+      const held = { ...animation(250), startTime: 100 as number | null };
+      Object.assign(ring, { getAnimations: () => [resumed, held] });
+
+      now.mockReturnValue(1000);
+      report(false);
+      resumed.startTime = null;
+      held.startTime = null;
+      resumed.playState = 'running';
+      now.mockReturnValue(1600);
+      report(true);
+      await Promise.resolve();
+
+      expect(resumed.startTime).toBe(100);
+      expect(held.startTime).toBeNull();
+      expect(held.currentTime).toBe(850);
     });
 
     // A transition is not paused by animation-play-state, so it already ran; an animation that
@@ -931,6 +958,9 @@ describe('BorderAnimate', () => {
  */
 describe('BorderAnimate.module.css', () => {
   const css = readFileSync(join(__dirname, 'BorderAnimate.module.css'), 'utf-8');
+  // The body of the first rule written for exactly this selector
+  const rule = (selector: string) =>
+    css.match(new RegExp(`${selector.replace(/[[\]().:]/g, '\\$&')}\\s*\\{([^}]*)\\}`))![1];
 
   it('gives the root a stacking context, so a glow cannot fall behind an ancestor', () => {
     expect(css).toMatch(/\.root\s*\{[^}]*isolation:\s*isolate/);
@@ -966,22 +996,55 @@ describe('BorderAnimate.module.css', () => {
     expect(block).toMatch(/transition:\s*none\s*!important/);
   });
 
+  // The wedge turns its layer with a transform, which the compositor runs. Through 3.1 the
+  // default wedge animated the gradient's own angle (an @property), repainting it on the main
+  // thread at every frame. The layer must cover the ring at every angle, so it is a square as
+  // wide as the ring's diagonal, which it reads from the ring as a size container.
+  it('turns the wedge with a transform, on a square that covers the ring at every angle', () => {
+    const wedge = rule(".border[data-variant='beam'][data-beam-mode='wedge']::after");
+    const ring = rule(".border[data-variant='beam'][data-beam-mode='wedge']");
+    const square = css.match(/@supports \(width: hypot\(1cqw, 1cqh\)\) \{([\s\S]*?)\n\}/)![1];
+
+    expect(css).not.toMatch(/@property\s+--/);
+    expect(wedge).toMatch(/animation-name:\s*border-animate-beam-rotate/);
+    expect(css).toMatch(
+      /@keyframes border-animate-beam-rotate\s*\{[^@]*transform:\s*rotate\(360deg\)/
+    );
+    expect(ring).toMatch(/container-type:\s*size/);
+    // The square is clipped by the ring, whose band is padding so the clip falls outside it
+    expect(ring).toMatch(/overflow:\s*hidden/);
+    expect(ring).toMatch(/border-width:\s*0/);
+    expect(ring).toMatch(/padding:\s*var\(--border-animate-width\)/);
+    // Without a mask the ring blurs what it clipped, so a background glow still spreads past it
+    expect(
+      rule(".border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false']")
+    ).toMatch(/filter:\s*blur\(var\(--border-animate-blur\)\)/);
+    expect(
+      rule(".border[data-variant='beam'][data-beam-mode='wedge'][data-with-mask='false']::after")
+    ).toMatch(/filter:\s*none/);
+    // Engines without hypot() keep a layer of their own, overridden only where it is supported
+    expect(wedge).toMatch(/inset:\s*-50%/);
+    expect(css.indexOf('@supports (width: hypot(1cqw, 1cqh))')).toBeGreaterThan(
+      css.indexOf(".border[data-variant='beam'][data-beam-mode='wedge']::after")
+    );
+    expect(square).toMatch(
+      /hypot\(\s*100cqw \+ 2 \* var\(--border-animate-width\),\s*100cqh \+ 2 \* var\(--border-animate-width\)\s*\)/
+    );
+    expect(square).toMatch(
+      /inset:\s*calc\(\s*50% - var\(--border-animate-wedge-diagonal\) \/ 2 - var\(--border-animate-wedge-margin\)\s*\)/
+    );
+  });
+
   // Reduced motion and animate={false} both remove the animation: the ring must then rest at
   // progress. Through 3.0.14 the resting place lived in [data-animate='false'] rules, so under
   // reduced motion the dot and the wedge sat at 0 whatever progress said.
   it('keeps the resting position in the base rule, where any stopped animation falls back', () => {
-    const rule = (selector: string) =>
-      css.match(new RegExp(`${selector.replace(/[[\]().:]/g, '\\$&')}\\s*\\{([^}]*)\\}`))![1];
-
     expect(rule(".border[data-variant='beam'][data-beam-mode='dot']::after")).toMatch(
       /offset-distance:\s*calc\(var\(--border-animate-progress\) \* 1%\)/
     );
     expect(rule(".border[data-variant='beam'][data-beam-mode='wedge']::after")).toMatch(
-      /--border-animate-angle:\s*calc\(var\(--border-animate-progress\) \* 3\.6deg\)/
+      /transform:\s*rotate\(calc\(var\(--border-animate-progress\) \* 3\.6deg\)\)/
     );
-    expect(
-      rule(".border[data-variant='beam'][data-beam-mode='wedge'][data-color-stops]::after")
-    ).toMatch(/transform:\s*rotate\(calc\(var\(--border-animate-progress\) \* 3\.6deg\)\)/);
   });
 
   // `iterations` reaches the stylesheet through one rule shared by every animated element: a
